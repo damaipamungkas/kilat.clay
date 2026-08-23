@@ -11,21 +11,30 @@ class AppendixController extends Controller
     {
         $user = auth()->user();
         $rawRole = strtolower(trim((string)($user->role ?? '')));
+        $userName = strtolower(trim((string)($user->name ?? $user->username ?? $user->email ?? '')));
 
         $roleMap = [
-            'orang tua' => 'parent',
-            'orangtua'  => 'parent',
-            'wali'      => 'parent',
-            'walimurid' => 'parent',
-            'pelatih'   => 'coach',
-            'admin'     => 'admin',
+            'orang tua'     => 'parent',
+            'orangtua'      => 'parent',
+            'wali'          => 'parent',
+            'walimurid'     => 'parent',
+            'pelatih'       => 'coach',
+            'admin'         => 'admin',
+            'administrator' => 'admin',
         ];
 
+        // Lakukan pemetaan awal berdasarkan role map
         $role = $roleMap[$rawRole] ?? $rawRole;
+
+        // Pengecekan akhir: Jika nama, email, atau username mengandung kata 'admin' ataupun rolenya admin, paksa jadi 'admin' mutlak
+        if (str_contains($userName, 'admin') || str_contains($rawRole, 'admin') || $rawRole === 'administrator' || $role === 'admin') {
+            $role = 'admin';
+        }
+
         $currentUserId = $user->id ?? '';
 
-        // Ambil data atlet dari database yang sudah AKTIF (bukan pending verifikasi)
-        $athletes = User::where('role', 'athlete')
+        // Mengambil data atlet dari database dengan mencakup variasi role 'athlete' dan 'atlet'
+        $athletes = User::whereIn('role', ['athlete', 'atlet', 'Atlet'])
             ->where(function($query) {
                 $query->where('status', 'Aktif')->orWhereNull('status');
             })

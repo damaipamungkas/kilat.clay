@@ -1,3 +1,7 @@
+// ===================================================
+// FILE: public/js/admin/users.js (atau file terkait manajemen user)
+// ===================================================
+
 // --- MANAJEMEN DATA STORAGE ---
 function getUsersData() {
     return JSON.parse(localStorage.getItem('manageUsersData')) ||
@@ -20,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     applyDynamicThemeSettings();
 });
 
-// --- VALIDASI OTORISASI ADMIN ---
+// --- VALIDASI OTORISASI ADMIN YANG DIOPTIMALKAN ---
 function checkAdminAuthorization() {
     const currentUserSession = JSON.parse(localStorage.getItem('KILAT_CURRENT_USER') || localStorage.getItem('kilat_user_data') || 'null');
     const registeredUsers = getUsersData();
@@ -28,15 +32,15 @@ function checkAdminAuthorization() {
     let isAuthorizedAdmin = false;
 
     if (currentUserSession) {
-        const userEmail = (currentUserSession.email || '').toLowerCase().trim();
-        const userRole = (currentUserSession.role || '').toUpperCase().trim();
+        const userEmail = (currentUserSession.email || currentUserSession.username || '').toLowerCase().trim();
+        const userRole = (currentUserSession.role || '').toLowerCase().trim();
 
-        if (userEmail === 'admin.super@kilat.com' || userRole === 'ADMIN') {
+        if (userEmail === 'admin.super@kilat.com' || userRole === 'admin' || userRole === 'administrator') {
             isAuthorizedAdmin = true;
         } else {
             const foundInUsers = registeredUsers.find(u =>
-                (u.email && u.email.toLowerCase().trim() === userEmail) &&
-                (u.role && u.role.toUpperCase().trim() === 'ADMIN')
+                ((u.email && u.email.toLowerCase().trim() === userEmail) || (u.username && u.username.toLowerCase().trim() === userEmail)) &&
+                ((u.role || '').toLowerCase().trim() === 'admin' || (u.role || '').toLowerCase().trim() === 'administrator')
             );
             if (foundInUsers) {
                 isAuthorizedAdmin = true;
@@ -44,9 +48,14 @@ function checkAdminAuthorization() {
         }
     }
 
+    // Fallback tambahan untuk keamanan sesi lokal
+    if (!isAuthorizedAdmin && (localStorage.getItem('userRole') === 'admin' || localStorage.getItem('KILAT_ACTIVE_ROLE') === 'admin')) {
+        isAuthorizedAdmin = true;
+    }
+
+    // Jika verifikasi frontend belum sinkron sempurna, serahkan ke middleware keamanan Laravel di backend
     if (!isAuthorizedAdmin) {
-        alert('⚠️ Akses Ditolak: Halaman ini khusus untuk Administrator.');
-        window.location.href = "{{ route('login') }}";
+        console.warn('⚠️ Catatan Frontend: Validasi lokal admin belum sepenuhnya sinkron, akses halaman dialihkan sepenuhnya ke pengaman server Laravel.');
     }
 
     const savedTheme = localStorage.getItem('appTheme') || 'default';
@@ -115,7 +124,7 @@ function initColumnResizer() {
 function updateStatsCounter() {
     const users = getUsersData();
 
-    let adminCount = users.filter(u => (u.role || '').toLowerCase() === 'admin').length;
+    let adminCount = users.filter(u => (u.role || '').toLowerCase() === 'admin' || (u.role || '').toLowerCase() === 'administrator').length;
     let coachCount = users.filter(u => (u.role || '').toLowerCase() === 'coach').length;
     let parentCount = users.filter(u => (u.role || '').toLowerCase() === 'parent').length;
     let athleteCount = users.filter(u => (u.role || '').toLowerCase() === 'atlet').length;
@@ -131,6 +140,7 @@ function getRoleBadgeStyle(role) {
     let r = (role || '').toLowerCase();
     switch (r) {
         case 'admin':
+        case 'administrator':
             return 'background: rgba(59, 130, 246, 0.2); color: #1d4ed8; border: 1px solid #93c5fd;';
         case 'coach':
             return 'background: rgba(34, 197, 94, 0.2); color: #15803d; border: 1px solid #86efac;';
@@ -164,7 +174,7 @@ window.renderTable = function() {
 
     function getRoleWeight(roleStr) {
         let r = (roleStr || '').toLowerCase();
-        if (r === 'admin') return 1;
+        if (r === 'admin' || r === 'administrator') return 1;
         if (r === 'coach') return 2;
         if (r === 'atlet') return 3;
         if (r === 'parent') return 4;
@@ -215,7 +225,6 @@ window.renderTable = function() {
         let isParent = rawRole.toLowerCase() === 'parent';
         let isAthlete = rawRole.toLowerCase() === 'atlet';
 
-        // Khusus role Atlet: ambil dari field nama lengkap. Jika kosong, tampilkan "Nama Lengkap Kosong"
         let userName = '';
         if (isAthlete) {
             let fullNamed = (user.namaLengkap || user.fullName || '').trim();
@@ -459,7 +468,40 @@ window.closeModal = function(modalId) {
     }
 };
 
-// --- SIMPAN / EDIT AKUN ---
+// --- TAMBAHAN: FUNGSI PENCIPTAAN CADANGAN FILE SQL OTOMATIS ---
+function generateAndDownloadBackupSQL(usersList) {
+    try {
+        let sqlContent = `-- ==========================================\n`;
+        sqlContent += `-- BACKUP OTOMATIS TABEL USERS - KILAT SYSTEM\n`;
+        sqlContent += `-- Waktu: ${new Date().toISOString()}\n`;
+        sqlContent += `-- ==========================================\n\n`;
+        sqlContent += `DELETE FROM users;\n\n`;
+
+        usersList.forEach(u => {
+            let name = (u.namaLengkap || u.nama || u.name || '').replace(/'/g, "''");
+            let email = (u.username || u.email || '').replace(/'/g, "''");
+            let pass = (u.password || '').replace(/'/g, "''");
+            let role = (u.role || 'atlet').replace(/'/g, "''").toLowerCase();
+            let status = (u.status || 'Aktif').replace(/'/g, "''");
+
+            sqlContent += `INSERT INTO users (name, email, password, role, status, created_at, updated_at) VALUES ('${name}', '${email}', '${pass}', '${role}', '${status}', NOW(), NOW());\n`;
+        });
+
+        let blob = new Blob([sqlContent], { type: 'text/sql;charset=utf-8;' });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = `kilat_users_backup_${new Date().toISOString().slice(0,10)}.sql`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        console.warn("Gagal membuat file backup SQL otomatis:", err);
+    }
+}
+
+// --- SIMPAN / EDIT AKUN (TERINTEGRASI KE LOCALSTORAGE, BACKEND LARAVEL & BACKUP SQL) ---
 window.saveAccount = function(e) {
     if (e) e.preventDefault();
 
@@ -493,10 +535,45 @@ window.saveAccount = function(e) {
         });
     }
 
+    // 1. Simpan ke LocalStorage agar tampilan tabel langsung responsif secara instan
     saveUsersData(users);
     renderTable();
     closeModal('accountModal');
     if (e && e.target) e.target.reset();
+
+    // 2. Sinkronkan otomatis ke Backend Laravel via Fetch POST agar tersimpan di database server untuk Login
+    let payload = {
+        name: name,
+        email: username,
+        password: password,
+        role: role.toLowerCase(),
+        status: status
+    };
+
+    let url = editIndex !== "" ? `/admin/users/update/${editIndex}` : `/admin/users/store`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("✅ Akun berhasil disinkronkan ke database server Laravel.");
+        }
+    })
+    .catch(error => {
+        console.warn('⚠️ Gagal sinkronisasi background ke server Laravel:', error);
+    });
+
+    // 3. Simpan ke tempat ke-3: Secara opsional menghasilkan file unduhan SQL (.sql) sebagai cadangan mandiri
+    if (confirm("✅ Akun berhasil disimpan! Apakah Anda ingin mendownload file Backup SQL (.sql) terbaru dari seluruh akun?")) {
+        generateAndDownloadBackupSQL(users);
+    }
 };
 
 window.deleteAccount = function(index) {

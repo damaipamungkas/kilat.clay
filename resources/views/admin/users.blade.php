@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pusat Akun - Sekolah Sepatu Roda (Claymorphism)</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -35,10 +36,10 @@
             <div class="filter-group">
                 <select id="filterRole" class="clay-input" style="width: auto;" onchange="renderTable()">
                     <option value="All">Semua Role</option>
-                    <option value="Admin">Admin</option>
-                    <option value="Coach">Coach</option>
-                    <option value="Parent">Parent</option>
-                    <option value="Atlet">Atlet</option>
+                    <option value="admin">Admin</option>
+                    <option value="coach">Coach</option>
+                    <option value="parent">Parent</option>
+                    <option value="atlet">Atlet</option>
                 </select>
 
                 <select id="sortBy" class="clay-input" style="width: auto;" onchange="renderTable()" title="Urutkan Akun">
@@ -91,10 +92,10 @@
                 <div class="form-group">
                     <label>Role / Peran</label>
                     <select id="accRole" class="clay-input" required>
-                        <option value="Admin">Admin</option>
-                        <option value="Coach">Coach</option>
-                        <option value="Parent">Parent</option>
-                        <option value="Atlet">Atlet</option>
+                        <option value="admin">Admin</option>
+                        <option value="coach">Coach</option>
+                        <option value="parent">Parent</option>
+                        <option value="athlete">Athlete</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -137,16 +138,13 @@
         });
 
         function applyDynamicThemeSettings() {
-            // 1. Ambil folder tema aktif yang disimpan di localStorage
             let savedFolder = localStorage.getItem('KILAT_CSS_FOLDER') || 'css';
 
-            // 2. Terapkan tema pada atribut body (jika digunakan)
             let savedTheme = localStorage.getItem('KILAT_THEME') || localStorage.getItem('appTheme') || '';
             if (savedTheme) {
                 document.body.setAttribute('data-theme', savedTheme);
             }
 
-            // 3. Perbarui path file CSS secara dinamis sesuai pilihan pada menu Pengaturan
             const dashboardLink = document.getElementById('dashboardStylesheet');
             const usersLink = document.getElementById('usersStylesheet');
 

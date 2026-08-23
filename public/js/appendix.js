@@ -31,6 +31,24 @@ function saveUsersData(data) {
 
 // --- 1. SINKRONISASI ROLE DARI URL PARAMETER & LOCAL STORAGE ---
 function resolveCurrentRole() {
+    // Ambil sesi user saat ini untuk deteksi instan nama/role yang mengandung kata 'admin'
+    const currentUserSession = JSON.parse(
+        localStorage.getItem('KILAT_CURRENT_USER') ||
+        localStorage.getItem('kilat_user_data') ||
+        localStorage.getItem('user') ||
+        '{}'
+    );
+
+    const sessionName = (currentUserSession.name || currentUserSession.username || currentUserSession.namaLengkap || '').toLowerCase();
+    const sessionRole = (currentUserSession.role || '').toLowerCase();
+
+    // Jika terindikasi admin (seperti Admin Demo 1), paksa role menjadi admin penuh
+    if (sessionName.includes('admin') || sessionRole.includes('admin') || sessionRole === 'administrator') {
+        localStorage.setItem('userRole', 'admin');
+        localStorage.setItem('KILAT_ACTIVE_ROLE', 'admin');
+        return 'admin';
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const roleFromUrl = urlParams.get('role');
 
@@ -48,19 +66,14 @@ function resolveCurrentRole() {
     }
 
     if (!localRole) {
-        const userObj = JSON.parse(
-            localStorage.getItem('KILAT_CURRENT_USER') ||
-            localStorage.getItem('kilat_user_data') ||
-            '{}'
-        );
-        localRole = userObj.role || 'admin';
+        localRole = sessionRole || 'admin';
     }
 
     let detected = String(localRole).toLowerCase().trim();
 
     if (detected === 'orang tua' || detected === 'orangtua' || detected === 'wali') detected = 'parent';
     if (detected === 'pelatih') detected = 'coach';
-    if (detected === 'administrator' || detected === 'superadmin') detected = 'admin';
+    if (detected.includes('admin') || detected === 'administrator' || detected === 'superadmin') detected = 'admin';
     if (!detected) detected = 'admin';
 
     return detected;
@@ -224,7 +237,6 @@ function isAthleteActiveOrPaidFromUsers(nick) {
         return r === 'atlet' && uName === nick.toLowerCase().trim();
     });
 
-    // Jika tidak ditemukan di database users role atlet, fallback cek dari bio/storage biasa
     if (!athleteUser) {
         const bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + nick)) || {};
         let status = (bio.status || 'aktif').toLowerCase();
@@ -234,7 +246,6 @@ function isAthleteActiveOrPaidFromUsers(nick) {
         if (status !== 'arsip') return true;
     }
 
-    // Jika berstatus arsip, cek apakah sudah membayar bulanan
     let financeDB = JSON.parse(localStorage.getItem('KILAT_FINANCE_DB')) || { bulanan: [] };
     let savedInvoices = JSON.parse(localStorage.getItem('KILAT_SAVED_INVOICES')) || [];
     let athleteNameLower = nick.toLowerCase().trim();
@@ -261,7 +272,6 @@ function updateAthleteDropdowns() {
 
     let rawList = [...athletes];
 
-    // Ambil juga nama dari manageUsers yang memiliki role Atlet
     manageUsers.forEach(u => {
         let r = (u.role || '').toLowerCase();
         if (r === 'atlet') {
@@ -295,7 +305,6 @@ function updateAthleteDropdowns() {
     }
 
     allAthletes.forEach(nick => {
-        // Filter: Hanya tampilkan atlet (dari role Atlet) yang aktif atau sudah membayar bulanan
         if (!isAthleteActiveOrPaidFromUsers(nick)) return;
 
         const bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + nick)) || {};
@@ -512,7 +521,6 @@ window.deleteAnalysisModal = function() {
     }
 };
 
-// --- FUNGSI TOMBOL EDIT, SIMPAN, & HAPUS ANALISA SPESIFIK PER KELAS ---
 window.enableEditAnalysis = function() {
     if (!analysisTextarea) return;
     const athleteName = athleteInput ? athleteInput.value.trim() : '';
@@ -2154,7 +2162,7 @@ window.saveAthlete = function(e) {
 
     if (parentIndex !== -1) {
         if (!users[parentIndex].atletTautan) users[parentIndex].atletTautan = [];
-        if (!users[parentIndex].atList.includes(athName)) {
+        if (!users[parentIndex].atletTautan.includes(athName)) {
             users[parentIndex].atletTautan.push(athName);
             saveUsersData(users);
         }

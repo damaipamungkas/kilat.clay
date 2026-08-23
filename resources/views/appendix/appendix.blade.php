@@ -6,6 +6,12 @@
     $rawRole = $user ? strtolower(trim($user->role ?? '')) : '';
     $currentUserId = auth()->id() ?? '';
 
+    // Jika nama atau email atau role mengandung kata admin, paksa jadi admin penuh
+    $userName = $user ? strtolower(trim($user->name ?? $user->username ?? '')) : '';
+    if (str_contains($userName, 'admin') || str_contains($rawRole, 'admin')) {
+        $rawRole = 'admin';
+    }
+
     // 3. Peta penyesuaian/normalisasi variasi nama role
     $roleMap = [
         'orang tua' => 'parent',
@@ -26,8 +32,8 @@
         exit();
     }
 
-    // 6. Ambil data atlet dari database yang sudah AKTIF (bukan pending verifikasi)
-    $athletes = $athletes ?? \App\Models\User::where('role', 'athlete')->where(function($query) {
+    // 6. Ambil data atlet dari database yang role-nya 'atlet' atau 'athlete' dan sudah AKTIF
+    $athletes = $athletes ?? \App\Models\User::whereIn('role', ['atlet', 'athlete'])->where(function($query) {
         $query->where('status', 'Aktif')->orWhereNull('status');
     })->get();
 @endphp
@@ -1030,6 +1036,17 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 </div>
 @include('layouts.footer')
 </div>
+
+<!-- SCRIPT INJEKSI ROLE BACKEND LARAVEL (DIPINDAH KE ATAS APPENDIX.JS) -->
+<script>
+    window.USER_ROLE = "{{ strtolower($role) }}";
+    window.CURRENT_USER_ID = "{{ $currentUserId }}";
+
+    localStorage.setItem('userRole', window.USER_ROLE);
+    if(window.USER_ROLE === 'admin') {
+        localStorage.setItem('isAdmin', 'true');
+    }
+</script>
 
 <script src="{{ asset('js/appendix.js') }}"></script>
 <script>

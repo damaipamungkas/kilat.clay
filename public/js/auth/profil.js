@@ -52,7 +52,11 @@ function loadUserProfile() {
     const nama = matchedAccount.namaLengkap || matchedAccount.nama || matchedAccount.name || currentUser.username || 'Pengguna';
     const email = matchedAccount.username || matchedAccount.email || currentUser.email || '-';
     const password = matchedAccount.password || '12345678';
-    const role = (matchedAccount.role || currentUser.role || 'PARENT').toUpperCase();
+
+    // Normalisasi role secara konsisten
+    const rawRole = (matchedAccount.role || currentUser.role || 'PARENT').trim();
+    const roleLower = rawRole.toLowerCase();
+    const roleDisplay = rawRole.toUpperCase();
 
     if (document.getElementById('profileNamaDisplay')) document.getElementById('profileNamaDisplay').innerText = nama;
     if (document.getElementById('profileEmailDisplay')) document.getElementById('profileEmailDisplay').innerText = email;
@@ -65,8 +69,8 @@ function loadUserProfile() {
 
     const badgeEl = document.getElementById('profileRoleBadge');
     if (badgeEl) {
-        badgeEl.innerText = role;
-        badgeEl.style.cssText = getRoleStyle(role);
+        badgeEl.innerText = roleDisplay;
+        badgeEl.style.cssText = getRoleStyle(roleDisplay);
     }
 
     const eyeIcon = document.getElementById('eyeIcon');
@@ -74,10 +78,17 @@ function loadUserProfile() {
         eyeIcon.className = 'fa-solid fa-eye';
     }
 
-    // TAMPILKAN TOMBOL DASHBOARD ADMIN JIKA ROLE ADALAH ADMIN
+    // TAMPILKAN TOMBOL DASHBOARD ADMIN JIKA ROLE ADALAH ADMIN (MENANGKAP BERBAGAI VARIASI)
     const btnAdmin = document.getElementById('btnAdminDashboard');
     if (btnAdmin) {
-        btnAdmin.style.display = (role === 'ADMIN') ? 'inline-flex' : 'none';
+        if (roleLower === 'admin' || roleLower === 'administrator') {
+            btnAdmin.style.display = 'inline-flex';
+            // Paksa sinkronisasi local storage authorization role
+            localStorage.setItem('userRole', 'admin');
+            localStorage.setItem('KILAT_ACTIVE_ROLE', 'admin');
+        } else {
+            btnAdmin.style.display = 'none';
+        }
     }
 
     renderRoleSpecificContent(matchedAccount, allUsers);
@@ -88,6 +99,7 @@ function getRoleStyle(role) {
     let r = role.toLowerCase();
     switch (r) {
         case 'admin':
+        case 'administrator':
             return 'background: rgba(59, 130, 246, 0.2); color: #1d4ed8; border: 1px solid #93c5fd; padding: 4px 12px; border-radius: 12px; font-weight: 800;';
         case 'coach':
             return 'background: rgba(34, 197, 94, 0.2); color: #15803d; border: 1px solid #86efac; padding: 4px 12px; border-radius: 12px; font-weight: 800;';
@@ -206,7 +218,6 @@ window.navigateToAppendix = function(e) {
         return;
     }
 
-    // Mengambil profil paling akurat dari database/LocalStorage
     const matchedAccount = allUsers.find(u =>
         (u.id && currentUser.id && u.id === currentUser.id) ||
         (u.username && u.username.toLowerCase() === (currentUser.username || currentUser.email || '').toLowerCase()) ||
@@ -217,11 +228,9 @@ window.navigateToAppendix = function(e) {
     const userId = matchedAccount.id || currentUser.id || '';
     const userIdentifier = matchedAccount.username || matchedAccount.email || '';
 
-    // Sinkronisasi penuh ke LocalStorage agar halaman Appendix membaca role resmi
     localStorage.setItem('KILAT_ACTIVE_ROLE', actualRole);
     localStorage.setItem('userRole', actualRole);
 
-    // Membangun URL tujuan dengan parameter role & identifier pengguna
     let targetUrl = `/appendix?role=${encodeURIComponent(actualRole)}`;
     if (userId) {
         targetUrl += `&id=${encodeURIComponent(userId)}`;
@@ -230,7 +239,6 @@ window.navigateToAppendix = function(e) {
         targetUrl += `&parent=${encodeURIComponent(userIdentifier)}`;
     }
 
-    // Pindah ke halaman Appendix
     window.location.href = targetUrl;
 };
 
@@ -333,10 +341,11 @@ window.toggleProfilePasswordVisibility = function(event) {
         }
     }
 };
-    function handleLogout() {
-        if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
-            localStorage.removeItem('KILAT_CURRENT_USER');
-            localStorage.removeItem('kilat_user_data');
-            window.location.href = "{{ route('login') }}";
-        }
+
+function handleLogout() {
+    if (confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
+        localStorage.removeItem('KILAT_CURRENT_USER');
+        localStorage.removeItem('kilat_user_data');
+        window.location.href = '/login';
     }
+}

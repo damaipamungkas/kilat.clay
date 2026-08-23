@@ -6,6 +6,8 @@ use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\AthleteController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AppendixController;
+use App\Http\Controllers\AdminUserController; // <-- Tambahan Controller baru
+use App\Http\Controllers\AiChatController;
 
 // ==========================================
 // 1. RUTE PUBLIK (Halaman Umum)
@@ -35,22 +37,24 @@ Route::middleware(['auth'])->group(function () {
 // ==========================================
 // 3. RUTE APPENDIX
 // ==========================================
-// Dipisah menjadi dua pendaftaran nama rute agar kompatibel dengan sidebar
-Route::middleware(['auth', 'role:admin,coach,parent,orang tua,orangtua,pelatih'])->group(function () {
+Route::middleware(['auth', 'role:admin,Admin,administrator,coach,parent,orang tua,orangtua,pelatih'])->group(function () {
     Route::get('/appendix', [AppendixController::class, 'index'])->name('appendix');
     Route::get('/appendix-index', [AppendixController::class, 'index'])->name('appendix.index');
 });
 
 // ==========================================
-// 4. RUTE ADMIN
+// 4. RUTE ADMIN (Diperbarui agar mendukung variasi penulisan role admin)
 // ==========================================
-Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'role:admin,Admin,administrator'])->name('admin.')->group(function () {
     Route::view('/', 'admin.admin')->name('index');
     Route::view('/absence', 'admin.absence')->name('absence');
     Route::view('/billing', 'admin.billing')->name('billing');
     Route::view('/finance', 'admin.finance')->name('finance');
     Route::view('/setting', 'admin.setting')->name('setting');
     Route::view('/users', 'admin.users')->name('users');
+
+    // Endpoint untuk menyimpan akun baru langsung ke Database Server Laravel
+    Route::post('/users/store', [AdminUserController::class, 'store'])->name('users.store');
 
     Route::get('/setting/sql-backup', [AdminSettingController::class, 'downloadSqlBackup'])->name('setting.sql-backup');
 
@@ -62,14 +66,13 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 // ==========================================
 // 5. FITUR TAMBAHAN (Sesuai Role)
 // ==========================================
-Route::middleware(['auth', 'role:admin,parent,orang tua,orangtua'])->group(function () {
+Route::middleware(['auth', 'role:admin,Admin,administrator,parent,orang tua,orangtua'])->group(function () {
     Route::put('/athlete/update/{id}', [AthleteController::class, 'updateRequest'])->name('athlete.updateRequest');
 });
 
-Route::middleware(['auth', 'role:admin,coach,pelatih'])->group(function () {
+Route::middleware(['auth', 'role:admin,Admin,administrator,coach,pelatih'])->group(function () {
     Route::post('/assessment/trick', [AssessmentController::class, 'storeTrick'])->name('assessment.storeTrick');
     Route::post('/assessment/speed', [AssessmentController::class, 'storeSpeed'])->name('assessment.storeSpeed');
 });
-use App\Http\Controllers\AiChatController;
 
 Route::post('/ai-chat', [AiChatController::class, 'handleChat']);
