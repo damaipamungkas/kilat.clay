@@ -422,8 +422,8 @@
             const knowledgeBase = localStorage.getItem('KILAT_AI_KNOWLEDGE_BASE') || "";
             const customInstruction = localStorage.getItem('KILAT_AI_CUSTOM_INSTRUCTION') || "Semangat meluncur bersama KILAT!";
 
-            // 3. Masukkan API Key Gemini Anda yang valid
-            const apiKey = "AQ.Ab8RN6IMTYI-R9JIMhSj5Jqbbig1VQ7z8VEk6SO6kVwyBBAF9g";
+            // 3. Masukkan API Key Gemini dengan aman dari environment Laravel
+            const apiKey = "{{ config('services.google.api_key') ?? env('GOOGLE_API_KEY') }}";
 
             // 4. Susun prompt lengkap dengan menyertakan aturan setting dan knowledge base secara dinamis
             const prompt = `Anda adalah asisten AI resmi untuk "KILAT" (Kediri Inline Skate School).
