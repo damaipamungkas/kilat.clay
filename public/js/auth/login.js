@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Utilitas LocalStorage
+    // Utilitas LocalStorage (Tetap dipertahankan tanpa dihapus)
     function getAllUsers() {
         return JSON.parse(localStorage.getItem('manageUsersData')) ||
                JSON.parse(localStorage.getItem('KILAT_USERS')) || [];
@@ -59,13 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     seedDefaultUsers();
 
+    // Penanganan Form Login yang disinkronkan dengan Backend Laravel
     if (loginForm) {
         loginForm.addEventListener('submit', function (e) {
             const emailVal = emailInput ? emailInput.value.trim().toLowerCase() : '';
             const passwordVal = passwordInput ? passwordInput.value : '';
 
+            // Cek lokal opsional untuk membantu menyimpan state tambahan jika diperlukan
             const allUsers = getAllUsers();
-
             const matchedUser = allUsers.find(u => {
                 const isPassMatch = String(u.password) === String(passwordVal);
                 if (!isPassMatch) return false;
@@ -79,18 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (matchedUser) {
                 saveCurrentUser(matchedUser);
-
-                // Mencegah form melakukan submit bawaan (jika action mengarah ke halaman lain/reload)
-                // lalu melakukan navigasi manual secara eksplisit ke halaman profil
-                e.preventDefault();
-
-                // Mengarahkan ke rute/halaman profil sesuai konteks aplikasi (misal: /profil)
-                window.location.href = '/profil';
-            } else {
-                // Mencegah form tersubmit/reload jika login gagal agar pesan error/validasi kustom bisa tampil
-                e.preventDefault();
-                alert('ID Kredensial atau Kode Otorisasi (Sandi) yang Anda masukkan salah.');
             }
+
+            // TIDAK ADA LAGI e.preventDefault() yang memblokir form!
+            // Form sekarang diteruskan secara resmi ke route Laravel (POST /login)
+            // agar session server SQLite terbuat dengan benar dan tidak terpental lagi.
         });
     }
 });
