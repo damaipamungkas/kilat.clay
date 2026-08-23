@@ -1,9 +1,6 @@
 [phases.setup]
 nixPkgs = ["php84", "composer"]
 
-[variables]
-NIXPACKS_PHP_VERSION = "8.4"
-
 [phases.build]
 cmds = ["composer install --no-dev --optimize-autoloader"]
 
