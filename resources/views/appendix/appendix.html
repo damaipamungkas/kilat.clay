@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Data Atlet - KILAT (Claymorphism)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- CLAYMORPHISM VARIABLES --- */
+        :root {
+            --bg-main: #ebe5ee;
+            --sidebar-bg: #7b61ff;
+            --text-dark: #2a2245;
+            --text-gray: #6b6288;
+
+            --clay-purple: #c8b8ff;
+            --clay-pink: #ffb8c6;
+            --clay-yellow: #ffda85;
+            --clay-blue: #a3d5ff;
+            --clay-green: #a8e6a1;
+            --clay-orange: #ffd7b5;
+
+            --c-hadir: #50b054; /* Hijau Soft */
+            --c-izin: #3b82f6;
+            --c-sakit: #ffc977; /* Kuning Soft */
+            --c-alpa: #ff6b81; /* Merah Soft */
+            --clay-shadow-card:
+                8px 8px 16px rgba(150, 140, 170, 0.5),
+                inset 6px 6px 12px rgba(255, 255, 255, 0.8),
+                inset -6px -6px 16px rgba(0, 0, 0, 0.08);
+            --clay-shadow-btn:
+                3px 3px 6px rgba(150, 140, 170, 0.5),
+                inset 3px 3px 6px rgba(255, 255, 255, 0.8),
+                inset -3px -3px 6px rgba(0, 0, 0, 0.08);
+            --clay-shadow-inset:
+                inset 6px 6px 12px rgba(150, 140, 170, 0.6),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.9);
+            --text-timbul-dark: 1px 1px 0px #ffffff, 2px 2px 4px rgba(150, 140, 170, 0.6);
+            --text-timbul-light: 1px 1px 2px rgba(0, 0, 0, 0.2);
+
+            --bg-color-1: var(--bg-main);
+            --bg-color-2: var(--clay-purple);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            font-family: 'Nunito', Arial, sans-serif;
+            font-size: 5px;
+            margin: 0;
+            padding: 5px;
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background-image: linear-gradient(135deg, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
+            transition: background 0.1s ease;
+        }
+
+        /* --- TOP BAR --- */
+        .top-bar {
+            background-color: var(--clay-blue);
+            max-width: 99%; margin: 0 auto 10px auto;
+            padding: 8px 15px; border-radius: 15px;
+            box-shadow: var(--clay-shadow-card);
+            display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 10px;
+        }
+
+        .search-section {
+            display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+        }
+
+        .clay-input-top, .clay-select-top {
+            background: var(--bg-main); border: none;
+            padding: 4px 8px; border-radius: 8px;
+            box-shadow: var(--clay-shadow-inset); outline: none;
+            font-weight: 800; font-family: inherit; font-size: 10px;
+            color: var(--text-dark); cursor: pointer;
+        }
+        .clay-input-top { cursor: text; width: 120px; }
+
+        .role-section { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;}
+        .role-badge {
+            background: var(--clay-purple); color: var(--sidebar-bg);
+            padding: 4px 10px; border-radius: 8px;
+            font-weight: 900; box-shadow: var(--clay-shadow-inset); font-size: 10px;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+
+        /* Mode Massal Toggle Button */
+        .mode-toggle-btn {
+            background: var(--clay-yellow); color: var(--text-dark);
+            border: none; padding: 4px 10px; border-radius: 8px;
+            box-shadow: var(--clay-shadow-btn); font-weight: 900; font-size: 10px; cursor: pointer;
+            transition: 0.3s;
+        }
+        .mode-toggle-btn:hover { transform: scale(1.05); }
+        .mode-toggle-btn.mode-massal { background: var(--c-alpa); color: white; text-shadow: var(--text-timbul-light); }
+
+        .btn-settings, .btn-home {
+            background: var(--clay-green); color: var(--text-dark);
+            border: none; padding: 4px 10px; border-radius: 8px;
+            box-shadow: var(--clay-shadow-btn); font-weight: 800; font-size: 10px; cursor: pointer; transition: 0.2s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .btn-home { background: var(--clay-yellow); }
+        .btn-settings:hover, .btn-home:hover { transform: scale(1.05); }
+
+        /* --- FRAME UTAMA --- */
+        .page-container {
+            background-color: var(--clay-yellow); max-width: 98%;
+            margin: 0 auto; padding: 15px 20px;
+            border-radius: 25px; box-shadow: var(--clay-shadow-card);
+            max-height: 85vh; overflow-y: auto;
+        }
+        .page-container::-webkit-scrollbar { width: 5px; }
+        .page-container::-webkit-scrollbar-thumb { background: rgba(150, 140, 170, 0.4); border-radius: 10px; }
+
+        /* --- HEADER --- */
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 2px dashed rgba(120, 100, 200, 0.3); padding-bottom: 10px; }
+        .logo-area { display: flex; flex-direction: column; align-items: flex-start; }
+        .logo-frame { max-height: 90px; max-width: 250px; object-fit: contain; border-radius: 5px; box-shadow: var(--clay-shadow-btn); }
+        .title-area { text-align: right; }
+        .title-area h1 { margin: 0; font-size: 18px; font-weight: 900; color: var(--text-dark); text-shadow: var(--text-timbul-dark); }
+        .title-area h2 { margin: 0; font-size: 12px; font-weight: 800; color: var(--text-gray); text-transform: uppercase; }
+
+        /* --- BIODATA SECTION --- */
+        .bio-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 5px; flex-wrap: wrap;}
+        .biodata-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; margin-bottom: 5px; font-weight: 800; font-size: 10px; }
+        .biodata-table td { padding: 4px 8px; position: relative; }
+        .biodata-table td:first-child { width: 1%; white-space: nowrap; background-color: var(--clay-purple); border-radius: 8px 0 0 8px; box-shadow: var(--clay-shadow-inset); color: var(--sidebar-bg); padding: 1px 5px; }
+        .biodata-table td:last-child { background-color: var(--bg-main); border-radius: 0 8px 8px 0; box-shadow: var(--clay-shadow-inset); }
+
+        .bio-input {
+            border: none; width: 100%; font-family: inherit; font-weight: 900; font-size: 11px;
+            text-transform: uppercase; background: transparent; color: var(--text-dark);
+            outline: none; padding: 1px 1px; border-radius: 5px; transition: 0.3s;
+        }
+        .bio-input:focus { background: rgba(255,255,255,0.5); box-shadow: var(--clay-shadow-btn); }
+        .bio-input[readonly], .bio-input:disabled { cursor: not-allowed; opacity: 0.8; }
+        select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: var(--text-gray); }
+
+        .wa-btn { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background-color: var(--c-hadir); color: white; border: none; padding: 3px 8px; border-radius: 6px; cursor: pointer; font-weight: 900; text-decoration: none; display: none; box-shadow: var(--clay-shadow-btn); font-size: 9px; }
+
+        /* --- TABS --- */
+        .curriculum-select-container { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .curr-btn { padding: 5px 10px; background-color: var(--bg-main); color: var(--text-gray); border: none; border-radius: 100px; font-weight: 900; font-size: 10px; cursor: pointer; transition: 0.3s; text-transform: uppercase; box-shadow: var(--clay-shadow-btn); }
+        .curr-btn.active { background-color: var(--sidebar-bg); color: white; box-shadow: var(--clay-shadow-inset); text-shadow: var(--text-timbul-light); }
+        #btnToggleLock { background: var(--c-hadir); color: white; margin-left: 10px; }
+
+        /* --- MAIN MATRIX TABLE --- */
+        .table-responsive { width: 100%; overflow-x: auto; margin-bottom: 5px; padding-bottom: 5px; }
+        .table-responsive::-webkit-scrollbar { height: 5px; width: 5px;}
+        .table-responsive::-webkit-scrollbar-thumb { background: rgba(150, 140, 170, 0.4); border-radius: 10px; }
+        .table-responsive.is-locked { max-height: 55vh; overflow-y: auto; }
+
+        .matrix-table { width: 100%; border-collapse: separate; border-spacing: 2px; text-align: center; text-transform: uppercase; font-weight: 800; table-layout: auto; }
+
+        .matrix-table th {
+            background-color: var(--sidebar-bg); color: white !important; font-size: 8px; font-weight: 900;
+            box-shadow: var(--clay-shadow-btn); text-shadow: var(--text-timbul-light);
+            border: none; border-radius: 5px; padding: 1px 1px; vertical-align: middle; height: 15px;
+            resize: horizontal;
+            overflow: hidden;
+            min-width: 40px;
+            max-width: 300px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .matrix-table td {
+            border: none; border-radius: 5px; padding: 1px 1px; vertical-align: middle; height: 15px; font-size: 5px;
+            color: var(--text-dark) !important; box-shadow: var(--clay-shadow-inset); background: var(--bg-main); transition: all 0.1s ease;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .matrix-table.is-locked th { position: sticky; top: -1px; z-index: 10; }
+        .col-num { width: 30px; background-color: var(--clay-pink) !important; font-weight: 900; box-shadow: var(--clay-shadow-btn) !important;}
+        .col-family { width: 50px !important; background-color: var(--clay-blue) !important; font-weight: 900; box-shadow: var(--clay-shadow-btn) !important;}
+        .level-boundary td { position: relative; }
+        .level-boundary td::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: rgba(120, 100, 200, 0.3); border-radius: 1px; }
+        .clickable-cell { cursor: pointer; box-shadow: var(--clay-shadow-btn) !important; }
+        .clickable-cell:hover { transform: scale(1.05); z-index: 5; position: relative;}
+        .speed-table td { font-size: 12px; padding: 6px; }
+
+        /* --- FOOTER / KETERANGAN --- */
+        .footer-note { background-color: var(--clay-green); font-weight: 900; font-size: 9px; text-align: center; padding: 6px; color: var(--text-dark); border-radius: 10px; box-shadow: var(--clay-shadow-inset); margin-bottom: 15px; }
+        .bottom-section { display: flex; gap: 15px; align-items: stretch; flex-wrap: wrap;}
+        .legend-table { border-collapse: separate; border-spacing: 2px; width: 280px; font-weight: 900; text-align: center; font-size: 9px; }
+        .legend-table td { padding: 4px; border-radius: 6px; box-shadow: var(--clay-shadow-btn); }
+        .legend-title { width: 90px; background-color: var(--clay-purple); color: var(--sidebar-bg); }
+        .bg-belum { background-color: #ffffff !important; box-shadow: var(--clay-shadow-inset) !important;}
+        .bg-ulangi { background-color: var(--c-alpa) !important; color: white !important; }
+        .bg-progress { background-color: var(--c-sakit) !important; color: var(--text-dark) !important;}
+        .bg-lancar { background-color: var(--clay-blue) !important; }
+        .bg-master { background-color: var(--c-hadir) !important; color: white !important;}
+
+        .analysis-box { flex-grow: 1; padding: 8px 12px; border-radius: 15px; background: var(--clay-pink); box-shadow: var(--clay-shadow-inset); display: flex; flex-direction: column; min-width: 250px;}
+        .analysis-box span { font-weight: 900; margin-bottom: 4px; color: var(--sidebar-bg); font-size: 10px;}
+        #analysisTextarea { width: 100%; flex-grow: 1; border: none; resize: none; font-weight: 700; font-family: inherit; font-size: 11px; background: transparent; color: var(--text-dark); }
+        #analysisTextarea:focus { outline: none; }
+
+        /* --- MODAL POPUP --- */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(42, 34, 69, 0.4); backdrop-filter: blur(5px); }
+        .modal-content { background-color: var(--clay-blue); margin: 5% auto; padding: 20px; width: 90%; max-width: 400px; border-radius: 20px; box-shadow: var(--clay-shadow-card); font-family: 'Nunito', sans-serif; font-size: 11px; position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 20px; color: var(--text-gray); font-size: 22px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .close-btn:hover { color: var(--c-alpa); transform: scale(1.1);}
+        .modal-content h3 { margin-top: 0; border-bottom: 2px dashed rgba(150, 140, 170, 0.5); padding-bottom: 10px; font-size: 15px; font-weight: 900; color: var(--sidebar-bg);}
+
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-weight: 800; margin-bottom: 3px; color: var(--text-gray);}
+        .form-group input, .form-group select { width: 100%; padding: 8px 10px; box-sizing: border-box; border: none; border-radius: 8px; font-family: inherit; font-weight: 800; font-size:11px; background: var(--bg-main); box-shadow: var(--clay-shadow-inset); outline: none; color: var(--text-dark); }
+        .yt-input-group { display: flex; gap: 8px; }
+        .yt-input-group input { flex-grow: 1; }
+        .yt-view-btn { background-color: var(--c-alpa); color: white; border: none; border-radius: 8px; padding: 0 10px; cursor: pointer; font-weight: 900; text-decoration: none; display: flex; align-items: center; justify-content: center; box-shadow: var(--clay-shadow-btn); font-size: 10px; }
+        .submit-btn { background-color: var(--c-hadir); color: white; padding: 10px; border: none; border-radius: 5%; cursor: pointer; width: 100%; font-weight: 900; font-size: 12px; margin-top: 10px; box-shadow: var(--clay-shadow-btn); transition: 0.2s; text-shadow: var(--text-timbul-light); }
+        .submit-btn:hover { filter: brightness(1.05); transform: translateY(-2px); }
+
+        /* History Items */
+        .history-container { margin-top: 15px; border-top: 2px dashed rgba(150, 140, 170, 0.5); padding-top: 10px; }
+        .history-list { max-height: 120px; overflow-y: auto; padding-right: 5px; }
+        .history-list::-webkit-scrollbar { width: 4px; }
+        .history-list::-webkit-scrollbar-thumb { background: rgba(150, 140, 170, 0.4); border-radius: 10px; }
+        .history-item { padding: 8px; margin-bottom: 8px; border-radius: 10px; background: var(--bg-main); box-shadow: var(--clay-shadow-inset); display: flex; justify-content: space-between; align-items: center; }
+        .history-details { flex-grow: 1; font-weight: 700; color: var(--text-dark);}
+        .history-details strong { font-weight: 900; }
+        .yt-link { color: var(--c-alpa); text-decoration: none; font-weight: 900; display: inline-flex; align-items: center; margin-top: 4px; font-size: 9px; background: white; padding: 3px 6px; border-radius: 6px; box-shadow: var(--clay-shadow-btn); }
+        .delete-history-btn { background-color: var(--c-alpa); color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 9px; font-weight: 900; margin-left: 8px; box-shadow: var(--clay-shadow-btn); transition: 0.2s; }
+        .delete-history-btn:hover { transform: scale(1.05); }
+
+        /* Speed History */
+        .speed-history-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .speed-history-box { background: var(--clay-green); padding: 10px; border-radius: 15px; box-shadow: var(--clay-shadow-inset); }
+        .speed-history-box h4 { margin: 0 0 10px 0; font-size: 11px; color: var(--sidebar-bg); border-bottom: 1px dashed rgba(120, 100, 200, 0.3); padding-bottom: 5px; }
+
+        /* --- STYLES MASS ASSESMENT --- */
+        .mass-athlete-list { max-height: 45vh; overflow-y: auto; margin-top: 10px; border-top: 2px dashed rgba(150, 140, 170, 0.5); padding-top: 10px; }
+        .mass-athlete-item { display: flex; flex-direction: column; background: var(--clay-yellow); padding: 10px; margin-bottom: 10px; border-radius: 12px; box-shadow: var(--clay-shadow-inset); gap: 8px; }
+        .mass-athlete-header { display: flex; align-items: center; gap: 8px; font-weight: 900; color: var(--text-dark); font-size: 11px; }
+        .mass-check { width: 14px; height: 14px; cursor: pointer; }
+
+        .quick-btn-group-10 { display: flex; flex-wrap: wrap; gap: 5px; }
+        .quick-btn-10 {
+            border: none; width: 26px; height: 26px; border-radius: 6px;
+            cursor: pointer; box-shadow: var(--clay-shadow-btn); transition: 0.2s;
+            font-weight: 900; font-size: 11px; display: flex; justify-content: center; align-items: center;
+        }
+        .quick-btn-10:active { transform: scale(0.9); }
+        .quick-btn-10.selected {
+            transform: scale(1.15);
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(255,255,255,0.7);
+            border: 2px solid var(--text-dark);
+        }
+
+        .quick-btn-qual {
+            border: none; padding: 5px 10px; border-radius: 6px;
+            cursor: pointer; box-shadow: var(--clay-shadow-btn); transition: 0.2s;
+            font-weight: 900; font-size: 10px; display: inline-flex; justify-content: center; align-items: center;
+        }
+        .quick-btn-qual.selected {
+            transform: scale(1.05);
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.3), inset -2px -2px 4px rgba(255,255,255,0.7);
+            border: 2px solid var(--text-dark);
+        }
+
+        .c-0 { background-color: #ffffff; color: var(--text-dark); }
+        .c-red { background-color: var(--c-alpa); color: white; }
+        .c-yel { background-color: var(--c-sakit); color: var(--text-dark); text-shadow: 1px 1px 1px rgba(255,255,255,0.5);}
+        .c-grn { background-color: var(--c-hadir); color: white; }
+
+        @media (max-width: 600px) {
+            .speed-history-wrapper { grid-template-columns: 1fr; }
+            .quick-btn-10 { width: 22px; height: 22px; font-size: 9px;}
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="search-section">
+        <span style="font-weight:900; color:var(--sidebar-bg); font-size:11px;">🔍 PENCARIAN ATLET:</span>
+        <input type="text" id="searchAthlete" class="clay-input-top" placeholder="Ketik Nama...">
+
+        <select id="athleteSelectFullName" title="Pilih Nama Lengkap" class="clay-select-top">
+            <option value="">-- NAMA LENGKAP --</option>
+        </select>
+        <select id="athleteSelect" title="Pilih Nama Panggilan" class="clay-select-top" style="display:none;">
+            <option value="">-- PANGGILAN --</option>
+        </select>
+    </div>
+
+    <div class="role-section">
+        <span class="role-badge" id="roleInfoBadge">👤 AKSES AKUN: <span id="roleLabelDisplay" style="font-weight:900; color:var(--sidebar-bg);">ADMIN</span></span>
+        <button id="btnModeToggle" class="mode-toggle-btn mode-massal">📋 MODE: MASSAL AKTIF</button>
+        <a href="profil.html" class="btn-home" title="Profil Akun"><i class="fa-solid fa-user"></i> Profil Akun</a>
+        <button id="btnSettings" class="btn-settings">⚙️ Pengaturan</button>
+    </div>
+</div>
+
+<div class="page-container" id="mainContainer">
+
+    <div class="header">
+        <div class="logo-area">
+            <img id="displayLogo" src="https://via.placeholder.com/250x90/7b61ff/ffffff?text=LOGO+KILAT" alt="Logo Club" class="logo-frame">
+        </div>
+        <div class="title-area">
+            <h1>PROGRESS DATA ATLET</h1>
+            <h2 id="displayClubNameSub">KEDIRI INLINE SKATE SCHOOL</h2>
+        </div>
+    </div>
+
+    <div class="bio-actions">
+        <button id="btnExportData" class="curr-btn" style="background:var(--clay-purple); color:var(--text-dark);">💾 Backup (Export)</button>
+        <button id="btnImportData" class="curr-btn" style="background:var(--clay-pink); color:var(--text-dark);" onclick="document.getElementById('importFile').click()">📂 Restore (Import)</button>
+        <input type="file" id="importFile" accept=".json" style="display:none;">
+
+        <button id="btnAddBio" class="curr-btn" style="background:var(--clay-blue); color:var(--text-dark);">➕ Tambah Atlet Baru</button>
+        <button id="btnEditBio" class="curr-btn" style="background:var(--clay-yellow); color:var(--text-dark);">✏️ Edit Data Atlet</button>
+        <button id="btnDeleteBio" class="curr-btn" style="background:var(--c-alpa); color:white;">🗑️ Hapus Atlet</button>
+        <button id="btnSaveBio" class="curr-btn" style="background:var(--c-hadir); color:white; display:none;">💾 Submit / Simpan</button>
+    </div>
+
+    <table class="biodata-table">
+        <tr><td>NIK</td><td> <input type="text" id="bioNIK" class="bio-input" placeholder="-" readonly></td></tr>
+        <tr><td>NAMA LENGKAP</td><td> <input type="text" id="athleteFullName" class="bio-input" placeholder="-" readonly></td></tr>
+        <tr><td>NAMA PANGGILAN</td><td> <input type="text" id="athleteName" class="bio-input" placeholder="-" readonly></td></tr>
+        <tr>
+            <td>JENIS KELAMIN</td>
+            <td>
+                <select id="bioGender" class="bio-input" disabled>
+                    <option value="">- PILIH JENIS KELAMIN -</option>
+                    <option value="L">LAKI-LAKI</option>
+                    <option value="P">PEREMPUAN</option>
+                </select>
+            </td>
+        </tr>
+        <tr><td>TANGGAL LAHIR</td><td> <input type="date" id="bioTglLahir" class="bio-input" readonly></td></tr>
+        <tr><td>ALAMAT LENGKAP</td><td> <input type="text" id="bioAlamat" class="bio-input" placeholder="-" readonly></td></tr>
+        <tr><td>NAMA WALI</td><td> <input type="text" id="bioOrtu" class="bio-input" placeholder="-" readonly></td></tr>
+        <tr>
+            <td>KELAS</td>
+            <td>
+                <select id="bioKelas" class="bio-input" disabled>
+                    <option value="">- PILIH KELAS -</option>
+                    <option value="PEMULA">PEMULA</option>
+                    <option value="JUNIOR 1">JUNIOR 1</option>
+                    <option value="JUNIOR 2">JUNIOR 2</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>STATUS AKUN</td>
+            <td>
+                <select id="bioStatus" class="bio-input" disabled>
+                    <option value="Aktif">AKTIF</option>
+                    <option value="Arsip">ARSIP</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>WHATSAPP</td>
+            <td> <input type="text" id="bioWA" class="bio-input" placeholder="Cth: 08123456789" readonly>
+                <a href="#" id="waBtn" class="wa-btn" target="_blank">Hubungi WA</a>
+            </td>
+        </tr>
+    </table>
+
+    <div class="curriculum-select-container">
+        <button class="curr-btn active" data-target="classicSlalomView">CLASSIC SLALOM</button>
+        <button class="curr-btn" data-target="freestyleSlideView">FREESTYLE SLIDE</button>
+        <button class="curr-btn" data-target="speedSlalomView">SPEED SLALOM</button>
+        <button class="curr-btn" data-target="beginner'sTestView">BEGINNER</button>
+        <button id="btnToggleLock" class="curr-btn">🔒 Header Terkunci</button>
+    </div>
+
+    <!-- CLASSIC SLALOM VIEW -->
+    <div id="classicSlalomView" class="curriculum-view">
+        <div class="table-responsive is-locked">
+            <table class="matrix-table is-locked">
+                <thead><tr><th colspan="2">MARK & FAMILIES</th><th colspan="2">OTHER</th><th colspan="2">SITTING</th><th colspan="2">JUMPING</th><th colspan="2">WHEELINGS</th><th colspan="2">SPINNING</th></tr></thead>
+                <tbody>
+                    <tr><td rowspan="10" class="col-family">A (50-60)</td><td class="col-num">10</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TOE FOOTGUN SPIN</td></tr><tr><td class="col-num">9</td><td colspan="2"></td><td colspan="2">BACK TOE CHRISTIE SPIN</td><td colspan="2">TOE FOOTGUN WIPER</td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">8</td><td colspan="2"></td><td colspan="2">TOE CHRISTIE SPIN</td><td colspan="2">HEEL WIPER</td><td>BACKWARD SQUARE</td><td>LEAF SERIES</td><td colspan="2"></td></tr><tr><td class="col-num">7</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">BACK SEVEN INT/EXT</td></tr><tr><td class="col-num">6</td><td colspan="2"></td><td colspan="2">BACK TOE FOOTGUN SPIN</td><td colspan="2">TOE WIPER</td><td>FORWARD SQUARE</td><td>LEAF SERIES</td><td colspan="2"></td></tr><tr><td class="col-num">5</td><td colspan="2"></td><td colspan="2">TOE FOOTGUN SPIN</td><td colspan="2"></td><td colspan="2"></td><td colspan="2">ONE CONE BACK SEVEN INT/EXT</td></tr><tr><td class="col-num">4</td><td colspan="2"></td><td colspan="2">BACK TOE WHEELING JUMP</td><td colspan="2"></td><td colspan="2">STAR</td><td colspan="2"></td></tr><tr><td class="col-num">3</td><td colspan="2"></td><td colspan="2">BACK TOE CHRISTIE</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">2</td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TOE WHEELING JUMP</td><td>SIDE SQUARE</td><td>LEAF SERIES</td><td colspan="2">SEVEN INT/EXT</td></tr><tr class="level-boundary"><td class="col-num">1</td><td colspan="2"></td><td colspan="2">TOE CHRISTIE</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr>
+                    <tr><td rowspan="10" class="col-family">B (40-50)</td><td class="col-num">10</td><td colspan="2">BUTTERFLY CROSS</td><td colspan="2">1 CONE TOE FOOTGUN SPIN</td><td colspan="2"></td><td>WHEELING SHIFTS</td><td>COUNTERSHIFTS SERIES</td><td colspan="2">ONE CONE SEVEN INT/EXT</td></tr><tr><td class="col-num">9</td><td colspan="2"></td><td colspan="2"></td><td colspan="2">FOOTGUN SPIN JUMP</td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">8</td><td colspan="2"></td><td>BACK TEAPOT</td><td>BACK SUPERMAN</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">7</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td>WHEELING FLIP</td><td>DAYNIGHT SERIES</td><td colspan="2"></td></tr><tr><td class="col-num">6</td><td colspan="2">BUTTERFLY</td><td colspan="2">BACK TOE FOOTGUN</td><td colspan="2">FOOTGUN WIPER</td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">5</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2" rowspan="2">FRENCH SHIFTS SERIES</td><td colspan="2">FLAT BACK SEVEN INT/EXT</td></tr><tr><td class="col-num">4</td><td colspan="2"></td><td>TEAPOT</td><td>SUPERMAN</td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">3</td><td colspan="2"></td><td colspan="2"></td><td colspan="2">BACK KAZAKCHOK</td><td colspan="2"></td><td colspan="2">FLAT SEVEN INT/EXT</td></tr><tr><td class="col-num">2</td><td colspan="2">TOE TOE REVERSE EAGLE</td><td colspan="2">TOE FOOTGUN</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr><tr class="level-boundary"><td class="col-num">1</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TOE SEWING MACHINE</td><td colspan="2">ONE CONE BACK KOREAN SPIN</td></tr>
+                    <tr><td rowspan="10" class="col-family">C (30-40)</td><td class="col-num">10</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">BACK KOREAN SPIN</td></tr><tr><td class="col-num">9</td><td colspan="2">COBRA BACK</td><td colspan="2">BACK SITTING COBRA</td><td colspan="2"></td><td colspan="2">BACK WHEELING</td><td colspan="2"></td></tr><tr><td class="col-num">8</td><td colspan="2"></td><td colspan="2">BACK CHRISTIE</td><td colspan="2">KAZAKCHOK</td><td colspan="2"></td><td colspan="2">ONE CONE KOREAN SPIN</td></tr><tr><td class="col-num">7</td><td colspan="2">COBRA</td><td colspan="2">SITTING COBRA</td><td colspan="2"></td><td colspan="2"></td><td colspan="2">KOREAN SPIN</td></tr><tr><td class="col-num">6</td><td colspan="2">REVERSE EAGLE</td><td colspan="2">CHRISTIE</td><td colspan="2">KAZAKSPIN</td><td>FLAT SHIFT</td><td>COUNTERSHIFTS SERIES</td><td colspan="2"></td></tr><tr><td class="col-num">5</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">BACK TWO WHEELS SPIN</td></tr><tr><td class="col-num">4</td><td colspan="2">TOE WHEELS EAGLE</td><td colspan="2">BACK FOOTGUN</td><td colspan="2">FRONT WIPER</td><td colspan="2">TWO WHEELING</td><td colspan="2"></td></tr><tr><td class="col-num">3</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TWO WHEEL SPIN</td></tr><tr><td class="col-num">2</td><td colspan="2"></td><td colspan="2">FOOTGUN</td><td colspan="2">WIPER</td><td>FLAT FLIP</td><td>DAYNIGHT SERIES</td><td colspan="2"></td></tr><tr class="level-boundary"><td class="col-num">1</td><td colspan="2">Z-EAGLE</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">BACK J-TURN</td></tr>
+                    <tr><td rowspan="10" class="col-family">D (20-30)</td><td class="col-num">10</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">9</td><td colspan="2">TOE TOE SPECIAL</td><td colspan="2">SITTING HEEL TOE BACK CROSS</td><td colspan="2">FOOTSPIN JUMP</td><td colspan="2"></td><td colspan="2">J-TURN</td></tr><tr><td class="col-num">8</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TWO FEET SPIN</td></tr><tr><td class="col-num">7</td><td colspan="2">BRUSH</td><td colspan="2">SITTING HEEL TOE CROSS</td><td colspan="2"></td><td colspan="2">TWO WHEELS BACK CROSS</td><td colspan="2"></td></tr><tr><td class="col-num">6</td><td colspan="2">HEEL TOE SPECIAL</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TOTAL CROSS</td></tr><tr><td class="col-num">5</td><td>EAGLE</td><td>EAGLE CROSS</td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TWO WHEELS BACK SNAKE</td><td colspan="2"></td></tr><tr><td class="col-num">4</td><td colspan="2"></td><td colspan="2">BACK SITTING HEEL TOE SNAKE</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">3</td><td colspan="2">SWEEPERS</td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TWO WHEELS CROSS</td><td colspan="2"></td></tr><tr><td class="col-num">2</td><td colspan="2"></td><td colspan="2">SITTING HEEL TOE SNAKE</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr><tr class="level-boundary"><td class="col-num">1</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2">TWO WHEELS SNAKE</td><td colspan="2"></td></tr>
+                    <tr><td rowspan="11" class="col-family">E (10-20)</td><td class="col-num">10</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">9</td><td colspan="2">EIGHT</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td>ITALIAN</td><td>VOLTE</td></tr><tr><td class="col-num">8</td><td colspan="2"></td><td>SMALL CAR</td><td>5 WHEELS SITTING</td><td colspan="2">X JUMP</td><td colspan="2">BACK ONE FOOT</td><td colspan="2"></td></tr><tr><td class="col-num">7</td><td colspan="2">BACK EIGHT</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">6</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td>CRAZY SUN</td><td>MEXICAN</td></tr><tr><td class="col-num">5</td><td colspan="2"></td><td colspan="2"></td><td colspan="2">CRAB CROSS</td><td colspan="2">ONE FOOT</td><td colspan="2"></td></tr><tr><td class="col-num">4</td><td>STROLL</td><td>BACK STROLL</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td>SUN</td><td>MABROUK</td></tr><tr><td class="col-num">3</td><td>CRAZY</td><td>DOUBLE CRAZY SERIES</td><td colspan="2"></td><td colspan="2"></td><td>BACK SNAKE</td><td>BACK CROSS</td><td colspan="2"></td></tr><tr><td class="col-num">2</td><td>CHAP CHAP</td><td>X</td><td colspan="2"></td><td colspan="2">CRAB SERIES</td><td colspan="2"></td><td colspan="2"></td></tr><tr><td class="col-num">1</td><td colspan="2">MEGA SERIES</td><td colspan="2"></td><td colspan="2"></td><td>SNAKE</td><td>CROSS</td><td colspan="2"></td></tr><tr class="level-boundary"><td class="col-num">0</td><td>NELSON</td><td>BACK NELSON SERIES</td><td colspan="2">SITTING FISH</td><td colspan="2"></td><td colspan="2">FISH</td><td colspan="2"></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer-note">UPDATE APPENDIX 2026 CLASSIC SLALOM TRICK MATRIX</div>
+    </div>
+
+    <!-- FREESTYLE SLIDE VIEW -->
+    <div id="freestyleSlideView" class="curriculum-view" style="display:none;">
+        <div class="table-responsive is-locked">
+            <table class="matrix-table is-locked">
+                <thead><tr><th colspan="2">MARK & FAMILIES</th><th>FAMILY 1</th><th>FAMILY 2</th><th>FAMILY 3</th><th>FAMILY 4</th><th>FAMILY 5</th></tr></thead>
+                <tbody>
+                    <tr><td rowspan="12" class="col-family">A</td><td class="col-num">1</td><td>V - Toe Toe</td><td>Cowboy Heel Heel</td><td>8 Cross Heel Heel</td><td></td><td></td></tr><tr><td class="col-num">2</td><td></td><td>Cowboy Toe Toe</td><td>8 Cross Toe Toe</td><td></td><td></td></tr><tr><td class="col-num">3</td><td></td><td></td><td>8 Cross Toe Heel</td><td></td><td></td></tr><tr><td class="col-num">4</td><td></td><td>Cowboy Toe Heel</td><td></td><td></td><td></td></tr><tr><td class="col-num">5</td><td></td><td></td><td>8 Cross 8 Wheels</td><td></td><td></td></tr><tr><td class="col-num">6</td><td>Cross Ern Sui Heel Heel</td><td>Cowboy 8 Wheels</td><td></td><td></td><td></td></tr><tr><td class="col-num">7</td><td></td><td></td><td>Cross UFO Heel Heel</td><td>FastSlide Heel</td><td></td></tr><tr><td class="col-num">8</td><td>Cross Ern Sui Heel Toe</td><td>Backslide Toe</td><td>Cross UFO Toe Toe</td><td>FastSlide Toe</td><td></td></tr><tr><td class="col-num">9</td><td>Cross Ern Sui Toe Toe</td><td>Backslide Heel</td><td>Cross UFO Toe heel</td><td></td><td></td></tr><tr><td class="col-num">10</td><td>Cross Ern Sui Heel</td><td></td><td>Cross UFO 8 Wheels</td><td></td><td>Cross Parallel Heel Heel</td></tr><tr><td class="col-num">11</td><td>Cross Ern Sui Toe</td><td></td><td></td><td></td><td>Cross Parallel Toe Heel</td></tr><tr class="level-boundary"><td class="col-num">12</td><td></td><td></td><td></td><td></td><td>Cross Parallel Toe Toe</td></tr>
+                    <tr><td rowspan="15" class="col-family">B</td><td class="col-num">1</td><td>Cross Ern Sui 4 wheels</td><td></td><td>Eagle Toe Toe</td><td></td><td></td></tr><tr><td class="col-num">2</td><td></td><td></td><td>Eagle Toe Heel</td><td></td><td></td></tr><tr><td class="col-num">3</td><td></td><td></td><td>Eagle 8 Wheels</td><td></td><td></td></tr><tr><td class="col-num">4</td><td></td><td></td><td>Eagle Heel Heel</td><td></td><td></td></tr><tr><td class="col-num">5</td><td>Ern Sui Heel Heel</td><td></td><td>Ufo special heel heel</td><td></td><td></td></tr><tr><td class="col-num">6</td><td>Ern Sui Toe Heel</td><td></td><td>Ufo special toe toe</td><td>FastSlide 4 Wheels</td><td></td></tr><tr><td class="col-num">7</td><td>Ern Sui Heel Toe</td><td></td><td>Ufo special toe heel</td><td></td><td>Unity / Savannah Heel Heel</td></tr><tr><td class="col-num">8</td><td>Ern Sui Toe Toe</td><td></td><td>Ufo special heel toe</td><td></td><td>Unity / Savannah Toe Toe</td></tr><tr><td class="col-num">9</td><td></td><td>Backslide 4 Wheels</td><td>UFO Toe Toe</td><td></td><td>Unity / Savannah Toe Heel</td></tr><tr><td class="col-num">10</td><td></td><td></td><td>UFO Toe Heel</td><td>Magic Toe Toe</td><td></td></tr><tr><td class="col-num">11</td><td></td><td></td><td>UFO Heel Heel</td><td>Magic Heel Heel</td><td></td></tr><tr><td class="col-num">12</td><td></td><td></td><td></td><td>Magic Toe Heel</td><td>Cross Parallel 8 Wheels</td></tr><tr><td class="col-num">13</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td class="col-num">14</td><td></td><td></td><td>Ufo special 8 wheels</td><td></td><td></td></tr><tr class="level-boundary"><td class="col-num">15</td><td></td><td></td><td>UFO 8 Wheels</td><td></td><td></td></tr>
+                    <tr><td rowspan="7" class="col-family">C</td><td class="col-num">1</td><td></td><td>Cross Acid Toe Heel</td><td></td><td></td><td>Parallel Toe Toe</td></tr><tr><td class="col-num">2</td><td>Ern Sui 4 Wheels</td><td>Cross Acid Heel Heel</td><td></td><td>FastWheel Heel</td><td>Parallel Heel Toe</td></tr><tr><td class="col-num">3</td><td></td><td>Cross Acid Heel Toe</td><td></td><td>FastWheel Toe</td><td>Parallel Heel Heel</td></tr><tr><td class="col-num">4</td><td></td><td>Cross Acid Toe Toe</td><td></td><td>FastWheel Heel Heel</td><td>Unity / Savannah 8 Wheels</td></tr><tr><td class="col-num">5</td><td></td><td></td><td></td><td>FastWheel Toe Toe</td><td></td></tr><tr><td class="col-num">6</td><td></td><td></td><td></td><td>FastWheel Toe Heel</td><td></td></tr><tr class="level-boundary"><td class="col-num">7</td><td></td><td></td><td></td><td>FastWheel Heel Toe</td><td></td></tr>
+                    <tr><td rowspan="12" class="col-family">D</td><td class="col-num">1</td><td></td><td>Barrow Heel Toe</td><td></td><td></td><td></td></tr><tr><td class="col-num">2</td><td>Soyale Heel Heel</td><td>Barrow Toe Heel</td><td></td><td></td><td></td></tr><tr><td class="col-num">3</td><td>Soyale Heel Toe</td><td>Barrow Toe</td><td></td><td></td><td></td></tr><tr><td class="col-num">4</td><td>Soyale Toe Heel</td><td>Barrow Heel</td><td></td><td></td><td></td></tr><tr><td class="col-num">5</td><td>Soyale Toe Toe</td><td>Barrow 4 Wheels</td><td></td><td></td><td></td></tr><tr><td class="col-num">6</td><td>Soyale Heel</td><td>Cross Acid Toe</td><td></td><td></td><td>Parallel 8 Wheels</td></tr><tr><td class="col-num">7</td><td>Soyale Toe</td><td>Cross Acid Heel</td><td></td><td></td><td></td></tr><tr><td class="col-num">8</td><td>Soyale 4 Wheels</td><td>Acid Toe Heel</td><td></td><td></td><td></td></tr><tr><td class="col-num">9</td><td></td><td>Acid Heel Toe</td><td></td><td></td><td></td></tr><tr><td class="col-num">10</td><td></td><td>Acid Toe Toe</td><td></td><td>Magic 8 Wheels</td><td></td></tr><tr><td class="col-num">11</td><td></td><td></td><td></td><td>FastWheel 4 Wheels heel</td><td></td></tr><tr class="level-boundary"><td class="col-num">12</td><td></td><td>Acid toe 4 wheels</td><td></td><td>FastWheel 4 Wheels toe</td><td></td></tr>
+                    <tr><td rowspan="12" class="col-family">E</td><td class="col-num">1</td><td>Soyale 8 wheels</td><td>Barrow 8 wheels</td><td></td><td></td><td></td></tr><tr><td class="col-num">2</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td class="col-num">3</td><td></td><td></td><td></td><td>Powerslide Toe</td><td></td></tr><tr><td class="col-num">4</td><td></td><td></td><td></td><td>Powerslide Heel</td><td></td></tr><tr><td class="col-num">5</td><td></td><td>Cross Acid 8 Wheels</td><td></td><td>Powerslide Toe Toe</td><td></td></tr><tr><td class="col-num">6</td><td></td><td></td><td></td><td>Powerslide Heel Heel</td><td></td></tr><tr><td class="col-num">7</td><td></td><td></td><td></td><td>Powerslide Heel Toe</td><td></td></tr><tr><td class="col-num">8</td><td></td><td>Acid Toe</td><td></td><td>Soul Toe (Fastwheel Toe)</td><td></td></tr><tr><td class="col-num">9</td><td></td><td>Acid Heel</td><td></td><td>Soul Heel (Faswheel Heel)</td><td></td></tr><tr><td class="col-num">10</td><td></td><td>Acid 4 Wheels</td><td></td><td>Soul 4 Wheels (Fastwheel 4 wheels)</td><td></td></tr><tr><td class="col-num">11</td><td></td><td></td><td></td><td></td><td></td></tr><tr class="level-boundary"><td class="col-num">12</td><td></td><td></td><td></td><td>Powerslide</td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer-note">UPDATE APPENDIX FREESTYLE SLIDE MATRIX</div>
+    </div>
+
+    <!-- SPEED SLALOM VIEW -->
+    <div id="speedSlalomView" class="curriculum-view" style="display:none;">
+        <div class="table-responsive is-locked">
+            <table class="matrix-table is-locked speed-table">
+                 <thead>
+                    <tr><th colspan="2">SPEED SLALOM TRACK</th><th>WAKTU TERBAIK SAAT INI</th></tr>
+                </thead>
+                <tbody>
+                    <tr class="level-boundary">
+                        <td class="col-family" style="font-size:14px;">A</td>
+                        <td style="font-weight:900; font-size:14px; width:200px; background:var(--clay-purple); color:var(--sidebar-bg) !important;">ON SKATE</td>
+                        <td id="speed-on-skate" class="clickable-speed clickable-cell" data-type="on-skate">0.000 Detik</td>
+                    </tr>
+                    <tr class="level-boundary">
+                        <td class="col-family" style="font-size:14px;">B</td>
+                        <td style="font-weight:900; font-size:14px; background:var(--clay-purple); color:var(--sidebar-bg) !important;">OFF SKATE</td>
+                        <td id="speed-off-skate" class="clickable-speed clickable-cell" data-type="off-skate">0.000 Detik</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="speed-history-wrapper">
+            <div class="speed-history-box">
+                <h4>📜 Histori OFF SKATE (Maks. 10)</h4>
+                <div class="history-list" id="globalHistoryOffSkate"><div class="history-item" style="justify-content:center; color:var(--text-gray);"><em>Belum ada rekor.</em></div></div>
+            </div>
+            <div class="speed-history-box">
+                <h4>📜 Histori ON SKATE (Maks. 10)</h4>
+                <div class="history-list" id="globalHistoryOnSkate"><div class="history-item" style="justify-content:center; color:var(--text-gray);"><em>Belum ada rekor.</em></div></div>
+            </div>
+        </div>
+        <div class="footer-note">SPEED SLALOM APPENDIX - (1 CONE FAULT = +0.2 DETIK | >4 FAULT = GAGAL)</div>
+    </div>
+
+    <!-- BEGINNER'S TEST VIEW -->
+    <div id="beginner'sTestView" class="curriculum-view" style="display:none;">
+        <div class="table-responsive is-locked">
+            <table class="matrix-table is-locked">
+                 <thead><tr><th colspan="2">TINGKATAN</th><th>FLEXIBILITY</th><th>DURABILITY</th><th>STABILITY</th><th>AGILITY</th></tr></thead>
+                <tbody>
+                    <tr><td rowspan="2" class="col-family">LEVEL 3<br>(Pengembangan)</td><td class="col-num">1</td><td>T-STOP</td><td>MELUNCUR MUNDUR</td><td>MELUNCUR 1 KAKI</td><td>MAJU PUTAR 180⁰</td></tr>
+                    <tr class="level-boundary"><td class="col-num">2</td><td>PLOW STOP</td><td>SCOOTER KANAN & KIRI</td><td>SNAKE</td><td>FORWARD CROSSOVERS</td></tr>
+                    <tr><td rowspan="2" class="col-family">LEVEL 2<br>(Lanjutan)</td><td class="col-num">1</td><td>MAJU BUKA TUTUP</td><td>SCOOTER</td><td>FISH</td><td>ZIG-ZAG</td></tr>
+                    <tr class="level-boundary"><td class="col-num">2</td><td>MAJU SIMPLE S</td><td>MELUNCUR MAJU</td><td>MELANGKAH KANAN & KIRI</td><td>AMBIL CONE</td></td></tr>
+                    <tr><td rowspan="2" class="col-family">LEVEL 1<br>(Dasar)</td><td class="col-num">1</td><td>POSISI KAKI V / A</td><td>JALAN DI TEMPAT</td><td>MELANGKAH KANAN / KIRI</td><td>MELANGKAH KESAMPING</td></tr>
+                    <tr class="level-boundary"><td class="col-num">2</td><td>MAJU SIMPLE S</td><td>MAJU 5M</td><td>JALAN DI TEMPAT</td><td>MELANGKAH CEPAT</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer-note">BEGINNER CURICULUM - FOKUS PADA PENGUASAAN DASAR SEPATU RODA UNTUK PEMULA</div>
+    </div>
+
+    <div class="bottom-section">
+        <table class="legend-table" id="legendTableDynamic"></table>
+        <div class="analysis-box">
+            <span><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align:bottom; margin-right:3px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"></path></svg> ANALISA / CATATAN KESELURUHAN:</span>
+            <textarea id="analysisTextarea" placeholder="Ketik analisa/catatan atlet di sini... (Langsung tersimpan otomatis)"></textarea>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PENGATURAN -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModalSafely(document.getElementById('settingsModal'))">&times;</span>
+        <h3>⚙️ Pengaturan Aplikasi</h3>
+        <form id="settingsForm">
+            <div class="form-group"><label>Nama Club / Sekolah:</label><input type="text" id="settingClubName" placeholder="Contoh: KEDIRI INLINE SKATE SCHOOL" required></div>
+            <div class="form-group"><label>URL Logo (Gambar):</label><input type="url" id="settingLogoUrl" placeholder="https://contoh.com/logo.png"><small style="color:var(--text-gray); font-weight:700;">Kosongkan untuk memakai logo default.</small></div>
+            <div class="form-group"><label>Atau Upload Logo Terbaru (File):</label><input type="file" id="settingLogoFile" accept="image/*" class="clay-input-top" style="width:100%; box-sizing:border-box; padding:6px;"><small style="color:var(--text-gray); font-weight:700;">Pilih file dari perangkat untuk logo baru.</small></div>
+            <button type="submit" class="submit-btn">Simpan Pengaturan</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL TRICK INDIVIDU -->
+<div id="trickModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModalSafely(document.getElementById('trickModal'))">&times;</span>
+        <h3 id="modalTitleIndividual">Penilaian Trik (Individu)</h3>
+        <form id="assessmentForm">
+            <div class="form-group"><label>Nama Trik/Materi:</label><input type="text" id="modalTrickName" required></div>
+            <div class="form-group"><label>Tanggal Penilaian:</label><input type="date" id="modalDate" required></div>
+
+            <div class="form-group" id="modalScoreInputWrapper"></div>
+
+            <div class="form-group"><label>Link YouTube (Opsional):</label><div class="yt-input-group"><input type="url" id="modalYtLink" placeholder="https://youtube.com/..."><a href="#" id="modalYtViewBtn" class="yt-view-btn" target="_blank" style="display:none;">Lihat Video</a></div></div>
+            <button type="submit" class="submit-btn">Simpan Penilaian</button>
+        </form>
+        <div class="history-container">
+            <h4>Histori Penilaian:</h4><div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL MASSAL -->
+<div id="massModal" class="modal">
+    <div class="modal-content" style="max-width: 580px;">
+        <span class="close-btn" onclick="closeModalSafely(document.getElementById('massModal'))">&times;</span>
+        <h3 style="color:var(--sidebar-bg);">📋 Penilaian Massal Trik</h3>
+
+        <div class="form-group"><label>Nama Trik/Materi:</label><input type="text" id="massTrickName" readonly style="color:var(--sidebar-bg); font-weight:900;"></div>
+        <div class="form-group"><label>Tanggal Penilaian (Untuk Semua):</label><input type="date" id="massDate" required></div>
+
+        <div style="background: var(--clay-purple); padding: 10px; border-radius: 10px; margin-bottom:10px; box-shadow:var(--clay-shadow-inset);">
+            <p style="margin:0 0 6px 0; font-size:10px; font-weight:900; color:var(--sidebar-bg);">🔍 FILTER ATLET UNTUK PENILAIAN MASSAL:</p>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px;">
+                <select id="filterKelasMass" class="clay-select-top" style="flex:1;">
+                    <option value="">-- SEMUA KELAS --</option>
+                    <option value="PEMULA">PEMULA</option>
+                    <option value="JUNIOR 1">JUNIOR 1</option>
+                    <option value="JUNIOR 2">JUNIOR 2</option>
+                </select>
+                <select id="filterStatusMass" class="clay-select-top" style="flex:1;">
+                    <option value="">-- SEMUA STATUS --</option>
+                    <option value="Aktif">AKTIF</option>
+                    <option value="Arsip">ARSIP</option>
+                </select>
+                <select id="filterHasilMass" class="clay-select-top" style="flex:1;">
+                    <option value="">-- SEMUA HASIL --</option>
+                    <option value="Kosong">KOSONG</option>
+                    <option value="Merah">MERAH</option>
+                    <option value="Kuning">KUNING</option>
+                    <option value="Hijau">HIJAU</option>
+                </select>
+            </div>
+
+            <label style="display:flex; align-items:center; gap:8px; font-weight:900; color:var(--text-dark); font-size:11px; cursor:pointer; margin-top:6px;">
+                <input type="checkbox" id="checkAllMass" class="mass-check" style="width:16px; height:16px;">
+                PILIH SEMUA / CENTANG SEMUA ATLET DI BAWAH
+            </label>
+            <p style="margin:8px 0 4px 0; font-size:10px; font-weight:900; color:var(--sidebar-bg);">Terapkan nilai yang sama ke atlet yg dicentang:</p>
+            <div class="quick-btn-group-10" id="massActionBtns"></div>
+        </div>
+
+        <p style="font-size: 10px; font-weight: 900; color:var(--text-gray); margin-bottom: 0;">Atau nilai satu per satu di bawah ini:</p>
+        <div class="mass-athlete-list" id="massAthleteContainer"></div>
+
+        <button type="button" class="submit-btn" style="background:var(--sidebar-bg);" onclick="closeMassModal()">✅ Selesai & Tutup</button>
+    </div>
+</div>
+
+<div id="speedModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModalSafely(document.getElementById('speedModal'))">&times;</span>
+        <h3 id="speedModalTitle">Input Speed Slalom</h3>
+        <form id="speedForm">
+            <div class="form-group"><label>Tanggal Penilaian:</label><input type="date" id="speedDate" required></div>
+            <div class="form-group"><label>Waktu Asli (Detik):</label><input type="number" id="speedTime" step="0.001" min="0" placeholder="Contoh: 5.432" required></div>
+            <div class="form-group" id="coneFaultGroup"><label>Cone Fault (Kesalahan Cone):</label><input type="number" id="speedFault" min="0" value="0" placeholder="Jumlah cone tersenggol/terlewat"><small style="color:var(--text-gray); font-weight:700;">Setiap 1 fault = +0.2 detik</small></div>
+            <button type="submit" class="submit-btn">Simpan Rekor</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // --- PENGECEKAN HAK AKSES & VALIDASI AKUN TERDAFTAR (PARENT / COACH / ADMIN) ---
+    let currentUserSession = JSON.parse(localStorage.getItem('KILAT_CURRENT_USER') || localStorage.getItem('kilat_user_data') || 'null');
+
+    // Periksa juga apakah terdaftar di list global KILAT_USERS jika sesi belum termuat dengan benar
+    if (!currentUserSession) {
+        let registeredUsers = JSON.parse(localStorage.getItem('manageUsersData')) || JSON.parse(localStorage.getItem('KILAT_USERS')) || [];
+        if (registeredUsers.length > 0) {
+            currentUserSession = registeredUsers[registeredUsers.length - 1];
+        }
+    }
+
+    const allowedRoles = ['ADMIN', 'COACH', 'PARENT'];
+    let userRoleRaw = currentUserSession ? (currentUserSession.role || '').toUpperCase() : '';
+
+    if (!currentUserSession || !allowedRoles.includes(userRoleRaw)) {
+        alert('⚠️ Akses Ditolak: Halaman ini hanya dapat diakses oleh akun yang terdaftar sebagai Parent atau Coach.');
+        window.location.href = 'profil.html';
+    }
+
+    let currentRole = userRoleRaw;
+    let currentParentUsername = currentUserSession.username || currentUserSession.email || currentUserSession.name || 'ParentUser';
+
+    const trickModal = document.getElementById('trickModal');
+    const massModal = document.getElementById('massModal');
+    const speedModal = document.getElementById('speedModal');
+    const settingsModal = document.getElementById('settingsModal');
+
+    const formTrick = document.getElementById('assessmentForm');
+    const formSpeed = document.getElementById('speedForm');
+
+    const displayLogo = document.getElementById('displayLogo');
+    const displayClubNameSub = document.getElementById('displayClubNameSub');
+
+    const athleteInput = document.getElementById('athleteName');
+    const athleteFullNameInput = document.getElementById('athleteFullName');
+    const bioInputs = document.querySelectorAll('.bio-input');
+    const waBtn = document.getElementById('waBtn');
+    const analysisTextarea = document.getElementById('analysisTextarea');
+
+    const athleteSelect = document.getElementById('athleteSelect');
+    const athleteSelectFullName = document.getElementById('athleteSelectFullName');
+    const searchAthlete = document.getElementById('searchAthlete');
+
+    const filterKelasMass = document.getElementById('filterKelasMass');
+    const filterStatusMass = document.getElementById('filterStatusMass');
+    const filterHasilMass = document.getElementById('filterHasilMass');
+
+    const btnAddBio = document.getElementById('btnAddBio');
+    const btnEditBio = document.getElementById('btnEditBio');
+    const btnDeleteBio = document.getElementById('btnDeleteBio');
+    const btnSaveBio = document.getElementById('btnSaveBio');
+    const btnExportData = document.getElementById('btnExportData');
+    const btnImportData = document.getElementById('btnImportData');
+    const btnSettings = document.getElementById('btnSettings');
+    const btnModeToggle = document.getElementById('btnModeToggle');
+    const roleLabelDisplay = document.getElementById('roleLabelDisplay');
+
+    let currentCellId = null;
+    let currentSpeedType = null;
+
+    const CLAY_COLORS = { belum: '#ffffff', ulangi: '#ff6b81', progress: '#ffc977', master: '#50b054' };
+
+    // --- MANAJEMEN STATE HISTORY UNTUK TOMBOL KEMBALI HP ---
+    function openModalSafely(modalEl) {
+        if (!modalEl) return;
+        modalEl.style.display = 'block';
+        // Tambahkan state history agar tombol back HP mentrigger pop-up tertutup alih-alih keluar halaman
+        if (history.state?.modalId !== modalEl.id) {
+            history.pushState({ modalId: modalEl.id }, '');
+        }
+    }
+
+    function closeModalSafely(modalEl) {
+        if (!modalEl) return;
+        modalEl.style.display = 'none';
+        // Jika state saat ini adalah modal tersebut, kembali ke state sebelumnya di history
+        if (history.state?.modalId === modalEl.id) {
+            history.back();
+        }
+    }
+
+    window.addEventListener('popstate', (event) => {
+        let anyOpen = false;
+        [trickModal, massModal, speedModal, settingsModal].forEach(m => {
+            if (m && m.style.display === 'block') {
+                m.style.display = 'none';
+                anyOpen = true;
+            }
+        });
+        // Jika ada modal yang tertutup oleh tombol back HP, cegah aksi default keluar halaman
+        if (anyOpen) {
+            event.preventDefault();
+        }
+    });
+
+    // --- LOGIKA PERUBAHAN WARNA BACKGROUND BERDASARKAN SCROLL ---
+    const mainContainer = document.getElementById('mainContainer');
+
+    function updateBackgroundOnScroll() {
+        const scrollableHeight = mainContainer.scrollHeight - mainContainer.clientHeight;
+        let scrollPercent = 0;
+        if (scrollableHeight > 0) {
+            scrollPercent = mainContainer.scrollTop / scrollableHeight;
+        }
+
+        const hue = Math.round(scrollPercent * 360);
+
+        document.documentElement.style.setProperty('--bg-color-1', `hsl(${hue}, 55%, 86%)`);
+        document.documentElement.style.setProperty('--bg-color-2', `hsl(${(hue + 45) % 360}, 65%, 74%)`);
+    }
+
+    mainContainer.addEventListener('scroll', updateBackgroundOnScroll);
+    window.addEventListener('resize', updateBackgroundOnScroll);
+
+    // --- PENERAPAN HAK AKSES BERDASARKAN ROLE ---
+    function applyRolePermissions() {
+        roleLabelDisplay.innerText = currentRole;
+
+        if (currentRole === 'ADMIN') {
+            btnAddBio.style.display = 'inline-block';
+            btnEditBio.style.display = 'inline-block';
+            btnDeleteBio.style.display = 'inline-block';
+            btnExportData.style.display = 'inline-block';
+            btnImportData.style.display = 'inline-block';
+            btnSettings.style.display = 'inline-block';
+            btnModeToggle.style.display = 'inline-block';
+            analysisTextarea.removeAttribute('readonly');
+        } else if (currentRole === 'COACH') {
+            btnAddBio.style.display = 'none';
+            btnEditBio.style.display = 'none';
+            btnDeleteBio.style.display = 'none';
+            btnSaveBio.style.display = 'none';
+            btnExportData.style.display = 'none';
+            btnImportData.style.display = 'none';
+            btnSettings.style.display = 'none';
+            btnModeToggle.style.display = 'inline-block';
+            analysisTextarea.removeAttribute('readonly');
+        } else if (currentRole === 'PARENT') {
+            btnAddBio.style.display = 'inline-block';
+            btnEditBio.style.display = 'inline-block';
+            btnDeleteBio.style.display = 'none';
+            btnExportData.style.display = 'none';
+            btnImportData.style.display = 'none';
+            btnSettings.style.display = 'none';
+            btnModeToggle.style.display = 'none';
+            analysisTextarea.setAttribute('readonly', 'true');
+        }
+    }
+
+    function getActiveTabId() {
+        const activeBtn = document.querySelector('.curr-btn.active[data-target]');
+        return activeBtn ? activeBtn.getAttribute('data-target') : 'classicSlalomView';
+    }
+
+    function isBeginnerTab() {
+        return getActiveTabId() === "beginner'sTestView";
+    }
+
+    // --- KETERANGAN / LEGEND DINAMIS SESUAI TAB ---
+    function updateLegendTable() {
+        const legendTable = document.getElementById('legendTableDynamic');
+        const activeTab = getActiveTabId();
+        if (activeTab === "beginner'sTestView") {
+            legendTable.innerHTML = `
+                <tr><td rowspan="4" class="legend-title">KETERANGAN<br>(BEGINNER)</td><td class="bg-belum">PUTIH</td><td class="bg-belum">BELUM</td></tr>
+                <tr><td class="bg-ulangi">MERAH</td><td class="bg-ulangi">ULANGI</td></tr>
+                <tr><td class="bg-progress">KUNING</td><td class="bg-progress">CUKUP</td></tr>
+                <tr><td class="bg-master">HIJAU</td><td class="bg-master">LANCAR</td></tr>
+            `;
+        } else if (activeTab === "speedSlalomView") {
+            legendTable.innerHTML = `
+                <tr><td rowspan="3" class="legend-title">ATURAN<br>(SPEED SLALOM)</td><td class="bg-ulangi">+0.2s</td><td class="bg-ulangi">Setiap 1 Cone Fault</td></tr>
+                <tr><td class="bg-ulangi">&gt;4 FAULT</td><td class="bg-ulangi">Gagal / Merah</td></tr>
+                <tr><td class="bg-master">BERHASIL</td><td class="bg-master">Lolos / Hijau</td></tr>
+            `;
+        } else if (activeTab === "freestyleSlideView") {
+            legendTable.innerHTML = `
+                <tr><td rowspan="3" class="legend-title">ATURAN<br>(SLIDE)</td><td class="bg-belum">START</td><td class="bg-belum">Sprint & Rem/Slide</td></tr>
+                <tr><td class="bg-ulangi">&lt; 2 METER</td><td class="bg-ulangi">Belum / Ulangi</td></tr>
+                <tr><td class="bg-master">&gt; 2 METER</td><td class="bg-master">Lolos / Berhasil</td></tr>
+            `;
+        } else {
+            legendTable.innerHTML = `
+                <tr><td rowspan="4" class="legend-title">KETERANGAN<br>(TRICK)</td><td class="bg-belum">BELUM (0)</td><td class="bg-belum">0 CONE / DETIK</td></tr>
+                <tr><td class="bg-ulangi">PEMULA (1-4)</td><td class="bg-ulangi">1-4 CONES</td></tr>
+                <tr><td class="bg-progress">LANJUTAN (5-7)</td><td class="bg-progress">4-7 CONES</td></tr>
+                <tr><td class="bg-master">EXPERT (8-10+)</td><td class="bg-master">8&lt; CONES</td></tr>
+            `;
+        }
+    }
+
+    analysisTextarea.addEventListener('input', () => {
+        if (currentRole === 'PARENT') return;
+        const athlete = athleteInput.value.trim();
+        if(!athlete) return;
+        let bioData = JSON.parse(localStorage.getItem('KILAT_BIO_' + athlete)) || {};
+        bioData.analisa = analysisTextarea.value;
+        syncAthleteDataToExternalFiles(athlete, bioData);
+    });
+
+    function loadSettingsData() {
+        const settings = JSON.parse(localStorage.getItem('KILAT_SETTINGS')) || { clubName: 'KEDIRI INLINE SKATE SCHOOL', logoUrl: '' };
+        displayClubNameSub.innerText = settings.clubName;
+        displayLogo.src = (settings.logoUrl && settings.logoUrl.trim() !== '') ? settings.logoUrl : 'https://via.placeholder.com/250x90/7b61ff/ffffff?text=LOGO+KILAT';
+    }
+
+    btnSettings.addEventListener('click', () => {
+        if (currentRole !== 'ADMIN') return alert('Akses Terbatas: Hanya Role Admin yang dapat membuka Pengaturan!');
+        const settings = JSON.parse(localStorage.getItem('KILAT_SETTINGS')) || { clubName: 'KEDIRI INLINE SKATE SCHOOL', logoUrl: '' };
+        document.getElementById('settingClubName').value = settings.clubName;
+        document.getElementById('settingLogoUrl').value = settings.logoUrl;
+        const fileInput = document.getElementById('settingLogoFile');
+        if (fileInput) fileInput.value = '';
+        openModalSafely(settingsModal);
+    });
+
+    document.getElementById('settingsForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const clubName = document.getElementById('settingClubName').value.trim() || 'KEDIRI INLINE SKATE SCHOOL';
+        let logoUrl = document.getElementById('settingLogoUrl').value.trim();
+        const fileInput = document.getElementById('settingLogoFile');
+
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(uploadEvent) {
+                logoUrl = uploadEvent.target.result;
+                localStorage.setItem('KILAT_SETTINGS', JSON.stringify({ clubName, logoUrl }));
+                loadSettingsData();
+                closeModalSafely(settingsModal);
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            localStorage.setItem('KILAT_SETTINGS', JSON.stringify({ clubName, logoUrl }));
+            loadSettingsData();
+            closeModalSafely(settingsModal);
+        }
+    });
+
+    btnExportData.addEventListener('click', () => {
+        if (currentRole !== 'ADMIN') return alert('Akses Terbatas: Hanya Role Admin yang dapat Export Backup!');
+        let backup = {};
+        for(let i=0; i<localStorage.length; i++){
+            let key = localStorage.key(i);
+            if(key && (key.startsWith('KILAT_') || key === 'lastActiveAthlete' || key === 'manageUsersData')) {
+                backup[key] = localStorage.getItem(key);
+            }
+        }
+        if(Object.keys(backup).length === 0) return alert("Belum ada data untuk di-backup.");
+
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+        let downloadAnchor = document.createElement('a');
+        downloadAnchor.setAttribute("href", dataStr);
+        let dateNow = new Date().toISOString().split('T')[0];
+        downloadAnchor.setAttribute("download", `Backup_KILAT_${dateNow}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+    });
+
+    document.getElementById('importFile').addEventListener('change', function(e) {
+        if (currentRole !== 'ADMIN') return alert('Akses Terbatas: Hanya Role Admin yang dapat Restore Import Data!');
+        let file = e.target.files[0];
+        if(!file) return;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let data = JSON.parse(e.target.result);
+                for(let key in data) {
+                    localStorage.setItem(key, data[key]);
+                }
+                alert("Import Berhasil! Halaman akan direfresh untuk memuat data baru.");
+                location.reload();
+            } catch(err) {
+                alert("Gagal memuat file. Pastikan file berformat .json yang valid.");
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    let isHeaderLocked = true;
+    document.getElementById('btnToggleLock').addEventListener('click', (e) => {
+        isHeaderLocked = !isHeaderLocked;
+        const btn = e.target;
+        document.querySelectorAll('.matrix-table').forEach(t => t.classList.toggle('is-locked', isHeaderLocked));
+        document.querySelectorAll('.table-responsive').forEach(w => w.classList.toggle('is-locked', isHeaderLocked));
+        btn.innerHTML = isHeaderLocked ? '🔒 Header Terkunci' : '🔓 Kunci Header';
+        btn.style.background = isHeaderLocked ? 'var(--c-hadir)' : 'var(--bg-main)';
+        btn.style.color = isHeaderLocked ? 'white' : 'var(--text-gray)';
+    });
+
+    const currBtns = document.querySelectorAll('.curr-btn[data-target]');
+    currBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            currBtns.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.curriculum-view').forEach(v => v.style.display = 'none');
+            btn.classList.add('active');
+            const targetId = btn.getAttribute('data-target');
+            document.getElementById(targetId).style.display = 'block';
+            localStorage.setItem('KILAT_ACTIVE_TAB', targetId);
+            updateLegendTable();
+        });
+    });
+
+    // --- FILTER ATLET BERDASARKAN KEPEMILIKAN PARENT ---
+    function updateAthleteDropdowns() {
+        const athletes = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+        let nickOptions = '<option value="">-- PANGGILAN --</option>';
+        let fullOptions = '<option value="">-- NAMA LENGKAP --</option>';
+
+        const filterText = searchAthlete.value.toLowerCase();
+
+        athletes.forEach(nick => {
+            const bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + nick)) || {};
+
+            if (currentRole === 'PARENT' && bio.connectedParent !== currentParentUsername) {
+                return;
+            }
+
+            const fullName = bio.fullName && bio.fullName.trim() !== '' ? bio.fullName : "";
+
+            if(filterText && !(nick.toLowerCase().includes(filterText) || fullName.toLowerCase().includes(filterText))) return;
+
+            nickOptions += `<option value="${nick}">${nick}</option>`;
+            if (fullName) fullOptions += `<option value="${fullName}">${fullName}</option>`;
+        });
+
+        athleteSelect.innerHTML = nickOptions;
+        athleteSelectFullName.innerHTML = fullOptions;
+    }
+
+    searchAthlete.addEventListener('input', updateAthleteDropdowns);
+
+    function handleSelectChange(targetNick) {
+        if(targetNick) {
+            const bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + targetNick));
+            if (currentRole === 'PARENT' && bio && bio.connectedParent !== currentParentUsername) {
+                alert('⚠️ Akses Ditolak: Anda tidak memiliki izin untuk melihat data atlet yang tidak terhubung dengan akun Anda.');
+                return handleSelectChange("");
+            }
+
+            athleteInput.value = targetNick;
+            athleteSelect.value = targetNick;
+            if(bio && bio.fullName) athleteSelectFullName.value = bio.fullName;
+            loadBiodata(targetNick);
+            loadBoard();
+            localStorage.setItem('lastActiveAthlete', targetNick);
+            resetEditMode();
+        } else {
+            loadBiodata(""); loadBoard(); localStorage.removeItem('lastActiveAthlete');
+        }
+    }
+
+    athleteSelect.addEventListener('change', () => handleSelectChange(athleteSelect.value));
+    athleteSelectFullName.addEventListener('change', () => {
+        const fullName = athleteSelectFullName.value;
+        if(!fullName) return handleSelectChange("");
+        const athletes = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+        let targetNick = athletes.find(nick => {
+            const bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + nick));
+            return bio && bio.fullName === fullName;
+        });
+        handleSelectChange(targetNick || "");
+    });
+
+    btnAddBio.addEventListener('click', () => {
+        if (currentRole === 'COACH') {
+            return alert('Akses Terbatas: Coach tidak dapat menambah atlet baru.');
+        }
+        handleSelectChange("");
+        bioInputs.forEach(input => {
+            input.removeAttribute('readonly');
+            input.removeAttribute('disabled');
+        });
+
+        // Aturan Role Parent: Default kelas otomatis PEMULA, nama wali dikunci/diisi otomatis oleh parent
+        if (currentRole === 'PARENT') {
+            const fieldOrtu = document.getElementById('bioOrtu');
+            fieldOrtu.value = currentParentUsername;
+            fieldOrtu.setAttribute('readonly', true);
+
+            const fieldKelas = document.getElementById('bioKelas');
+            fieldKelas.value = 'PEMULA';
+            fieldKelas.setAttribute('disabled', true);
+
+            const fieldStatus = document.getElementById('bioStatus');
+            fieldStatus.value = 'Aktif';
+            fieldStatus.setAttribute('disabled', true);
+        } else {
+            document.getElementById('bioStatus').value = 'Aktif';
+        }
+
+        btnAddBio.style.display = 'none';
+        btnEditBio.style.display = 'none';
+        btnSaveBio.style.display = 'inline-block';
+
+        athleteInput.focus();
+    });
+
+    btnEditBio.addEventListener('click', () => {
+        if (currentRole === 'COACH') {
+            return alert('Akses Terbatas: Role Coach tidak dapat mengedit biodata atlet.');
+        }
+        if(!athleteInput.value.trim()) return alert("Pilih atlet dulu untuk diedit!");
+
+        bioInputs.forEach(input => {
+            input.removeAttribute('readonly');
+            input.removeAttribute('disabled');
+        });
+
+        if (currentRole === 'PARENT') {
+            athleteInput.setAttribute('readonly', true);
+            // Pembatasan Parent: Tidak bisa mengubah Nama Wali, Kelas, dan Status Akun (hanya Admin yang bisa)
+            const fieldOrtu = document.getElementById('bioOrtu');
+            fieldOrtu.setAttribute('readonly', true);
+
+            const fieldKelas = document.getElementById('bioKelas');
+            fieldKelas.setAttribute('disabled', true);
+
+            const fieldStatus = document.getElementById('bioStatus');
+            fieldStatus.setAttribute('disabled', true);
+        }
+
+        btnAddBio.style.display = 'none';
+        btnEditBio.style.display = 'none';
+        btnSaveBio.style.display = 'inline-block';
+        athleteInput.focus();
+    });
+
+    function syncAthleteDataToExternalFiles(athleteName, bioData) {
+        if (currentRole === 'PARENT') {
+            bioData.connectedParent = currentParentUsername;
+            bioData.ortu = currentParentUsername; // Memastikan nama wali mengikuti parent
+            bioData.kelas = 'PEMULA'; // Default kelas otomatis PEMULA saat parent mendaftarkan
+            bioData.status = 'Aktif';
+        } else {
+            let existingBio = JSON.parse(localStorage.getItem('KILAT_BIO_' + athleteName)) || {};
+            bioData.connectedParent = existingBio.connectedParent || '-';
+        }
+
+        localStorage.setItem('KILAT_BIO_' + athleteName, JSON.stringify(bioData));
+
+        let athletes = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+        if (!athletes.includes(athleteName)) {
+            athletes.push(athleteName);
+            localStorage.setItem('KILAT_ATHLETES_LIST', JSON.stringify(athletes));
+        }
+
+        const profilPayload = {
+            name: athleteName,
+            fullName: bioData.fullName || athleteName,
+            nik: bioData.nik || '-',
+            gender: bioData.gender || '-',
+            tglLahir: bioData.tglLahir || '-',
+            alamat: bioData.alamat || '-',
+            ortu: bioData.ortu || '-',
+            kelas: bioData.kelas || 'PEMULA',
+            status: bioData.status || 'Aktif',
+            wa: bioData.wa || '-',
+            analisa: bioData.analisa || '',
+            connectedParent: bioData.connectedParent || '-',
+            updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('KILAT_PROFIL_' + athleteName, JSON.stringify(profilPayload));
+        localStorage.setItem('KILAT_CURRENT_PROFIL', JSON.stringify(profilPayload));
+
+        let manageUsers = JSON.parse(localStorage.getItem('manageUsersData')) || JSON.parse(localStorage.getItem('KILAT_USERS')) || [];
+        let existingIndex = manageUsers.findIndex(u => u.username === athleteName || u.name === athleteName || u.fullName === bioData.fullName);
+
+        const userRecord = {
+            id: existingIndex >= 0 ? manageUsers[existingIndex].id : Date.now(),
+            nik: bioData.nik || '-',
+            username: athleteName,
+            name: athleteName,
+            fullName: bioData.fullName || athleteName,
+            gender: bioData.gender || '-',
+            birthDate: bioData.tglLahir || '-',
+            address: bioData.alamat || '-',
+            parentName: bioData.ortu || '-',
+            class: bioData.kelas || 'PEMULA',
+            status: bioData.status || 'Aktif',
+            wa: bioData.wa || '-',
+            role: 'Atlet',
+            connectedParent: bioData.connectedParent || '-',
+            updatedAt: new Date().toISOString()
+        };
+
+        if (existingIndex >= 0) {
+            manageUsers[existingIndex] = { ...manageUsers[existingIndex], ...userRecord };
+        } else {
+            manageUsers.push(userRecord);
+        }
+
+        localStorage.setItem('manageUsersData', JSON.stringify(manageUsers));
+        localStorage.setItem('KILAT_USERS', JSON.stringify(manageUsers));
+    }
+
+    btnSaveBio.addEventListener('click', () => {
+        if (currentRole === 'COACH') {
+            return alert('Akses Terbatas: Role Coach tidak dapat mengedit/menyimpan biodata atlet.');
+        }
+
+        const athleteName = athleteInput.value.trim();
+        if(!athleteName) return alert('Nama Panggilan tidak boleh kosong!');
+
+        let existingBio = JSON.parse(localStorage.getItem('KILAT_BIO_' + athleteName)) || {};
+
+        const bioData = {
+            nik: document.getElementById('bioNIK').value,
+            fullName: athleteFullNameInput.value,
+            gender: document.getElementById('bioGender').value,
+            tglLahir: document.getElementById('bioTglLahir').value,
+            alamat: document.getElementById('bioAlamat').value,
+            ortu: currentRole === 'PARENT' ? (existingBio.ortu || currentParentUsername) : document.getElementById('bioOrtu').value,
+            kelas: currentRole === 'PARENT' ? (existingBio.kelas || 'PEMULA') : document.getElementById('bioKelas').value,
+            status: currentRole === 'PARENT' ? (existingBio.status || 'Aktif') : document.getElementById('bioStatus').value,
+            wa: document.getElementById('bioWA').value,
+            analisa: analysisTextarea.value,
+            connectedParent: existingBio.connectedParent || (currentRole === 'PARENT' ? currentParentUsername : '-')
+        };
+
+        syncAthleteDataToExternalFiles(athleteName, bioData);
+        localStorage.setItem('lastActiveAthlete', athleteName);
+
+        updateWaButton(bioData.wa);
+        updateAthleteDropdowns();
+
+        athleteSelect.value = athleteName;
+        if(bioData.fullName) athleteSelectFullName.value = bioData.fullName;
+        resetEditMode();
+        alert('Data Atlet Berhasil Disimpan dan Disinkronkan!');
+    });
+
+    btnDeleteBio.addEventListener('click', () => {
+        if (currentRole !== 'ADMIN') {
+            return alert('Akses Terbatas: Hanya Admin yang dapat menghapus atlet.');
+        }
+        const athleteName = athleteInput.value.trim();
+        if(!athleteName) return alert('Tidak ada data atlet yang dipilih untuk dihapus.');
+        if(confirm(`PERINGATAN: Yakin hapus SEMUA data atlet "${athleteName}"?`)) {
+            let athletes = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+            localStorage.setItem('KILAT_ATHLETES_LIST', JSON.stringify(athletes.filter(name => name !== athleteName)));
+            localStorage.removeItem('KILAT_BIO_' + athleteName);
+            localStorage.removeItem('KILAT_DB_' + athleteName);
+            localStorage.removeItem('KILAT_SPEED_DB_' + athleteName);
+            localStorage.removeItem('KILAT_PROFIL_' + athleteName);
+            localStorage.removeItem('lastActiveAthlete');
+
+            let manageUsers = JSON.parse(localStorage.getItem('manageUsersData')) || [];
+            manageUsers = manageUsers.filter(u => u.name !== athleteName && u.username !== athleteName);
+            localStorage.setItem('manageUsersData', JSON.stringify(manageUsers));
+            localStorage.setItem('KILAT_USERS', JSON.stringify(manageUsers));
+
+            handleSelectChange("");
+            updateAthleteDropdowns();
+            alert(`Data atlet "${athleteName}" berhasil dihapus.`);
+        }
+    });
+
+    function resetEditMode() {
+        bioInputs.forEach(input => {
+            input.setAttribute('readonly', true);
+            if(input.tagName === 'SELECT') input.setAttribute('disabled', true);
+        });
+        btnSaveBio.style.display = 'none';
+        applyRolePermissions();
+    }
+
+    function loadBiodata(athleteName) {
+        if(!athleteName) {
+            bioInputs.forEach(input => input.value = '');
+            athleteFullNameInput.value = '';
+            analysisTextarea.value = '';
+            waBtn.style.display = 'none';
+            return;
+        }
+        const bioData = JSON.parse(localStorage.getItem('KILAT_BIO_' + athleteName));
+        if (bioData) {
+            if (currentRole === 'PARENT' && bioData.connectedParent !== currentParentUsername) {
+                alert('⚠️ Akses Terbatas: Anda tidak berhak melihat data atlet dari parent lain.');
+                return;
+            }
+
+            document.getElementById('bioNIK').value = bioData.nik || '';
+            athleteFullNameInput.value = bioData.fullName || '';
+            document.getElementById('bioGender').value = bioData.gender || '';
+            document.getElementById('bioTglLahir').value = bioData.tglLahir || '';
+            document.getElementById('bioAlamat').value = bioData.alamat || '';
+            document.getElementById('bioOrtu').value = bioData.ortu || '';
+            document.getElementById('bioKelas').value = bioData.kelas || 'PEMULA';
+            document.getElementById('bioStatus').value = bioData.status || 'Aktif';
+            document.getElementById('bioWA').value = bioData.wa || '';
+            analysisTextarea.value = bioData.analisa || '';
+            updateWaButton(bioData.wa);
+        } else {
+            bioInputs.forEach(input => input.value = '');
+            athleteFullNameInput.value = '';
+            analysisTextarea.value = '';
+            waBtn.style.display = 'none';
+        }
+    }
+
+    function updateWaButton(waNumber) {
+        if (waNumber && waNumber.trim() !== '') {
+            let cleanNumber = waNumber.replace(/\D/g, ''); if (cleanNumber.startsWith('0')) cleanNumber = '62' + cleanNumber.substring(1);
+            waBtn.href = `https://wa.me/${cleanNumber}`; waBtn.style.display = 'inline-block';
+        } else waBtn.style.display = 'none';
+    }
+
+    let isMassMode = true;
+
+    btnModeToggle.addEventListener('click', () => {
+        if (currentRole === 'PARENT') {
+            return alert('Akses Terbatas: Role Parent tidak dapat mengubah mode penilaian.');
+        }
+        isMassMode = !isMassMode;
+        if (isMassMode) {
+            btnModeToggle.innerText = '📋 MODE: MASSAL AKTIF';
+            btnModeToggle.classList.add('mode-massal');
+        } else {
+            btnModeToggle.innerText = '📋 MODE: INDIVIDU';
+            btnModeToggle.classList.remove('mode-massal');
+        }
+    });
+
+    function renderScoreButtonsHTML(athlete, lastScoreVal) {
+        let html = `<div class="quick-btn-group-10">`;
+        if (isBeginnerTab()) {
+            const options = [
+                {val: 0, label: 'Putih (Belum)', cls: 'c-0'},
+                {val: 1, label: 'Merah (Ulangi)', cls: 'c-red'},
+                {val: 2, label: 'Kuning (Cukup)', cls: 'c-yel'},
+                {val: 3, label: 'Hijau (Lancar)', cls: 'c-grn'}
+            ];
+            options.forEach(opt => {
+                let selClass = lastScoreVal === opt.val ? 'selected' : '';
+                html += `<button type="button" class="quick-btn-qual ${opt.cls} ${selClass}" onclick="saveQuickScore('${athlete}', ${opt.val}, this)">${opt.label}</button>`;
+            });
+        } else {
+            for(let i=0; i<=10; i++) {
+                let cClass = i===0 ? 'c-0' : (i<=4 ? 'c-red' : (i<=7 ? 'c-yel' : 'c-grn'));
+                let selClass = i === lastScoreVal ? 'selected' : '';
+                html += `<button type="button" class="quick-btn-10 ${cClass} ${selClass}" onclick="saveQuickScore('${athlete}', ${i}, this)" title="Beri nilai ${i}">${i}</button>`;
+            }
+        }
+        html += `</div>`;
+        return html;
+    }
+
+    function renderMassActionButtons() {
+        const group = document.getElementById('massActionBtns');
+        if (isBeginnerTab()) {
+            group.innerHTML = `
+                <button type="button" class="quick-btn-qual c-0" onclick="applyMassScore(0)">Putih</button>
+                <button type="button" class="quick-btn-qual c-red" onclick="applyMassScore(1)">Merah</button>
+                <button type="button" class="quick-btn-qual c-yel" onclick="applyMassScore(2)">Kuning</button>
+                <button type="button" class="quick-btn-qual c-grn" onclick="applyMassScore(3)">Hijau</button>
+            `;
+        } else {
+            let html = '';
+            for(let i=0; i<=10; i++) {
+                let cClass = i===0 ? 'c-0' : (i<=4 ? 'c-red' : (i<=7 ? 'c-yel' : 'c-grn'));
+                html += `<button type="button" class="quick-btn-10 ${cClass}" onclick="applyMassScore(${i})">${i}</button>`;
+            }
+            group.innerHTML = html;
+        }
+    }
+
+    function openMassModal(td) {
+        if (currentRole === 'PARENT') {
+            return alert('Akses Terbatas: Role Parent tidak dapat mengedit penilaian massal.');
+        }
+        currentCellId = td.id;
+        const trickName = td.innerText.trim();
+        document.getElementById('massTrickName').value = trickName;
+        document.getElementById('massDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('checkAllMass').checked = false;
+
+        renderMassActionButtons();
+        populateMassAthleteList();
+        openModalSafely(massModal);
+    }
+
+    function populateMassAthleteList() {
+        const athletes = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+        const container = document.getElementById('massAthleteContainer');
+        container.innerHTML = '';
+
+        const fKelas = filterKelasMass.value;
+        const fStatus = filterStatusMass.value;
+        const fHasil = filterHasilMass.value;
+
+        athletes.forEach(athlete => {
+            const bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + athlete)) || {};
+            if (currentRole === 'PARENT' && bio.connectedParent !== currentParentUsername) return;
+
+            const bioKelas = bio.kelas || "";
+            const bioStatus = bio.status || "Aktif";
+
+            if(fKelas && bioKelas !== fKelas) return;
+            if(fStatus && bioStatus !== fStatus) return;
+
+            let db = JSON.parse(localStorage.getItem('KILAT_DB_' + athlete)) || {};
+            let lastScoreVal = -1;
+            let lastScoreStr = "Belum Ada Nilai";
+
+            if(db[currentCellId] && db[currentCellId].history.length > 0) {
+                lastScoreVal = db[currentCellId].history[0].score;
+                if(isBeginnerTab()) {
+                    if(lastScoreVal === 0) lastScoreStr = "Putih (Belum)";
+                    else if(lastScoreVal === 1) lastScoreStr = "Merah (Ulangi)";
+                    else if(lastScoreVal === 2) lastScoreStr = "Kuning (Cukup)";
+                    else if(lastScoreVal === 3) lastScoreStr = "Hijau (Lancar)";
+                } else {
+                    if(lastScoreVal == 0) lastScoreStr = "Putih (0)";
+                    else if(lastScoreVal <= 4) lastScoreStr = `Merah (${lastScoreVal})`;
+                    else if(lastScoreVal <= 7) lastScoreStr = `Kuning (${lastScoreVal})`;
+                    else lastScoreStr = `Hijau (${lastScoreVal})`;
+                }
+            }
+
+            if(fHasil) {
+                let isKosong = (lastScoreVal === -1);
+                let isMerah = isBeginnerTab() ? (lastScoreVal === 1) : (lastScoreVal >= 1 && lastScoreVal <= 4);
+                let isKuning = isBeginnerTab() ? (lastScoreVal === 2) : (lastScoreVal >= 5 && lastScoreVal <= 7);
+                let isHijau = isBeginnerTab() ? (lastScoreVal === 3) : (lastScoreVal >= 8);
+
+                if(fHasil === 'Kosong' && !isKosong) return;
+                if(fHasil === 'Merah' && !isMerah) return;
+                if(fHasil === 'Kuning' && !isKuning) return;
+                if(fHasil === 'Hijau' && !isHijau) return;
+            }
+
+            const div = document.createElement('div');
+            div.className = 'mass-athlete-item';
+            div.innerHTML = `
+                <div class="mass-athlete-header">
+                    <input type="checkbox" class="mass-check" value="${athlete}">
+                    <span>👤 ${athlete} - <small style="color:var(--sidebar-bg);">(${lastScoreStr})</small></span>
+                </div>
+                ${renderScoreButtonsHTML(athlete, lastScoreVal)}
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    filterKelasMass.addEventListener('change', populateMassAthleteList);
+    filterStatusMass.addEventListener('change', populateMassAthleteList);
+    filterHasilMass.addEventListener('change', populateMassAthleteList);
+
+    function saveScoreToDB(athlete, score) {
+        if (currentRole === 'PARENT') return alert('Akses Terbatas: Parent tidak dapat mengisi penilaian.');
+        const date = document.getElementById('massDate').value;
+        const trickName = document.getElementById('massTrickName').value;
+        let storageKey = 'KILAT_DB_' + athlete;
+        let data = JSON.parse(localStorage.getItem(storageKey)) || {};
+
+        if (!data[currentCellId]) data[currentCellId] = { history: [] };
+        data[currentCellId].trickName = trickName;
+        data[currentCellId].history.unshift({ date: date, score: score, link: "" });
+        localStorage.setItem(storageKey, JSON.stringify(data));
+    }
+
+    window.saveQuickScore = function(athlete, score, btnElement) {
+        if (currentRole === 'PARENT') return alert('Akses Terbatas: Parent tidak dapat mengisi penilaian.');
+        saveScoreToDB(athlete, score);
+        const group = btnElement.parentElement;
+        group.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+        btnElement.classList.add('selected');
+
+        if (athleteInput.value.trim() === athlete && !isMassMode) {
+             loadBoard();
+        }
+    };
+
+    document.getElementById('checkAllMass').addEventListener('change', function() {
+        const isChecked = this.checked;
+        document.querySelectorAll('.mass-check').forEach(chk => chk.checked = isChecked);
+    });
+
+    window.applyMassScore = function(score) {
+        if (currentRole === 'PARENT') return alert('Akses Terbatas: Parent tidak dapat mengisi penilaian.');
+        const checkedBoxes = document.querySelectorAll('.mass-check:checked');
+        if(checkedBoxes.length === 0) return alert("Silakan centang/pilih minimal satu atlet terlebih dahulu!");
+
+        checkedBoxes.forEach(chk => {
+            const athlete = chk.value;
+            saveScoreToDB(athlete, score);
+
+            const row = chk.closest('.mass-athlete-item');
+            if(row) {
+                const buttons = row.querySelectorAll('button');
+                buttons.forEach(b => b.classList.remove('selected'));
+                if(buttons[score]) buttons[score].classList.add('selected');
+            }
+        });
+    }
+
+    function closeMassModal() {
+        closeModalSafely(massModal);
+        if (athleteInput.value) loadBoard();
+    }
+
+    document.querySelectorAll('.curriculum-view').forEach(view => {
+        if (view.id === 'speedSlalomView') return;
+        let viewId = view.id; let cellIndex = 0;
+        view.querySelectorAll('.matrix-table tbody td').forEach(td => {
+            if (td.classList.contains('col-family') || td.classList.contains('col-num')) return;
+            td.id = viewId + '-trick-' + cellIndex++;
+            td.innerHTML = td.innerText.trim(); td.setAttribute('data-orig', td.innerHTML);
+            td.classList.add('clickable-cell');
+
+            td.addEventListener('click', function(e) {
+                e.stopImmediatePropagation();
+                if (currentRole === 'PARENT') {
+                    alert('⚠️ Akses Terbatas: Role Parent hanya dapat melihat progress.');
+                    return;
+                }
+                if (isMassMode) {
+                    openMassModal(this);
+                } else {
+                    const athleteName = athleteInput.value.trim();
+                    if (!athleteName) return alert('Pilih Atlet terlebih dahulu untuk mode Individu!');
+                    openTrickModal(this);
+                }
+            });
+        });
+    });
+
+    document.getElementById('modalYtLink').addEventListener('input', function() {
+        const btn = document.getElementById('modalYtViewBtn');
+        if (this.value.trim() !== '') { btn.href = this.value; btn.style.display = 'flex'; } else btn.style.display = 'none';
+    });
+
+    function openTrickModal(td) {
+        if (currentRole === 'PARENT') {
+            return alert('⚠️ Akses Terbatas: Role Parent hanya dapat melihat progress.');
+        }
+        currentCellId = td.id;
+        const athleteName = athleteInput.value.trim();
+        document.getElementById('modalTrickName').value = td.innerText.trim();
+        document.getElementById('modalDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('modalYtLink').value = '';
+        document.getElementById('modalYtViewBtn').style.display = 'none';
+
+        const wrapper = document.getElementById('modalScoreInputWrapper');
+        if (isBeginnerTab()) {
+            document.getElementById('modalTitleIndividual').innerText = 'Penilaian Beginner (Individu)';
+            wrapper.innerHTML = `
+                <label>Pilih Penilaian:</label>
+                <select id="modalScoreBeginner" required class="clay-input-top" style="width:100%; padding:8px;">
+                    <option value="0">PUTIH (Belum)</option>
+                    <option value="1">MERAH (Ulangi)</option>
+                    <option value="2">KUNING (Cukup)</option>
+                    <option value="3">HIJAU (Lancar)</option>
+                </select>
+            `;
+        } else {
+            document.getElementById('modalTitleIndividual').innerText = 'Penilaian Trik (Individu)';
+            wrapper.innerHTML = `
+                <label>Nilai/Skor (0-10+):</label>
+                <input type="number" id="modalScore" min="0" placeholder="0 = Belum, 1-4 = Pemula, 5-7 = Lanjutan, 8+ = Expert" required class="clay-input-top" style="width:100%; padding:8px;">
+            `;
+        }
+
+        renderHistoryList(athleteName, currentCellId);
+        openModalSafely(trickModal);
+    }
+
+    function renderHistoryList(athleteName, cellId) {
+        const historyContainer = document.getElementById('historyList');
+        historyContainer.innerHTML = '';
+        if (!athleteName) return;
+
+        let db = JSON.parse(localStorage.getItem('KILAT_DB_' + athleteName)) || {};
+        if (!db[cellId] || !db[cellId].history || db[cellId].history.length === 0) {
+            historyContainer.innerHTML = '<div style="color:var(--text-gray); font-weight:700;">Belum ada histori penilaian.</div>';
+            return;
+        }
+
+        db[cellId].history.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+
+            let scoreText = item.score;
+            if (isBeginnerTab()) {
+                if (item.score === 0) scoreText = 'Putih (Belum)';
+                else if (item.score === 1) scoreText = 'Merah (Ulangi)';
+                else if (item.score === 2) scoreText = 'Kuning (Cukup)';
+                else if (item.score === 3) scoreText = 'Hijau (Lancar)';
+            }
+
+            let ytHTML = item.link ? `<br><a href="${item.link}" target="_blank" class="yt-link">▶ Video YouTube</a>` : '';
+            let deleteBtnHTML = (currentRole !== 'PARENT') ? `<button type="button" class="delete-history-btn" onclick="deleteHistoryItem('${athleteName}', '${cellId}', ${index})">Hapus</button>` : '';
+
+            div.innerHTML = `
+                <div class="history-details">
+                    <strong>📅 ${item.date}</strong> - Skor: <strong>${scoreText}</strong> ${ytHTML}
+                </div>
+                ${deleteBtnHTML}
+            `;
+            historyContainer.appendChild(div);
+        });
+    }
+
+    window.deleteHistoryItem = function(athleteName, cellId, index) {
+        if (currentRole === 'PARENT') return alert('Akses Terbatas: Parent tidak dapat menghapus histori.');
+        if (!confirm('Hapus histori penilaian ini?')) return;
+        let db = JSON.parse(localStorage.getItem('KILAT_DB_' + athleteName)) || {};
+        if (db[cellId] && db[cellId].history) {
+            db[cellId].history.splice(index, 1);
+            localStorage.setItem('KILAT_DB_' + athleteName, JSON.stringify(db));
+            renderHistoryList(athleteName, cellId);
+            loadBoard();
+        }
+    };
+
+    formTrick.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (currentRole === 'PARENT') {
+            return alert('Akses Terbatas: Role Parent tidak dapat menyimpan penilaian.');
+        }
+
+        const athleteName = athleteInput.value.trim();
+        if (!athleteName) return alert('Pilih atlet terlebih dahulu!');
+
+        let scoreVal = 0;
+        if (isBeginnerTab()) {
+            scoreVal = parseInt(document.getElementById('modalScoreBeginner').value);
+        } else {
+            scoreVal = parseInt(document.getElementById('modalScore').value);
+        }
+
+        const dateVal = document.getElementById('modalDate').value;
+        const ytLinkVal = document.getElementById('modalYtLink').value.trim();
+        const trickName = document.getElementById('modalTrickName').value.trim();
+
+        let storageKey = 'KILAT_DB_' + athleteName;
+        let db = JSON.parse(localStorage.getItem(storageKey)) || {};
+
+        if (!db[currentCellId]) db[currentCellId] = { history: [] };
+        db[currentCellId].trickName = trickName;
+        db[currentCellId].history.unshift({
+            date: dateVal,
+            score: scoreVal,
+            link: ytLinkVal
+        });
+
+        localStorage.setItem(storageKey, JSON.stringify(db));
+        closeModalSafely(trickModal);
+        loadBoard();
+        alert('Penilaian berhasil disimpan!');
+    });
+
+    document.querySelectorAll('.clickable-speed').forEach(cell => {
+        cell.addEventListener('click', function() {
+            if (currentRole === 'PARENT') {
+                alert('⚠️ Akses Terbatas: Role Parent hanya dapat melihat progress.');
+                return;
+            }
+            const athleteName = athleteInput.value.trim();
+            if (!athleteName) return alert('Pilih atlet terlebih dahulu!');
+
+            currentSpeedType = this.getAttribute('data-type');
+            document.getElementById('speedModalTitle').innerText = `Input Speed Slalom (${currentSpeedType.toUpperCase().replace('-', ' ')})`;
+            document.getElementById('speedDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('speedTime').value = '';
+            document.getElementById('speedFault').value = '0';
+            openModalSafely(speedModal);
+        });
+    });
+
+    formSpeed.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (currentRole === 'PARENT') {
+            return alert('Akses Terbatas: Role Parent tidak dapat menyimpan rekor.');
+        }
+
+        const athleteName = athleteInput.value.trim();
+        if (!athleteName) return alert('Pilih atlet terlebih dahulu!');
+
+        const dateVal = document.getElementById('speedDate').value;
+        const rawTime = parseFloat(document.getElementById('speedTime').value);
+        const faultCount = parseInt(document.getElementById('speedFault').value) || 0;
+
+        let finalTime = rawTime + (faultCount * 0.2);
+        let isFailed = faultCount > 4;
+
+        let storageKey = 'KILAT_SPEED_DB_' + athleteName;
+        let speedDB = JSON.parse(localStorage.getItem(storageKey)) || { 'on-skate': [], 'off-skate': [] };
+
+        if (!speedDB[currentSpeedType]) speedDB[currentSpeedType] = [];
+
+        speedDB[currentSpeedType].unshift({
+            date: dateVal,
+            rawTime: rawTime,
+            fault: faultCount,
+            finalTime: finalTime,
+            failed: isFailed
+        });
+
+        if (speedDB[currentSpeedType].length > 10) {
+            speedDB[currentSpeedType] = speedDB[currentSpeedType].slice(0, 10);
+        }
+
+        localStorage.setItem(storageKey, JSON.stringify(speedDB));
+        closeModalSafely(speedModal);
+        loadBoard();
+        alert('Rekor Speed Slalom berhasil disimpan!');
+    });
+
+    function loadBoard() {
+        const athleteName = athleteInput.value.trim();
+
+        document.querySelectorAll('.clickable-cell').forEach(td => {
+            td.style.backgroundColor = '';
+            td.style.color = '';
+        });
+
+        document.getElementById('speed-on-skate').innerText = '0.000 Detik';
+        document.getElementById('speed-off-skate').innerText = '0.000 Detik';
+        document.getElementById('globalHistoryOffSkate').innerHTML = '<div class="history-item" style="justify-content:center; color:var(--text-gray);"><em>Belum ada rekor.</em></div>';
+        document.getElementById('globalHistoryOnSkate').innerHTML = '<div class="history-item" style="justify-content:center; color:var(--text-gray);"><em>Belum ada rekor.</em></div>';
+
+        if (!athleteName) return;
+
+        let bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + athleteName)) || {};
+        if (currentRole === 'PARENT' && bio.connectedParent !== currentParentUsername) return;
+
+        let db = JSON.parse(localStorage.getItem('KILAT_DB_' + athleteName)) || {};
+        for (let cellId in db) {
+            let cellObj = db[cellId];
+            let cellTd = document.getElementById(cellId);
+            if (cellTd && cellObj.history && cellObj.history.length > 0) {
+                let latestScore = cellObj.history[0].score;
+                if (cellId.startsWith("beginner'sTestView")) {
+                    if (latestScore === 1) { cellTd.style.backgroundColor = CLAY_COLORS.ulangi; cellTd.style.color = '#fff'; }
+                    else if (latestScore === 2) { cellTd.style.backgroundColor = CLAY_COLORS.progress; cellTd.style.color = 'var(--text-dark)'; }
+                    else if (latestScore === 3) { cellTd.style.backgroundColor = CLAY_COLORS.master; cellTd.style.color = '#fff'; }
+                } else {
+                    if (latestScore >= 1 && latestScore <= 4) { cellTd.style.backgroundColor = CLAY_COLORS.ulangi; cellTd.style.color = '#fff'; }
+                    else if (latestScore >= 5 && latestScore <= 7) { cellTd.style.backgroundColor = CLAY_COLORS.progress; cellTd.style.color = 'var(--text-dark)'; }
+                    else if (latestScore >= 8) { cellTd.style.backgroundColor = CLAY_COLORS.master; cellTd.style.color = '#fff'; }
+                }
+            }
+        }
+
+        let speedDB = JSON.parse(localStorage.getItem('KILAT_SPEED_DB_' + athleteName)) || { 'on-skate': [], 'off-skate': [] };
+
+        ['on-skate', 'off-skate'].forEach(type => {
+            let records = speedDB[type] || [];
+            let elementId = 'speed-' + type;
+            let histContainerId = type === 'on-skate' ? 'globalHistoryOnSkate' : 'globalHistoryOffSkate';
+
+            if (records.length > 0) {
+                let validRecords = records.filter(r => !r.failed);
+                let bestRecord = validRecords.length > 0
+                    ? validRecords.reduce((min, r) => r.finalTime < min.finalTime ? r : min, validRecords[0])
+                    : records[0];
+
+                document.getElementById(elementId).innerText = bestRecord.failed ? 'GAGAL (>4 Fault)' : `${bestRecord.finalTime.toFixed(3)} Detik`;
+
+                let histHTML = '';
+                records.forEach(r => {
+                    let statusText = r.failed ? '<span style="color:var(--c-alpa);">GAGAL</span>' : `${r.finalTime.toFixed(3)}s`;
+                    histHTML += `<div class="history-item"><span>📅 ${r.date}</span> <strong>${statusText}</strong> <small>(${r.rawTime}s + ${r.fault}F)</small></div>`;
+                });
+                document.getElementById(histContainerId).innerHTML = histHTML;
+            }
+        });
+    }
+
+    loadSettingsData();
+    updateAthleteDropdowns();
+    updateLegendTable();
+    applyRolePermissions();
+    updateBackgroundOnScroll();
+
+    const lastAthlete = localStorage.getItem('lastActiveAthlete');
+    if (lastAthlete) {
+        handleSelectChange(lastAthlete);
+    }
+
+    const savedTab = localStorage.getItem('KILAT_ACTIVE_TAB');
+    if (savedTab) {
+        const tabBtn = document.querySelector(`.curr-btn[data-target="${savedTab}"]`);
+        if (tabBtn) tabBtn.click();
+    }
+</script>
+</body>
+</html>

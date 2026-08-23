@@ -1,0 +1,291 @@
+/* ==========================================================================
+   CSS KEUANGAN (PERBAIKAN TATA LETAK, PIUTANG, HELD BY, & TABEL MODUL)
+   ========================================================================== */
+
+/* 1. Header & Status Role */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+.header h1 { font-size: 2.2rem; font-weight: 900; }
+.header-icons { display: flex; gap: 15px; align-items: center; }
+
+/* Badge Indikator Role */
+.role-indicator {
+    background: var(--clay-yellow);
+    padding: 8px 15px;
+    border-radius: 15px;
+    font-weight: 900;
+    font-size: 0.85rem;
+    box-shadow: var(--clay-shadow-btn);
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 2. Summary Banner (Saldo Bersih, Pemasukan, Pengeluaran, & Piutang) */
+.summary-banner {
+    background: var(--clay-pink);
+    border-radius: 35px;
+    padding: 25px 35px;
+    box-shadow: var(--clay-shadow-card);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.saldo-box h2 { font-size: 1.05rem; color: var(--text-gray); font-weight: 800; margin-bottom: 5px; text-shadow: none; }
+.saldo-box .grand-total { font-size: 2.2rem; font-weight: 900; color: var(--text-dark); }
+
+.summary-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.stat-item {
+    background: var(--bg-main);
+    padding: 12px 18px;
+    border-radius: 20px;
+    box-shadow: var(--clay-shadow-btn);
+    text-align: center;
+    min-width: 140px;
+}
+.stat-item h3 {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+    text-shadow: none;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+.stat-item .val {
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+.val.income { color: var(--income-color); }
+.val.expense { color: var(--expense-color); }
+.val.piutang { color: #f59e0b; }
+
+/* 3. Card Total Saldo & Saldo "Held By" Masing-Masing Admin */
+.treasurer-breakdown {
+    background: var(--clay-yellow);
+    width: 100%;
+    border-radius: 25px;
+    padding: 20px 25px;
+    box-shadow: var(--clay-shadow-card);
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.treasurer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.treasurer-title {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-shadow: none;
+}
+.btn-transfer-saldo {
+    background: var(--sidebar-bg);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 0.8rem;
+    cursor: pointer;
+    box-shadow: var(--clay-shadow-btn);
+    text-shadow: var(--text-timbul-light);
+    transition: 0.2s;
+}
+.btn-transfer-saldo:hover { transform: scale(1.03); }
+
+.treasurer-badges {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.treasurer-badge {
+    background: var(--bg-main);
+    padding: 8px 16px;
+    border-radius: 15px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    box-shadow: var(--clay-shadow-inset);
+    color: var(--text-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.badge-amount { color: var(--sidebar-bg); font-weight: 900; }
+
+/* 4. Finance Grid (Card Modul Tabel Keuangan) */
+.finance-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    padding-bottom: 40px;
+}
+.finance-grid > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+.finance-card {
+    background: var(--clay-blue);
+    border-radius: 30px;
+    padding: 25px;
+    box-shadow: var(--clay-shadow-card);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.finance-card:nth-child(2) { background: var(--clay-green); }
+.finance-card:nth-child(3) { background: var(--clay-purple); }
+.finance-card:nth-child(4) { background: var(--clay-orange); }
+.finance-card:nth-child(5) { background: var(--clay-pink); }
+
+.finance-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(120, 100, 200, 0.3);
+}
+.card-title-group { display: flex; align-items: center; gap: 12px; }
+.card-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: var(--clay-shadow-inset);
+    color: white;
+}
+.ic-bulanan { background: var(--sidebar-bg); }
+.ic-harian { background: #3b82f6; }
+.ic-daftar { background: #ffaa00; }
+.ic-lain { background: #ff6b81; }
+.ic-keluar { background: #e63946; }
+
+.finance-card-header h3 { font-size: 1.05rem; font-weight: 900; margin: 0; }
+.btn-input-arus {
+    background: var(--bg-main);
+    border: none;
+    padding: 7px 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--sidebar-bg);
+    box-shadow: var(--clay-shadow-btn);
+    display: flex; align-items: center; gap: 5px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.btn-input-arus:hover { filter: brightness(0.95); transform: scale(1.02); }
+
+/* 5. Tabel di dalam Card Keuangan */
+.table-container {
+    flex: 1;
+    overflow-x: auto;
+    max-height: 260px;
+    overflow-y: auto;
+}
+.table-container::-webkit-scrollbar { width: 4px; height: 4px; }
+.table-container::-webkit-scrollbar-thumb { background: rgba(120, 100, 200, 0.3); border-radius: 10px; }
+
+.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+    font-size: 0.8rem;
+}
+.custom-table th {
+    background: var(--bg-main);
+    color: var(--text-gray);
+    font-weight: 900;
+    padding: 8px 10px;
+    text-align: left;
+    box-shadow: var(--clay-shadow-btn);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+.custom-table td {
+    background: var(--bg-main);
+    padding: 8px 10px;
+    font-weight: 800;
+    color: var(--text-dark);
+    box-shadow: var(--clay-shadow-inset);
+}
+.custom-table tr td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.custom-table tr td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+.action-btns { display: flex; gap: 5px; }
+.btn-action-mini {
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    border: none;
+    background: var(--bg-main);
+    box-shadow: var(--clay-shadow-btn);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    transition: 0.2s;
+}
+.btn-action-mini.edit { color: #3b82f6; }
+.btn-action-mini.btn-delete { color: var(--expense-color); }
+.btn-action-mini:hover { transform: scale(1.1); }
+
+/* Status Bayar & Badge Held By */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    display: inline-block;
+    box-shadow: var(--clay-shadow-btn);
+}
+.status-paid { background: var(--income-color); color: white; }
+.status-unpaid { background: var(--expense-color); color: white; }
+.badge-held { background: var(--clay-purple); color: var(--sidebar-bg); padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; box-shadow: var(--clay-shadow-btn); display: inline-flex; align-items: center; gap: 4px; }
+
+/* Footer Total per Card */
+.finance-card-footer {
+    margin-top: 15px;
+    padding-top: 12px;
+    border-top: 2px dashed rgba(120, 100, 200, 0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.finance-card-footer span { font-weight: 800; color: var(--text-gray); font-size: 0.85rem; }
+.finance-card-footer .frame-total { font-size: 1.15rem; font-weight: 900; color: var(--text-dark); text-shadow: var(--text-timbul-dark); }
+.frame-total.income { color: var(--income-color); }
+.frame-total.expense { color: var(--expense-color); }
+
+/* 6. Media Queries Responsif */
+@media (max-width: 992px) {
+    .summary-banner { flex-direction: column; text-align: center; }
+    .summary-stats { width: 100%; justify-content: space-around; }
+    .finance-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+    .main-content { padding: 15px; }
+    .summary-stats { flex-direction: column; width: 100%; }
+    .stat-item { width: 100%; }
+    .treasurer-breakdown { flex-direction: column; align-items: flex-start; }
+}

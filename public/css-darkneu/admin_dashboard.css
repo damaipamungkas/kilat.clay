@@ -1,0 +1,211 @@
+/* ==========================================================================
+   1. GLOBAL VARIABLES & THEMES (CLAYMORPHISM)
+   ========================================================================== */
+:root {
+    --bg-main: #ebe5ee;
+    --sidebar-bg: #7b61ff;
+    --text-dark: #2a2245;
+    --text-gray: #6b6288;
+    --clay-purple: #c8b8ff;
+    --clay-pink: #ffb8c6;
+    --clay-yellow: #ffda85;
+    --clay-blue: #a3d5ff;
+    --clay-green: #a8e6a1;
+    --clay-orange: #ffd7b5;
+
+    --income-color: #50b054;
+    --expense-color: #ff6b81;
+    --c-masuk: #50b054;
+    --c-tidak-masuk: #ef4444;
+    --status-paid: #50b054;
+    --status-unpaid: #ff6b81;
+    --mode-aktif: #3b82f6;
+    --mode-arsip: #aeb4c4;
+
+    /* Claymorphism Shadow Presets */
+    --clay-shadow-card:
+        8px 8px 16px rgba(150, 140, 170, 0.5),
+        inset 6px 6px 12px rgba(255, 255, 255, 0.8),
+        inset -6px -6px 16px rgba(0, 0, 0, 0.08);
+    --clay-shadow-btn:
+        3px 3px 6px rgba(150, 140, 170, 0.5),
+        inset 3px 3px 6px rgba(255, 255, 255, 0.8),
+        inset -3px -3px 6px rgba(0, 0, 0, 0.08);
+    --clay-shadow-inset:
+        inset 6px 6px 12px rgba(150, 140, 170, 0.6),
+        inset -6px -6px 12px rgba(255, 255, 255, 0.9);
+    --text-timbul-dark: 1px 1px 0px #ffffff, 2px 2px 4px rgba(150, 140, 170, 0.6);
+    --text-timbul-light: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    --clay-sidebar-shadow: -18px 18px 36px rgba(150, 140, 170, 0.5),
+        inset 6px 6px 8px rgba(214, 205, 247, 0.8),
+        inset -6px -6px 8px rgba(0, 0, 0, 0.08);
+
+    --bg-color-1: var(--bg-main);
+    --bg-color-2: var(--clay-purple);
+}
+
+/* Theme Switching */
+[data-theme="ocean"] { --bg-main: #eef6fc; --sidebar-bg: #4facfe; --text-dark: #2b4560; --text-gray: #6b89a8; --clay-purple: #daefff; }
+[data-theme="matcha"] { --bg-main: #f0f7f2; --sidebar-bg: #50b078; --text-dark: #2d4a36; --text-gray: #7a9c86; --clay-purple: #dcf5d9; }
+[data-theme="sunset"] { --bg-main: #fdf2f0; --sidebar-bg: #ff7e67; --text-dark: #5a3028; --text-gray: #a67c73; --clay-purple: #ffe2e7; }
+[data-theme="dark"] {
+    --bg-main: #181824;
+    --sidebar-bg: #5e4bb6;
+    --text-dark: #e8e8ed;
+    --text-gray: #9c9cab;
+    --clay-purple: #252538;
+    --clay-blue: #1c2c42;
+    --clay-green: #1d3323;
+    --clay-pink: #421f28;
+    --clay-yellow: #423616;
+    --clay-shadow-card: 8px 8px 16px rgba(0, 0, 0, 0.6), inset 4px 4px 10px rgba(255, 255, 255, 0.05), inset -4px -4px 10px rgba(0, 0, 0, 0.4);
+    --clay-shadow-btn: 3px 3px 6px rgba(0, 0, 0, 0.6), inset 2px 2px 4px rgba(255, 255, 255, 0.1), inset -2px -2px 4px rgba(0, 0, 0, 0.4);
+    --clay-shadow-inset: inset 6px 6px 12px rgba(0, 0, 0, 0.5), inset -6px -6px 12px rgba(255, 255, 255, 0.05);
+    --text-timbul-dark: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    --text-timbul-light: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    --clay-sidebar-shadow: -15px 15px 30px rgba(0, 0, 0, 0.5), inset 4px 4px 8px rgba(255, 255, 255, 0.1), inset -4px -4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   2. BASE & BODY LAYOUT
+   ========================================================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; transition: color 0.3s ease, background-color 0.3s ease; }
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    padding: 15px;
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    background-image: linear-gradient(135deg, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
+    transition: background 0.1s ease;
+}
+
+h1, h2, h3, h4, .value, .nav-menu a { text-shadow: var(--text-timbul-dark); color: var(--text-dark); }
+
+/* ==========================================================================
+   3. SIDEBAR & TOGGLE COLLAPSIBLE
+   ========================================================================== */
+.sidebar {
+    width: 150px;
+    min-width: 150px;
+    background-color: var(--sidebar-bg);
+    border-radius: 40px;
+    padding: 35px 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--clay-sidebar-shadow);
+    color: white;
+    position: relative;
+    z-index: 20;
+    flex-shrink: 0;
+    transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease !important;
+    transform: none !important;
+}
+
+.sidebar.collapsed {
+    margin-left: -150px !important;
+}
+
+.toggle-btn {
+    position: fixed !important;
+    top: 50% !important;
+    left: 165px !important;
+    transform: translateY(-50%) !important;
+    width: 30px;
+    height: 70px;
+    background: var(--sidebar-bg);
+    border-radius: 0 20px 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    box-shadow: 6px 0 10px rgba(0,0,0, 0.1), inset 2px 0 5px rgba(255,255,255,0.4);
+    z-index: 100 !important;
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.sidebar.collapsed .toggle-btn,
+body:has(.sidebar.collapsed) .toggle-btn {
+    left: 15px !important;
+}
+
+.toggle-btn i { transition: transform 0.4s ease; font-size: 1.2rem; }
+.sidebar.collapsed .toggle-btn i { transform: rotate(180deg); }
+
+.profile-section { text-align: center; margin-bottom: 30px; }
+.profile-pic { width: 80px; height: 80px; background: var(--bg-main); border-radius: 50%; margin: 0 auto 10px auto; display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--sidebar-bg); box-shadow: 6px 6px 12px rgba(0,0,0,0.15), -4px -4px 10px rgba(255,255,255, 0.5), inset 2px 2px 5px rgba(255,255,255,1); }
+.profile-section h2 { font-size: 1.0rem; font-weight: 800; color: white; text-shadow: var(--text-timbul-light); }
+
+.nav-menu { list-style: none; flex: 1; padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.nav-menu a { display: flex; align-items: center; padding: 12px 2px; color: rgba(255,255,255,0.9); text-decoration: none; font-weight: 800; font-size: 0.8rem; border-radius: 20px; transition: all 0.3s ease; text-shadow: var(--text-timbul-light); white-space: nowrap; }
+.nav-menu a i { margin-right: 10px; font-size: 1.0rem; width: 25px; text-align: center; filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1)); }
+
+.sidebar .nav-menu li a.active,
+.sidebar .sidebar-appendix-box.active {
+    background: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.15), inset -4px -4px 8px rgba(255, 255, 255, 0.6) !important;
+    font-weight: 900 !important;
+    color: #fff !important;
+    position: relative;
+}
+
+.sidebar .nav-menu li a.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; height: 60%; width: 4px;
+    background-color: #fff;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+}
+
+.sidebar-appendix-box { background: var(--clay-yellow); border-radius: 15px; padding: 15px; margin-top: 10px; box-shadow: 6px 6px 12px rgba(0,0,0,0.15), -4px -4px 10px rgba(255,255,255,0.2), inset 3px 3px 5px rgba(255,255,255,1); display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; color: var(--text-dark); transition: 0.3s ease; gap: 5px; }
+.sidebar-appendix-box:hover { transform: translateY(-3px); box-shadow: 8px 8px 15px rgba(0,0,0,0.2), -4px -4px 10px rgba(255,255,255,0.3), inset 3px 3px 5px rgba(255,255,255,1); }
+.sidebar-appendix-box i { font-size: 1.8rem; color: var(--sidebar-bg); text-shadow: var(--text-timbul-light); }
+.sidebar-appendix-box span { font-size: 0.95rem; font-weight: 900; text-shadow: var(--text-timbul-light); text-transform: uppercase; letter-spacing: 1px; }
+
+/* ==========================================================================
+   4. MAIN CONTENT AREA & HEADER
+   ========================================================================== */
+.main-content {
+    flex: 1 !important;
+    width: 100% !important;
+    padding: 20px 40px;
+    overflow-y: auto;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    padding-bottom: 80px;
+}
+
+.main-content::-webkit-scrollbar { width: 8px; }
+.main-content::-webkit-scrollbar-thumb { background: rgba(150, 140, 170, 0.4); border-radius: 10px; }
+
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+.header h1 { font-size: 2.2rem; font-weight: 900; }
+.header-icons { display: flex; gap: 15px; align-items: center; }
+
+.icon-btn { width: 50px; height: 50px; background: var(--bg-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--sidebar-bg); box-shadow: var(--clay-shadow-btn); cursor: pointer; font-size: 1.2rem; text-decoration: none; transition: 0.2s; border: none; outline: none; }
+.icon-btn:hover { transform: scale(1.05); }
+
+/* ==========================================================================
+   5. COMMON COMPONENTS & ABSENSI STATS FIX
+   ========================================================================== */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(42, 34, 69, 0.4); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal-card { background: var(--clay-purple); width: 100%; max-width: 450px; border-radius: 30px; padding: 30px; box-shadow: var(--clay-shadow-card); transform: scale(0.9); transition: 0.3s; max-height: 90vh; overflow-y: auto; }
+.modal-overlay.show .modal-card { transform: scale(1); }
+.modal-card h2 { font-size: 1.3rem; font-weight: 900; margin-bottom: 20px; color: var(--text-dark); display: flex; align-items: center; gap: 10px;}
+
+.form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
+.form-group label { font-size: 0.85rem; font-weight: 800; color: var(--text-gray); }
+.clay-input { background: var(--bg-main); border: none; padding: 10px 15px; border-radius: 12px; font-size: 0.9rem; font-weight: 800; color: var(--text-dark); box-shadow: var(--clay-shadow-inset); outline: none; width: 100%; }

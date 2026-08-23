@@ -1,0 +1,230 @@
+/* ==========================================================================
+   CSS ABSENSI (DENGAN KARTU PEMBUNGKUS TABEL KEMASAN CLAYMORPHISM)
+   ========================================================================== */
+
+.absence-stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+    margin-bottom: 25px !important;
+}
+.absence-stat-card {
+    background: var(--bg-main);
+    border-radius: 25px;
+    padding: 20px;
+    box-shadow: var(--clay-shadow-card);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.absence-stat-card:nth-child(1) { background-color: var(--clay-blue); }
+.absence-stat-card:nth-child(2) { background-color: var(--clay-green); }
+.absence-stat-card:nth-child(3) { background-color: var(--clay-pink); }
+
+.absence-stat-icon {
+    width: 45px; height: 45px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; color: white;
+    box-shadow: var(--clay-shadow-btn);
+    flex-shrink: 0;
+}
+.absence-stat-card:nth-child(1) .absence-stat-icon { background: var(--sidebar-bg); }
+.absence-stat-card:nth-child(2) .absence-stat-icon { background: var(--c-masuk); }
+.absence-stat-card:nth-child(3) .absence-stat-icon { background: var(--c-tidak-masuk); }
+
+.absence-stat-info h3 {
+    font-size: 0.8rem; color: var(--text-gray); font-weight: 800; margin-bottom: 3px; text-shadow: none;
+}
+.absence-stat-info .value {
+    font-size: 1.5rem; font-weight: 900; color: var(--text-dark);
+}
+
+.absence-toolbar {
+    background: var(--clay-purple);
+    border-radius: 25px;
+    padding: 20px;
+    box-shadow: var(--clay-shadow-card);
+    margin-bottom: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.absence-filter-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    align-items: center;
+}
+
+.clay-input-absence {
+    background: var(--bg-main);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    box-shadow: var(--clay-shadow-inset);
+    outline: none;
+    width: 100%;
+    height: 45px;
+}
+
+.search-bar-clay {
+    display: flex;
+    align-items: center;
+    background: var(--bg-main);
+    padding: 0 15px;
+    border-radius: 12px;
+    box-shadow: var(--clay-shadow-inset);
+    height: 45px;
+    width: 100%;
+}
+.search-bar-clay input {
+    border: none;
+    background: transparent;
+    outline: none;
+    margin-left: 10px;
+    width: 100%;
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 0.85rem;
+}
+.search-bar-clay i { color: var(--text-gray); }
+
+/* Kartu Pembungkus Tabel & Kategori */
+.table-responsive {
+    background: var(--clay-purple);
+    border-radius: 30px;
+    box-shadow: var(--clay-shadow-card);
+    padding: 20px;
+    overflow-x: auto;
+    margin-bottom: 30px;
+}
+
+.clay-table-grid {
+    display: grid;
+    grid-template-columns: 40px minmax(220px, 1.5fr) minmax(180px, 1.2fr) minmax(120px, 1fr) minmax(100px, 0.8fr);
+    gap: 15px;
+    min-width: 800px;
+    font-size: 0.85rem;
+    align-items: center;
+}
+.clay-table-grid > div {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.clay-table-header {
+    padding: 12px 10px;
+    font-weight: 900;
+    color: var(--text-dark);
+    border-bottom: 2px solid rgba(120, 100, 200, 0.3);
+    margin-bottom: 10px;
+}
+.clay-row {
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(120, 100, 200, 0.2);
+    transition: 0.2s;
+    color: var(--text-dark);
+    font-weight: 800;
+    background: var(--bg-main);
+    border-radius: 12px;
+    margin-bottom: 6px;
+    box-shadow: var(--clay-shadow-inset);
+}
+.clay-row:hover { background: rgba(255, 255, 255, 0.8); transform: translateY(-1px); }
+
+.name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+.name-cell input[type="checkbox"],
+.check-cell input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    box-shadow: var(--clay-shadow-inset);
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+    background: var(--bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+.name-cell input[type="checkbox"]:checked,
+.check-cell input[type="checkbox"]:checked {
+    background: var(--sidebar-bg);
+}
+.name-cell input[type="checkbox"]:checked::after,
+.check-cell input[type="checkbox"]:checked::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: white;
+    font-size: 10px;
+}
+
+.btn-att {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    font-weight: 800;
+    box-shadow: var(--clay-shadow-btn);
+    transition: 0.2s;
+}
+.btn-att:hover { transform: scale(1.03); filter: brightness(0.95); }
+
+/* Modal & Bulk Action Bar Melayang Tanpa Memblokir Tabel */
+.modal-overlay {
+    position: fixed !important;
+    top: auto !important;
+    bottom: -100px !important;
+    right: 30px !important;
+    left: auto !important;
+    width: auto !important;
+    height: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    z-index: 100 !important;
+    pointer-events: none !important;
+    opacity: 0 !important;
+    transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s !important;
+    display: block !important;
+}
+.modal-overlay.show {
+    opacity: 1 !important;
+    bottom: 30px !important;
+    pointer-events: none !important;
+}
+.modal-card {
+    background: var(--clay-purple);
+    width: 100%;
+    max-width: 340px;
+    border-radius: 25px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3), var(--clay-shadow-card);
+    text-align: center;
+    pointer-events: auto !important;
+}
+.modal-card h3 { font-size: 1.1rem; font-weight: 900; margin-bottom: 10px; color: var(--text-dark); }
+.modal-btns { display: flex; gap: 8px; margin-top: 15px; }
+.modal-btns button { flex: 1; padding: 8px; border-radius: 10px; border: none; font-weight: 900; font-size: 0.85rem; cursor: pointer; box-shadow: var(--clay-shadow-btn); transition: 0.2s; }
+.modal-btns button:hover { transform: scale(1.03); }
+.btn-modal-masuk { background: var(--c-masuk); color: white; }
+.btn-modal-tidak { background: var(--c-tidak-masuk); color: white; }
+.btn-modal-batal { background: var(--bg-main); color: var(--text-gray); }
+
+@media (max-width: 992px) {
+    .absence-stats-grid { grid-template-columns: 1fr !important; }
+}

@@ -1,0 +1,188 @@
+/* ==========================================================================
+   CSS BILLING SPP (KARTU SELALU BERDAMPINGAN KIRI & KANAN)
+   ========================================================================== */
+
+/* 1. Layout Kunci Permanen Berdampingan: Control Panel & Summary Frame */
+.billing-top-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr !important;
+    gap: 20px;
+    margin-bottom: 25px;
+    align-items: stretch;
+    width: 100%;
+}
+
+.control-panel {
+    background: var(--clay-purple);
+    border-radius: 35px;
+    padding: 25px;
+    box-shadow: var(--clay-shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.control-panel h2 { font-size: 1.3rem; margin-bottom: 15px; font-weight: 900; }
+.generate-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: end; }
+.generate-grid .form-group:nth-child(3),
+.generate-grid .form-group:nth-child(4),
+.generate-grid .form-group:nth-child(5) {
+    grid-column: span 2;
+}
+
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 0.85rem; font-weight: 800; color: var(--text-gray); }
+
+/* Perbaikan Tombol Generate agar proporsional dan memiliki efek clay button */
+.generate-grid .btn-clay,
+.control-panel button[type="submit"],
+.control-panel .btn-primary {
+    grid-column: span 2;
+    width: 100%;
+    margin-top: 5px;
+    background: var(--sidebar-bg);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 15px;
+    font-weight: 900;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: var(--clay-shadow-btn);
+    text-shadow: var(--text-timbul-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: 0.2s ease;
+}
+.generate-grid .btn-clay:hover,
+.control-panel button[type="submit"]:hover {
+    filter: brightness(1.05);
+    transform: translateY(-2px);
+}
+.generate-grid .btn-clay:active,
+.control-panel button[type="submit"]:active {
+    box-shadow: var(--clay-shadow-inset);
+    transform: translateY(0);
+}
+
+/* Toggle Histori Pengaturan Diskon */
+.clay-checkbox-wrapper { display: flex; align-items: center; gap: 10px; background: var(--bg-main); padding: 8px 15px; border-radius: 15px; box-shadow: var(--clay-shadow-inset); height: 42px; }
+.clay-checkbox-wrapper label { margin: 0; cursor: pointer; font-size: 0.85rem; font-weight: 800; color: var(--text-dark); }
+
+/* 2. Summary Frame (Periode Aktif & Grid Kotak Informasi yang Lebih Besar & Adaptif) */
+.summary-frame {
+    background: var(--clay-pink);
+    border-radius: 35px;
+    padding: 25px;
+    box-shadow: var(--clay-shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 15px;
+}
+
+/* Memperbesar dan membuat kotak informasi tersusun adaptif di bawah judul card */
+.summary-grid-mini {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(130px, 1fr));
+    gap: 15px;
+    width: 100%;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--bg-main);
+    padding: 14px 18px;
+    border-radius: 20px;
+    box-shadow: var(--clay-shadow-inset);
+    min-height: 75px;
+    justify-content: center;
+}
+.summary-label { font-size: 0.8rem; color: var(--text-gray); font-weight: 800; }
+.summary-value { font-size: 1.15rem; font-weight: 900; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+
+/* 3. Toolbar, Filter Kelas, & Pencarian Atlet */
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; flex-wrap: wrap; }
+.total-badge { background: var(--clay-yellow); padding: 10px 20px; border-radius: 15px; font-weight: 800; font-size: 0.9rem; box-shadow: var(--clay-shadow-btn); display: flex; gap: 15px; color: var(--text-gray); align-items: center; }
+.total-badge span { color: var(--text-dark); font-weight: 900; }
+
+.filter-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 1; justify-content: flex-end; }
+.clay-input { background: var(--bg-main); border: none; padding: 10px 15px; border-radius: 12px; font-size: 0.9rem; font-weight: 800; color: var(--text-dark); box-shadow: var(--clay-shadow-inset); outline: none; }
+
+/* Kotak Pencarian Atlet */
+.search-bar-clay { display: flex; align-items: center; background: var(--bg-main); padding: 0 15px; border-radius: 15px; box-shadow: var(--clay-shadow-inset); width: 250px; height: 42px; }
+.search-bar-clay input { border: none; background: transparent; outline: none; margin-left: 10px; width: 100%; font-weight: 700; color: var(--text-dark); font-size: 0.85rem; }
+.search-bar-clay i { color: var(--text-gray); }
+
+/* 4. Tabel Billing & Diskon */
+.table-responsive { background: var(--clay-blue); border-radius: 25px; box-shadow: var(--clay-shadow-card); padding: 15px; margin-bottom: 30px; overflow-x: auto; }
+
+.clay-table-grid {
+    display: grid;
+    grid-template-columns: 40px minmax(200px, 1.8fr) minmax(120px, 1fr) minmax(105px, 0.9fr) minmax(105px, 0.9fr) minmax(115px, 1fr) minmax(105px, 1fr) minmax(95px, 0.8fr) 40px;
+    gap: 12px;
+    min-width: 1020px;
+    font-size: 0.85rem;
+    align-items: center;
+}
+
+.clay-table-header { padding: 10px; font-weight: 900; color: var(--text-dark); border-bottom: 2px solid rgba(120, 100, 200, 0.3); }
+.clay-row { align-items: center; padding: 12px 10px; border-bottom: 1px solid rgba(120, 100, 200, 0.2); transition: 0.2s; color: var(--text-dark); font-weight: 800; background: var(--bg-main); border-radius: 12px; margin-bottom: 6px; box-shadow: var(--clay-shadow-inset); }
+.clay-row:hover { background: rgba(255, 255, 255, 0.9); transform: translateY(-1px); }
+
+/* Kotak Centang (Checkbox) & Perbaikan Warna Saat Diklik */
+.check-cell { display: flex; align-items: center; justify-content: center; }
+.custom-checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    box-shadow: var(--clay-shadow-inset);
+    appearance: none;
+    outline: none;
+    cursor: pointer;
+    background: var(--bg-main);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+.custom-checkbox:checked {
+    background: var(--sidebar-bg);
+    box-shadow: var(--clay-shadow-btn);
+}
+.custom-checkbox:checked::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: white;
+    font-size: 10px;
+}
+
+/* Input Diskon */
+.diskon-input { width: 100%; padding: 8px 10px; border-radius: 10px; border: none; background: var(--bg-main); box-shadow: var(--clay-shadow-inset); font-weight: 800; color: var(--text-dark); outline: none; font-size: 0.85rem; text-align: center; max-width: 80px; }
+.diskon-input:focus { box-shadow: var(--clay-shadow-card); background: #ffffff; }
+
+/* Status Badges */
+.status-badge { padding: 5px 10px; border-radius: 10px; font-size: 0.75rem; text-align: center; box-shadow: var(--clay-shadow-btn); color: white; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.status-paid { background: var(--status-paid); }
+.status-unpaid { background: var(--status-unpaid); }
+
+/* 5. Bulk Action Bar */
+.bulk-action-bar { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: var(--text-dark); padding: 15px 25px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; gap: 15px; align-items: center; transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; }
+.bulk-action-bar.show { bottom: 30px; }
+.bulk-text { color: white; font-weight: 800; font-size: 0.9rem; margin-right: 10px; }
+.btn-bulk { background: var(--bg-main); border: none; padding: 8px 15px; border-radius: 12px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; color: var(--text-dark); transition: 0.2s; box-shadow: var(--clay-shadow-btn); }
+.btn-bulk:hover { filter: brightness(0.9); transform: scale(1.05); }
+
+/* 6. Responsif Media Queries */
+@media (max-width: 768px) {
+    .billing-top-container { grid-template-columns: 1fr !important; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .filter-group { width: 100%; justify-content: flex-start; }
+    .search-bar-clay { width: 100%; }
+}

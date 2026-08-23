@@ -1,0 +1,365 @@
+:root {
+    /* Tema Claymorphism Terpusat */
+    --bg-main: #ebe5ee;
+    --sidebar-bg: #7b61ff;
+    --text-dark: #2a2245;
+    --text-gray: #6b6288;
+
+    /* Warna Pastel */
+    --clay-purple: #c8b8ff;
+    --clay-pink: #ffb8c6;
+    --clay-yellow: #ffda85;
+    --clay-blue: #a3d5ff;
+    --clay-green: #a8e6a1;
+    --clay-orange: #ffb677;
+
+    /* Efek Timbul Lebih Ekstrem & 3D (Claymorphism) */
+    --clay-shadow-card:
+        18px 18px 36px rgba(150, 140, 170, 0.5),
+        inset 6px 6px 12px rgba(255, 255, 255, 0.8),
+        inset -4px -4px 8px rgba(0, 0, 0, 0.08);
+
+    --clay-shadow-btn:
+        8px 8px 16px rgba(150, 140, 170, 0.5),
+        inset 3px 3px 6px rgba(255, 255, 255, 0.8),
+        inset -2px -2px 5px rgba(0, 0, 0, 0.08);
+
+    --clay-shadow-inset:
+        inset 6px 6px 12px rgba(150, 140, 170, 0.6),
+        inset -6px -6px 12px rgba(255, 255, 255, 0.9);
+
+    --text-timbul-dark: 1px 1px 0px #ffffff, 2px 2px 5px rgba(150, 140, 170, 0.7);
+    --text-timbul-light: 1px 1px 2px rgba(0, 0, 0, 0.3);
+
+    --bg-body: var(--bg-main);
+    --text-main: var(--text-dark);
+    --text-muted: var(--text-gray);
+    --border-color: rgba(180, 170, 200, 0.4);
+    --primary-color: var(--sidebar-bg);
+    --danger-color: #ff5277;
+
+    --bg-color-1: var(--bg-main);
+    --bg-color-2: var(--clay-purple);
+}
+
+/* === RESET & BACKGROUND === */
+::-webkit-scrollbar { display: none; }
+html { scrollbar-width: none; scroll-behavior: smooth; height: 100%; }
+
+body {
+    margin: 0; padding: 0;
+    background-color: var(--bg-body);
+    font-family: 'Nunito', 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; position: relative;
+}
+
+body::before {
+    content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    background-image: linear-gradient(135deg, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
+    transition: background 0.3s ease;
+}
+
+.container {
+    width: 100%; max-width: 800px; padding: 20px; min-height: 90vh;
+    display: flex; flex-direction: column; gap: 20px;
+    box-sizing: border-box;
+}
+
+/* === ICON MENU TUNGGAL === */
+.icon-menu {
+    position: sticky; top: 15px; z-index: 9997;
+    background: var(--bg-main); display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 24px; background-color: rgba(13, 219, 54, 0.205); backdrop-filter: blur(1px);
+    margin: 10px; border: none; border-radius: 20px; box-shadow: var(--clay-shadow-card);
+    font-weight: 800; font-size: 0.95rem;
+}
+.icon-item { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.icon-item span { font-weight: 800; color: var(--text-muted); font-size: 0.9rem; text-shadow: var(--text-timbul-light); }
+.icon-circle { width: 60px; height: 60px; background: var(--bg-main); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.4rem; color: var(--primary-color); border: none; box-shadow: var(--clay-shadow-btn); transition: 0.2s; cursor: pointer; }
+.icon-circle:hover { box-shadow: var(--clay-shadow-inset); }
+
+/* --- Navbar System --- */
+.navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px; background: var(--bg-main); border-radius: 20px; box-shadow: var(--clay-shadow-card);
+}
+.navbar a {
+    color: var(--danger-color); text-decoration: none; font-size: 0.95rem; font-weight: 800;
+    display: flex; align-items: center; gap: 8px; transition: 0.3s; cursor: pointer;
+    background: var(--bg-main); padding: 8px 14px; border-radius: 12px; box-shadow: var(--clay-shadow-btn);
+}
+.navbar a:hover { box-shadow: var(--clay-shadow-inset); transform: translateY(2px); }
+
+.user-profile {
+    font-family: 'Nunito', sans-serif; color: var(--primary-color); font-size: 0.95rem; font-weight: 900;
+    display: flex; align-items: center; gap: 8px; text-transform: uppercase; text-shadow: var(--text-timbul-light);
+}
+
+/* --- Hero Section & Cyber Divider --- */
+.hero, .hero-section { text-align: center; position: relative; padding: 20px 0 0 0; }
+.hero h1, .hero-section h1 {
+    font-family: 'Nunito', sans-serif; font-size: 2.2rem; margin: 0;
+    letter-spacing: 0px; text-transform: uppercase; color: var(--text-main); font-weight: 900;
+    text-shadow: var(--text-timbul-dark);
+}
+
+.cyber-divider { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 600px; margin: 20px auto; position: relative; }
+.center-node { width: 12px; height: 12px; background: var(--primary-color); border-radius: 50%; z-index: 3; flex-shrink: 0; box-shadow: var(--clay-shadow-btn); }
+.wing { flex: 1; height: 6px; background: var(--bg-main); position: relative; border-radius: 10px; box-shadow: var(--clay-shadow-inset); margin: 0 15px; }
+.wing.left { transform-origin: right center; animation: expandFromCenterLeft 2s ease-in-out infinite alternate; }
+.wing.right { transform-origin: left center; animation: expandFromCenterRight 2s ease-in-out infinite alternate; }
+
+@keyframes expandFromCenterLeft { 0% { transform: scaleX(0.4); opacity: 0.5; } 100% { transform: scaleX(1); opacity: 1; } }
+@keyframes expandFromCenterRight { 0% { transform: scaleX(0.4); opacity: 0.5; } 100% { transform: scaleX(1); opacity: 1; } }
+
+/* === TECH SLIDER === */
+.tech-slider { display: flex; align-items: center; justify-content: center; margin: 15px 0; padding: 10px 0; }
+.slider-track { width: 80%; max-width: 600px; height: 12px; background: var(--bg-main); border-radius: 10px; position: relative; cursor: pointer; border: none; box-shadow: var(--clay-shadow-inset); }
+.slider-thumb { width: 22px; height: 22px; background: var(--primary-color); border-radius: 50%; position: absolute; left: 50%; top: -5px; transform: translateX(-50%); cursor: grab; border: none; box-shadow: var(--clay-shadow-btn); }
+.slider-thumb:active { cursor: grabbing; transform: translateX(-50%) scale(1.1); box-shadow: var(--clay-shadow-inset); }
+
+/* --- Tech Card & Form Elements --- */
+.wrapper { width: 100%; max-width: 600px; margin: 10px auto; }
+.tech-card { position: relative; padding: 0; background: none; border-radius: 35px; overflow: visible; margin-bottom: 10px; }
+
+.card-bg {
+    background: var(--clay-blue); border-radius: 35px; box-shadow: var(--clay-shadow-card);
+    padding: 40px; position: relative; display: flex; flex-direction: column; align-items: center; box-sizing: border-box; z-index: 1;
+}
+
+.floating-icons { font-size: 3.5rem; color: var(--primary-color); text-shadow: var(--text-timbul-dark); animation: float 3s ease-in-out infinite; margin-bottom: 10px; }
+@keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0); } }
+
+.card-title {
+    font-family: 'Nunito', sans-serif; font-size: 1.8rem; margin: 0 0 25px 0;
+    color: var(--text-main); font-weight: 900; text-shadow: var(--text-timbul-dark);
+    text-transform: uppercase; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.card-title i { color: var(--primary-color); font-size: 2rem; }
+.card-desc { color: var(--text-muted); font-size: 1.05rem; margin: 0 0 10px 0; line-height: 1.6; font-weight: 700; text-align: center; }
+
+/* --- Data Box Profile --- */
+.data-box {
+    width: 100%; max-width: 500px; background: var(--clay-yellow); box-shadow: var(--clay-shadow-card); border-radius: 20px;
+    padding: 25px; display: flex; flex-direction: column; gap: 15px; text-align: left;
+    position: relative; box-sizing: border-box; border: none;
+}
+.data-box p { margin: 0; font-size: 1.05rem; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; border-bottom: 2px dashed var(--border-color); padding-bottom: 15px; font-weight: 700; color: var(--text-main); }
+.data-box i { color: var(--primary-color); width: 25px; text-align: center; font-size: 1.2rem; }
+.data-box strong { font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 900; color: var(--text-muted); width: 140px; }
+
+.editable-input {
+    background: var(--bg-main); border: none; border-radius: 8px; padding: 6px 10px;
+    font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; color: var(--text-main);
+    box-shadow: var(--clay-shadow-inset); outline: none; flex: 1; transition: 0.2s;
+}
+.editable-input:focus { box-shadow: var(--clay-shadow-btn); }
+
+.password-container { display: flex; align-items: center; flex: 1; gap: 8px; position: relative; }
+.toggle-password-btn {
+    background: var(--bg-main); border: none; border-radius: 8px; padding: 6px 10px;
+    cursor: pointer; box-shadow: var(--clay-shadow-btn); color: var(--primary-color);
+    display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.toggle-password-btn:hover { box-shadow: var(--clay-shadow-inset); }
+
+/* Badge Role */
+.admin-badge { background: var(--clay-purple); color: var(--text-dark); padding: 6px 12px; border-radius: 12px; font-weight: 900; font-size: 0.85rem; box-shadow: var(--clay-shadow-btn); text-transform: uppercase; }
+.coach-badge { background: var(--clay-green); color: var(--text-dark); padding: 6px 12px; border-radius: 12px; font-weight: 900; font-size: 0.85rem; box-shadow: var(--clay-shadow-btn); text-transform: uppercase; }
+.parent-badge { background: var(--clay-blue); color: var(--text-dark); padding: 6px 12px; border-radius: 12px; font-weight: 900; font-size: 0.85rem; box-shadow: var(--clay-shadow-btn); text-transform: uppercase; }
+
+/* Form & Input Elements */
+.reg-form { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 20px; z-index: 2; margin: 0 auto; }
+.input-group { position: relative; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.input-group label { font-family: 'Nunito', sans-serif; color: var(--text-main); font-size: 0.95rem; font-weight: 800; text-shadow: var(--text-timbul-light); }
+
+/* === PERBAIKAN MUTLAK POSISI IKON KIRI & KANAN (INPUT WRAPPER) === */
+.input-group .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* 1. Ikon di sebelah kiri (seperti amplop email / gembok) */
+.input-group .input-wrapper > i:first-child,
+.sci-fi-input-composite > i:first-child {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+/* 2. Input Standar (Sandi) dengan padding aman dari tumpang tindih */
+.input-group .input-wrapper .sci-fi-input {
+    width: 100%;
+    padding: 15px 45px 15px 52px !important;
+    background: var(--bg-main);
+    border: none;
+    border-radius: 16px;
+    color: var(--text-main);
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    outline: none;
+    box-shadow: var(--clay-shadow-inset);
+}
+.input-group .input-wrapper .sci-fi-input:focus {
+    box-shadow: var(--clay-shadow-btn);
+}
+
+/* 3. Ikon Mata / Toggle Password (Kanan) */
+.input-group .input-wrapper .toggle-password {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    z-index: 3;
+    transition: color 0.2s ease;
+}
+.input-group .input-wrapper .toggle-password:hover {
+    color: var(--primary-color);
+}
+/* ========================================================== */
+
+.sci-fi-input-composite {
+    display: flex; align-items: center; width: 100%; padding: 12px 15px 12px 48px;
+    background: var(--bg-main); border: none; border-radius: 16px;
+    box-sizing: border-box; transition: all 0.3s ease; box-shadow: var(--clay-shadow-inset);
+    position: relative;
+}
+.sci-fi-input-composite:focus-within { box-shadow: var(--clay-shadow-btn); }
+
+.sci-fi-input::placeholder, .sci-fi-text-inner::placeholder { color: var(--text-muted); font-size: 0.95rem; font-weight: 600; opacity: 0.7; }
+
+.sci-fi-select {
+    background: transparent; border: none; color: var(--primary-color);
+    font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 800;
+    outline: none; cursor: pointer; padding-right: 18px;
+    -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3E%3Cpath fill='%237b61ff' d='M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 2px center; background-size: 10px;
+}
+.sci-fi-select option { background: var(--bg-main); color: var(--text-main); }
+
+.sci-fi-prefix-locked { background: transparent; border: none; color: var(--text-muted); font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 800; outline: none; width: 60px; pointer-events: none; user-select: none; }
+.sci-fi-text-inner { background: transparent; border: none; color: var(--text-main); font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 1.05rem; outline: none; flex-grow: 1; min-width: 50px; padding: 0 5px; }
+.sci-fi-suffix { color: var(--text-muted); font-family: 'Nunito', sans-serif; font-size: 1.05rem; font-weight: 800; user-select: none; pointer-events: none; }
+
+/* Checkbox Claymorphism */
+.checkbox-group { display: flex; align-items: flex-start; gap: 12px; margin-top: 5px; text-align: left; }
+.checkbox-group input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none; width: 22px; height: 22px; flex-shrink: 0;
+    border: none; background: var(--bg-main); border-radius: 8px; cursor: pointer;
+    position: relative; margin-top: 2px; box-shadow: var(--clay-shadow-inset); transition: 0.3s;
+}
+.checkbox-group input[type="checkbox"]:checked { box-shadow: var(--clay-shadow-btn); background: var(--bg-main); }
+.checkbox-group input[type="checkbox"]:checked::after {
+    content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    color: var(--primary-color); font-size: 12px;
+}
+.checkbox-group label { color: var(--text-muted); font-size: 0.95rem; font-weight: 700; line-height: 1.5; cursor: pointer; }
+.checkbox-group label a { color: var(--primary-color); font-weight: 900; text-decoration: none; border-bottom: 2px dashed var(--border-color); transition: 0.3s; }
+.checkbox-group label a:hover { color: var(--text-dark); border-color: var(--primary-color); }
+
+/* === PERBAIKAN MUTLAK KELAS TAUTAN LUPA SANDI & DAFTAR === */
+.auth-links-container,
+.login-links,
+div:has(> a[href*="password"], > a[href*="register"], > a[href*="forgot"]) {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    width: 100%;
+}
+
+/* Styling menyeluruh untuk semua tautan pendukung login (termasuk Lupa Sandi dan Daftar) */
+.auth-links-container a,
+.login-links a,
+.reg-form a[href*="password"],
+.reg-form a[href*="register"],
+.reg-form a[href*="forgot"],
+.card-bg a[href*="password"],
+.card-bg a[href*="register"],
+.card-bg a[href*="forgot"],
+div:has(> a[href*="password"], > a[href*="register"], > a[href*="forgot"]) a {
+    color: var(--primary-color);
+    text-decoration: none;
+    background: var(--bg-main);
+    padding: 8px 14px;
+    border-radius: 12px;
+    box-shadow: var(--clay-shadow-btn);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    text-shadow: var(--text-timbul-light);
+}
+
+.auth-links-container a:hover,
+.login-links a:hover,
+.reg-form a[href*="password"]:hover,
+.reg-form a[href*="register"]:hover,
+.reg-form a[href*="forgot"]:hover,
+.card-bg a[href*="password"]:hover,
+.card-bg a[href*="register"]:hover,
+.card-bg a[href*="forgot"]:hover,
+div:has(> a[href*="password"], > a[href*="register"], > a[href*="forgot"]) a:hover {
+    box-shadow: var(--clay-shadow-inset);
+    color: var(--text-dark);
+    transform: translateY(1px);
+}
+/* ================================================================= */
+
+/* Buttons & Actions */
+.btn-group, .button-group { width: 100%; margin-top: 15px; display: flex; flex-direction: column; gap: 15px; }
+.btn-neon {
+    background: var(--primary-color); border: none; color: #ffffff; padding: 15px 25px;
+    font-family: 'Nunito', sans-serif; font-weight: 800; cursor: pointer; transition: 0.3s;
+    font-size: 1.05rem; text-transform: uppercase; border-radius: 20px;
+    display: inline-flex; justify-content: center; align-items: center; gap: 20px;
+    box-shadow: var(--clay-shadow-btn); text-shadow: var(--text-timbul-light); width: 100%; box-sizing: border-box; text-decoration: none;
+}
+.btn-neon:hover { background: var(--primary-color); color: #fff; box-shadow: var(--clay-shadow-inset); transform: translateY(2px); }
+
+.bottom-actions { display: flex; justify-content: center; margin-top: 15px; margin-bottom: 15px; width: 100%; }
+.bottom-actions a { max-width: 350px; }
+
+/* Footer */
+.footer { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-radius: 25px; background: var(--bg-main); border: none; box-shadow: var(--clay-shadow-card); font-size: 0.9rem; color: var(--text-muted); font-weight: 800; margin-top: auto; }
+.logo-box { padding: 6px 16px; font-weight: 900; font-size: 1.2rem; color: var(--primary-color); background: var(--bg-main); border-radius: 15px; text-align: center; border: none; box-shadow: var(--clay-shadow-inset); }
+
+/* === CUSTOM SCROLLBAR SKATE === */
+.skate-scroll-track { position: fixed; top: 0; right: 0; width: 12px; height: 100vh; background: rgba(0, 0, 0, 0.03); z-index: 9998; }
+.skate-scroll-thumb { position: fixed; right: 2px; width: 45px; height: 45px; background-image: url('1000807194.png'); background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 9999; cursor: grab; filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15)); top: 0; }
+.skate-scroll-thumb:active { cursor: grabbing; transform: scale(1.1); }
+
+/* Responsif */
+@media (max-width: 768px) {
+    .hero h1, .hero-section h1 { font-size: 1.6rem; }
+    .navbar { flex-direction: column; gap: 15px; }
+    .card-bg { padding: 30px 20px; }
+    .card-title { font-size: 1.6rem; }
+    .data-box strong { width: 100%; margin-bottom: 5px; }
+    .data-box p { align-items: flex-start; }
+    .skate-scroll-thumb { width: 36px; height: 36px; right: 2px; }
+    .skate-scroll-track { width: 8px; }
+    .footer { flex-direction: column; gap: 15px; text-align: center; }
+    .sci-fi-select, .sci-fi-text-inner, .sci-fi-suffix, .sci-fi-prefix-locked { font-size: 0.95rem; }
+}

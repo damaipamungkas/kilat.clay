@@ -1,0 +1,107 @@
+
+        /* ==========================================================================
+           CSS DASHBOARD ADMIN (PERBAIKAN LENGKAP DENGAN MIN-HEIGHT)
+           ========================================================================== */
+
+        /* 1. Header, Pencarian, & Notifikasi Dropdown */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 20px; flex-wrap: wrap; }
+        .header h1 { font-size: 2.2rem; font-weight: 900; }
+
+        .search-bar { background: var(--bg-main); padding: 10px 20px; border-radius: 20px; display: flex; align-items: center; box-shadow: var(--clay-shadow-inset); flex: 1; max-width: 350px; height: 45px; }
+        .search-bar input { border: none; outline: none; background: transparent; margin-left: 10px; width: 100%; font-size: 0.9rem; font-weight: 700; color: var(--text-dark); }
+        .search-bar i { color: var(--text-gray); }
+
+        .header-icons { display: flex; gap: 15px; position: relative; align-items: center; }
+        .icon-btn { width: 50px; height: 50px; background: var(--bg-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--sidebar-bg); box-shadow: var(--clay-shadow-btn); cursor: pointer; position: relative; font-size: 1.2rem; user-select: none; border: none; outline: none; transition: 0.2s; }
+        .icon-btn:hover { transform: scale(1.05); }
+        .icon-btn .badge { position: absolute; top: -2px; right: -2px; background: #ff8da1; color: white; font-size: 0.75rem; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
+
+        .notif-dropdown { position: absolute; top: 60px; right: 0; width: 320px; background: var(--bg-main); border-radius: 25px; box-shadow: var(--clay-shadow-card); padding: 20px; display: none; flex-direction: column; z-index: 100; }
+        .notif-dropdown.show { display: flex; }
+        .notif-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px dashed rgba(200, 190, 220, 0.4); padding-bottom: 8px; }
+        .notif-header h4 { font-size: 1rem; font-weight: 900; }
+        .notif-clear { font-size: 0.75rem; font-weight: 800; color: #ff6b81; cursor: pointer; }
+        .notif-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .notif-item { display: flex; gap: 10px; padding: 10px; border-radius: 12px; background: var(--bg-main); box-shadow: var(--clay-shadow-inset); font-size: 0.8rem; font-weight: 800; }
+
+        /* 2. Hero Banner */
+        .hero-banner { background: var(--clay-purple); border-radius: 35px; padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; box-shadow: var(--clay-shadow-card); overflow: hidden; }
+        .hero-text h2 { font-size: 2rem; margin-bottom: 10px; font-weight: 900; color: var(--text-dark); }
+        .hero-text p { color: var(--text-gray); margin-bottom: 20px; font-size: 1.05rem; font-weight: 700; }
+        .btn-primary { background: var(--sidebar-bg); color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 800; font-size: 1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: var(--clay-shadow-btn); text-decoration: none; transition: 0.2s; }
+        .btn-primary:hover { transform: scale(1.03); }
+
+        /* 3. Stat Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 25px; }
+        .stat-card { border-radius: 30px; padding: 20px; box-shadow: var(--clay-shadow-card); display: flex; flex-direction: column; justify-content: center; }
+        .stat-card.pastel-blue { background-color: var(--clay-blue); }
+        .stat-card.pastel-yellow { background-color: var(--clay-yellow); }
+        .stat-card.pastel-green { background-color: var(--clay-green); }
+        .stat-card.pastel-pink { background-color: var(--clay-pink); }
+
+        .stat-icon { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 10px; color: white; box-shadow: var(--clay-shadow-btn); }
+        .ic-atlet { background: var(--sidebar-bg); } .ic-hadir { background: #50b054; } .ic-saldo { background: #4facfe; } .ic-spp { background: #f59e0b; }
+        .stat-card h3 { font-size: 0.95rem; color: var(--text-gray); font-weight: 800; margin-bottom: 5px; text-shadow: none; }
+        .stat-card .value { font-size: 1.7rem; font-weight: 900; margin-bottom: 5px; display: flex; align-items: baseline; gap: 5px; }
+
+        /* 4. Tren Arus Kas & Persentase SPP */
+        .charts-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; align-items: stretch; }
+
+        .chart-card { border-radius: 30px; padding: 25px; box-shadow: var(--clay-shadow-card); background: var(--bg-main); display: flex; flex-direction: column; justify-content: space-between; height: 100%; min-height: 320px; box-sizing: border-box; }
+        .chart-card.pastel-purple { background-color: var(--clay-purple); }
+        .chart-card.pastel-orange { background-color: var(--clay-orange); }
+
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .chart-header h3 { font-size: 1.15rem; font-weight: 900; }
+
+        .badge-timbul { font-size: 0.8rem; font-weight: 800; background: var(--bg-main); padding: 6px 12px; border-radius: 15px; box-shadow: var(--clay-shadow-btn); cursor: pointer; color: var(--text-dark); border: none; outline: none; }
+
+        .bar-chart { flex: 1; display: flex; align-items: stretch; justify-content: space-between; width: 100%; padding-bottom: 5px; border-bottom: 2px solid rgba(200, 190, 220, 0.3); gap: 12px; margin-top: 15px; margin-bottom: 5px; }
+        .bar { width: 100%; max-width: 36px; border-radius: 12px; box-shadow: var(--clay-shadow-inset); background: var(--clay-blue); position: relative; transition: 0.3s; }
+        .bar.today { background: var(--sidebar-bg); box-shadow: var(--clay-shadow-btn); }
+        .bar-labels { display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.75rem; color: var(--text-gray); font-weight: 800; width: 100%; }
+
+        /* Pie Chart Persentase SPP */
+        .pie-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 2px; }
+        .pie-chart { width: 110px; height: 110px; border-radius: 50%; background: conic-gradient(#50b054 0% 70%, #f59e0b 70% 90%, #ff6b81 90% 100%); box-shadow: var(--clay-shadow-btn); position: relative; }
+        .pie-chart::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: var(--bg-main); border-radius: 50%; box-shadow: var(--clay-shadow-inset); }
+        .pie-legend { list-style: none; font-size: 0.8rem; width: 100%; max-height: 170px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px; }
+        .pie-legend li { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; font-weight: 800; }
+        .pie-legend span.color-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; box-shadow: var(--clay-shadow-btn); display: inline-block; }
+        .pie-legend div { display: flex; align-items: center; }
+
+        /* 5. Tabel Pemasukan Kas Terbaru & Quick Actions */
+        .bottom-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 25px; align-items: stretch; }
+
+        .table-card { background: var(--clay-green); border-radius: 30px; padding: 25px; box-shadow: var(--clay-shadow-card); display: flex; flex-direction: column; justify-content: space-between; }
+        .table-responsive-dashboard { width: 100%; overflow-x: auto; margin-top: 10px; }
+        .custom-table-dash { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 0.8rem; }
+        .custom-table-dash th { background: var(--bg-main); color: var(--text-gray); font-weight: 900; padding: 8px 10px; text-align: left; box-shadow: var(--clay-shadow-btn); }
+        .custom-table-dash td { background: var(--bg-main); padding: 8px 10px; font-weight: 800; color: var(--text-dark); box-shadow: var(--clay-shadow-inset); }
+
+        .quick-actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; height: 100%; }
+        .action-card { background: var(--bg-main); border-radius: 22px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; box-shadow: var(--clay-shadow-btn); cursor: pointer; text-decoration: none; transition: 0.2s; color: var(--text-dark); }
+        .action-card:hover { transform: translateY(-3px); background: #ffffff; }
+        .action-card i { font-size: 1.6rem; color: var(--sidebar-bg); }
+        .action-card span { font-weight: 900; font-size: 0.85rem; }
+
+        /* 6. Bottom Banner */
+        .bottom-banner { background: var(--sidebar-bg); border-radius: 30px; padding: 25px 35px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--clay-shadow-card); flex-wrap: wrap; gap: 20px; }
+        .bottom-banner h2 { font-size: 1.3rem; font-weight: 900; margin-bottom: 5px; color: white; text-shadow: var(--text-timbul-light); }
+        .bottom-banner p { font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.9); }
+        .btn-secondary { background: var(--bg-main); color: var(--sidebar-bg); padding: 12px 25px; border-radius: 25px; font-weight: 900; font-size: 0.95rem; text-decoration: none; box-shadow: var(--clay-shadow-btn); transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-secondary:hover { transform: scale(1.03); }
+
+        /* 7. Responsif Media Queries */
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-container { grid-template-columns: 1fr; }
+            .bottom-container { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .search-bar { max-width: 100%; width: 100%; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
+            .bottom-banner { text-align: center; justify-content: center; flex-direction: column; }
+        }

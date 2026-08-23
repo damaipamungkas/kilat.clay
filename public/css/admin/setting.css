@@ -1,0 +1,238 @@
+
+    /* ==========================================================================
+   CSS PENGATURAN (SETTING) - GAYA CLAYMORPHISM SELARAS
+   ========================================================================== */
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding-bottom: 40px;
+}
+
+.settings-card {
+    background: var(--clay-purple);
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: var(--clay-shadow-card);
+}
+.settings-card:nth-child(2) { background: var(--clay-blue); }
+.settings-card:nth-child(3) { background: var(--clay-pink); }
+.settings-card:nth-child(4) { background: var(--clay-green); }
+
+.settings-card h3 {
+    font-size: 1.25rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid rgba(120, 100, 200, 0.3);
+    padding-bottom: 10px;
+    color: var(--text-dark);
+}
+.settings-card h3 i { color: var(--sidebar-bg); }
+
+/* Tombol Tema (Theme Selector) */
+.theme-options {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+.theme-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 4px solid transparent;
+    box-shadow: var(--clay-shadow-btn);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.8rem;
+    gap: 5px;
+    color: var(--text-dark);
+    background: var(--bg-main);
+    transition: transform 0.2s, border 0.2s, filter 0.2s;
+}
+.theme-btn:hover { transform: scale(1.05); filter: brightness(0.95); }
+.theme-btn.active { border-color: var(--sidebar-bg); transform: scale(1.05); box-shadow: var(--clay-shadow-inset); }
+
+.circle {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    box-shadow: inset 2px 2px 4px rgba(255,255,255,0.5);
+}
+
+/* Form & Input pada Kartu Pengaturan */
+.settings-card label {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-gray);
+    margin-bottom: 6px;
+    display: block;
+}
+
+.settings-card input[type="text"],
+.settings-card input[type="email"],
+.settings-card input[type="password"],
+.settings-card textarea,
+.settings-card select {
+    background: var(--bg-main);
+    border: none;
+    padding: 12px 15px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    box-shadow: var(--clay-shadow-inset);
+    outline: none;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.settings-card textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Kustomisasi Input File & Kotak Pilih File (Choose File) */
+.settings-card input[type="file"] {
+    background: var(--bg-main);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    box-shadow: var(--clay-shadow-inset);
+    width: 100%;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+/* Styling Tombol 'Choose Files' Bawaan Browser */
+.settings-card input[type="file"]::file-selector-button {
+    background: var(--sidebar-bg);
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: var(--clay-shadow-btn);
+    margin-right: 12px;
+    transition: 0.2s ease;
+}
+
+.settings-card input[type="file"]::file-selector-button:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+/* Tombol Aksi Umum di dalam Kartu Pengaturan */
+.settings-card button,
+.settings-card .btn-clay,
+.settings-card .btn-action {
+    background: var(--sidebar-bg);
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: var(--clay-shadow-btn);
+    text-shadow: var(--text-timbul-light);
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.settings-card button:hover,
+.settings-card .btn-clay:hover {
+    transform: translateY(-2px);
+    filter: brightness(0.95);
+}
+
+/* ==========================================================================
+   STYLING SPESIFIK TOMBOL DI DALAM KARTU SISTEM & DATABASE
+   ========================================================================== */
+.settings-card div[style*="grid-template-columns"] button,
+.settings-card div[style*="grid-template-columns"] .btn-clay {
+    background: var(--bg-main) !important;
+    color: var(--text-dark) !important;
+    box-shadow: var(--clay-shadow-btn) !important;
+    border-radius: 12px !important;
+    font-weight: 900 !important;
+    padding: 10px 15px !important;
+    width: 100% !important;
+    text-shadow: none !important;
+    transition: 0.2s ease !important;
+}
+
+.settings-card div[style*="grid-template-columns"] button:hover {
+    transform: translateY(-2px);
+    background: #ffffff !important;
+}
+
+/* Tombol Reset Semua Data (Warna Khusus Peringatan) */
+.settings-card div[style*="grid-template-columns"] > div:nth-child(4) button,
+.settings-card .btn-danger {
+    background: #ff6b81 !important;
+    color: white !important;
+    box-shadow: var(--clay-shadow-btn) !important;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.2) !important;
+}
+
+.settings-card div[style*="grid-template-columns"] > div:nth-child(4) button:hover {
+    filter: brightness(0.95) !important;
+}
+
+/* Tombol Aksi Mini pada Histori Riwayat Backup */
+#backupHistoryList button.btn-action-mini {
+    width: auto !important;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    box-shadow: var(--clay-shadow-btn) !important;
+    margin-top: 0 !important;
+}
+
+#backupHistoryList button.btn-action-mini:first-child {
+    background: var(--clay-blue) !important;
+    color: var(--text-dark) !important;
+}
+
+#backupHistoryList button.btn-action-mini:last-child {
+    background: #ff6b81 !important;
+    color: white !important;
+}
+
+/* Sub-kotak Informasi / Grup Aksi Sistem & Database */
+.settings-sub-card {
+    background: var(--bg-main);
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 15px;
+    box-shadow: var(--clay-shadow-inset);
+}
+.settings-sub-card p {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-gray);
+    margin-bottom: 12px;
+}
+
+@media (max-width: 992px) {
+    .settings-grid { grid-template-columns: 1fr; }
+}
