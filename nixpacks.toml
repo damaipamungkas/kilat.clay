@@ -1,5 +1,5 @@
 [phases.setup]
-phpPkgs = ["php", "composer", "pdo_mysql", "mbstring", "openssl", "tokenizer", "xml", "ctype", "json"]
+phpPkgs = ["php84", "composer", "pdo_mysql", "mbstring", "openssl", "tokenizer", "xml", "ctype", "json"]
 
 [phases.build]
 cmds = ["composer install --no-dev --optimize-autoloader"]
