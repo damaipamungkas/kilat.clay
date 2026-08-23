@@ -6,7 +6,7 @@ use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\AthleteController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\AppendixController;
-use App\Http\Controllers\AdminUserController; // <-- Tambahan Controller baru
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AiChatController;
 
 // ==========================================
@@ -43,7 +43,7 @@ Route::middleware(['auth', 'role:admin,Admin,administrator,coach,parent,orang tu
 });
 
 // ==========================================
-// 4. RUTE ADMIN (Diperbarui agar mendukung variasi penulisan role admin)
+// 4. RUTE ADMIN (Terintegrasi Penuh)
 // ==========================================
 Route::prefix('admin')->middleware(['auth', 'role:admin,Admin,administrator'])->name('admin.')->group(function () {
     Route::view('/', 'admin.admin')->name('index');
@@ -53,8 +53,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin,Admin,administrator'])->
     Route::view('/setting', 'admin.setting')->name('setting');
     Route::view('/users', 'admin.users')->name('users');
 
-    // Endpoint untuk menyimpan akun baru langsung ke Database Server Laravel
+    // Endpoint API untuk sinkronisasi tabel web dengan Database Laravel / Tinker
+    Route::get('/users/data', [AdminUserController::class, 'getUsersJson'])->name('users.data');
     Route::post('/users/store', [AdminUserController::class, 'store'])->name('users.store');
+    Route::delete('/users/delete/{id}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('/setting/sql-backup', [AdminSettingController::class, 'downloadSqlBackup'])->name('setting.sql-backup');
 
@@ -76,3 +78,12 @@ Route::middleware(['auth', 'role:admin,Admin,administrator,coach,pelatih'])->gro
 });
 
 Route::post('/ai-chat', [AiChatController::class, 'handleChat']);
+Route::prefix('admin')->middleware(['auth', 'role:admin,Admin,administrator'])->name('admin.')->group(function () {
+    Route::view('/users', 'admin.users')->name('users');
+    Route::get('/users/data', [AdminUserController::class, 'getUsersJson'])->name('users.data');
+    Route::post('/users/store', [AdminUserController::class, 'store'])->name('users.store');
+    Route::post('/users/update/{id}', [AdminUserController::class, 'update'])->name('users.update');
+
+    // Rute Hapus Akun yang menghubungkan tombol sampah ke Controller
+    Route::delete('/users/delete/{id}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+});

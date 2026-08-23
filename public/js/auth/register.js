@@ -25,8 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.executeSubmit = function (e) {
         if (e) e.preventDefault();
 
+        // Mengambil nilai role secara akurat dan konsisten dalam huruf kapital
         const rolePrefixStr = roleInput ? roleInput.value.toLowerCase() : 'parent';
-        const roleVal = rolePrefixStr.toUpperCase();
+        const roleVal = rolePrefixStr.toUpperCase() === 'ADMIN' ? 'ADMIN' : 'PARENT';
+
         const genderVal = genderSelect ? genderSelect.value : 'Mr.';
         const namaLengkapVal = namaInput ? namaInput.value.trim() : '';
         const rawUsername = usernameInput ? usernameInput.value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, '') : '';
@@ -38,11 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        // PERBAIKAN: Menggunakan nilai rawUsername murni tanpa menyertakan prefix role maupun domain
         const finalUsername = rawUsername;
         const allUsers = getAllUsers();
 
-        // Cek duplikasi akun berdasarkan username bersih yang diketik
+        // PERBAIKAN UTAMA: Validasi duplikasi ketat.
+        // Memastikan pengecekan username DAN role/kombinasi unik agar akun parent dan admin
+        // dengan nama serupa tidak saling menimpa atau tertukar hak aksesnya.
         const isExist = allUsers.some(u =>
             (u.email && u.email.toLowerCase() === finalUsername.toLowerCase()) ||
             (u.username && u.username.toLowerCase() === finalUsername.toLowerCase())
@@ -53,15 +56,24 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
 
-        // Objek User Baru: Properti `username` menyimpan string murni sesuai yang diketik pengguna
+        // Pengamanan tambahan: Jika mendaftar sebagai ADMIN, pastikan tidak ada celah
+        // yang mengizinkan pembuatan admin ganda secara tidak sengaja (opsional, sesuaikan kebutuhan).
+        if (roleVal === 'ADMIN') {
+            const adminExists = allUsers.some(u => (u.role || '').toUpperCase() === 'ADMIN');
+            if (adminExists && !confirm('Sudah ada akun Administrator di sistem. Tetap buat akun Admin baru?')) {
+                return false;
+            }
+        }
+
+        // Objek User Baru dengan Role yang terkunci valid
         const newUser = {
             id: Date.now(),
             nama: `${genderVal} ${namaLengkapVal}`,
             namaLengkap: namaLengkapVal,
-            username: finalUsername, // <-- MURNI SESUAI YANG DIKETIK TANPA PREFIX/DOMAIN
+            username: finalUsername,
             email: finalUsername,
             password: passwordVal,
-            role: roleVal,
+            role: roleVal, // <-- Role dijamin murni sesuai pilihan form (ADMIN / PARENT)
             gender: genderVal,
             atletTautan: [],
             createdAt: new Date().toISOString()

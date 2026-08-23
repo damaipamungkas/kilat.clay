@@ -31,7 +31,7 @@ function saveUsersData(data) {
 
 // --- 1. SINKRONISASI ROLE DARI URL PARAMETER & LOCAL STORAGE ---
 function resolveCurrentRole() {
-    // Ambil sesi user saat ini untuk deteksi instan nama/role yang mengandung kata 'admin'
+    // Ambil sesi user saat ini
     const currentUserSession = JSON.parse(
         localStorage.getItem('KILAT_CURRENT_USER') ||
         localStorage.getItem('kilat_user_data') ||
@@ -39,11 +39,11 @@ function resolveCurrentRole() {
         '{}'
     );
 
-    const sessionName = (currentUserSession.name || currentUserSession.username || currentUserSession.namaLengkap || '').toLowerCase();
     const sessionRole = (currentUserSession.role || '').toLowerCase();
 
-    // Jika terindikasi admin (seperti Admin Demo 1), paksa role menjadi admin penuh
-    if (sessionName.includes('admin') || sessionRole.includes('admin') || sessionRole === 'administrator') {
+    // PERBAIKAN: Hapus pemeriksaan longgar `sessionName.includes('admin')` agar akun parent
+    // yang usernamenya berawalan "admin." tidak keliru terbaca/dipaksa menjadi role admin.
+    if (sessionRole === 'admin' || sessionRole === 'administrator' || sessionRole === 'superadmin') {
         localStorage.setItem('userRole', 'admin');
         localStorage.setItem('KILAT_ACTIVE_ROLE', 'admin');
         return 'admin';
@@ -2120,8 +2120,13 @@ window.renderAthleteParentOptions = function() {
     }
 };
 
+// --- SIMPAN / EDIT AKUN TERINTEGRASI KE DATABASE SERVER LARAVEL ---
 window.saveAccount = function(e) {
-    if (e) e.preventDefault();
+    if (e) {
+        if (typeof e.preventDefault === 'function') e.preventDefault();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
+
     let editIndex = document.getElementById('accId').value;
     let name = document.getElementById('accName').value;
     let username = document.getElementById('accUsername').value;
@@ -2129,22 +2134,54 @@ window.saveAccount = function(e) {
     let role = document.getElementById('accRole').value;
     let status = document.getElementById('accStatus').value;
 
-    let users = getUsersData();
-    if (editIndex !== "" && editIndex !== null) {
-        let idx = parseInt(editIndex);
-        users[idx].namaLengkap = name;
-        users[idx].username = username;
-        users[idx].password = password;
-        users[idx].role = role;
-        users[idx].status = status;
-    } else {
-        users.unshift({ id: Date.now(), namaLengkap: name, username, password, role, status, atletTautan: [] });
-    }
+    // Payload data yang dikirim ke backend Laravel
+    let payload = {
+        name: name,
+        email: username,
+        password: password,
+        role: role.toLowerCase(),
+        status: status
+    };
 
-    saveUsersData(users);
-    renderTable();
-    closeModal('accountModal');
-    if (e && e.target) e.target.reset();
+    let url = (editIndex !== "" && editIndex !== null && editIndex !== undefined) ? `/admin/users/update/${editIndex}` : `/admin/users/store`;
+
+    // Kirim data ke backend Laravel menggunakan Fetch API
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(async response => {
+        let contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return response.json();
+        } else {
+            throw new Error("Server mengembalikan respons non-JSON.");
+        }
+    })
+    .then(data => {
+        if (data && (data.success || data.status === 'success')) {
+            alert('✅ Akun berhasil disimpan ke database server!');
+            closeModal('accountModal');
+            if (e && e.target && typeof e.target.reset === 'function') {
+                e.target.reset();
+            }
+            // Muat ulang halaman agar data terbaru dari database server langsung termuat
+            window.location.reload();
+        } else {
+            alert('⚠️ Gagal menyimpan akun ke server: ' + (data.message || 'Kesalahan tidak diketahui.'));
+        }
+    })
+    .catch(error => {
+        console.error('Error saat mengirim data ke backend:', error);
+        alert('❌ Terjadi kesalahan koneksi ke server backend.');
+    });
+
+    return false;
 };
 
 window.saveAthlete = function(e) {

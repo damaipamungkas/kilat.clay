@@ -95,7 +95,7 @@
                         <option value="admin">Admin</option>
                         <option value="coach">Coach</option>
                         <option value="parent">Parent</option>
-                        <option value="athlete">Athlete</option>
+                        <option value="atlet">Atlet</option> <!-- Ubah dari 'athlete' ke 'atlet' -->
                     </select>
                 </div>
                 <div class="form-group">
