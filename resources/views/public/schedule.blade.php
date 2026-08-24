@@ -145,7 +145,7 @@
         <!-- JADWAL: WATES -->
         <div class="tech-card">
             <div class="card-bg pastel-green">
-                <div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Divisi Wates</div>
+                <div class="card-title"><i class="fa-solid fa-map-location-dot"></i> Divisi Grogol</div>
 
                 <div class="table-responsive">
                     <table class="clay-table">
