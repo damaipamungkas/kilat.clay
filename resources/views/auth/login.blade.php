@@ -57,7 +57,7 @@
                     <label for="email">ID KREDENSIAL (EMAIL)</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" id="email" name="email" class="sci-fi-input" placeholder="contoh: admin.master@kilat.com" required autocomplete="username">
+                        <input type="email" id="email" name="email" class="sci-fi-input" placeholder="contoh: parent.nama@kilat.com" required autocomplete="username">
                     </div>
                 </div>
 
