@@ -67,7 +67,7 @@
                         <div class="input-wrapper sci-fi-input-composite">
                             <i class="fa-solid fa-envelope"></i>
                             <!-- PREFIX "parent." DIHAPUS AGAR BISA DIISI MANUAL -->
-                            <input type="text" id="username" name="username" class="sci-fi-text-inner" placeholder="Masukkan email, contoh (parent.contoh@kilat.com)" required autocomplete="off">
+                            <input type="text" id="username" name="username" class="sci-fi-text-inner" placeholder="Masukkan email, contoh (parent.nama@kilat.com)" required autocomplete="off">
                         </div>
                     </div>
 
