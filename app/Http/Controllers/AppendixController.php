@@ -40,6 +40,7 @@ class AppendixController extends Controller
             })
             ->get();
 
-        return view('appendix.appendix', compact('role', 'currentUserId', 'athletes'));
+        // Mengirimkan variabel $user agar data nama wali / parent yang sedang login bisa dibaca di view
+        return view('appendix.appendix', compact('role', 'currentUserId', 'athletes', 'user'));
     }
 }

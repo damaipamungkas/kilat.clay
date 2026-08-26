@@ -1,5 +1,5 @@
 // ===================================================
-// FILE: public/js/appendix/appendix.js
+// FILE: public/js/appendix.js (Versi 13.08)
 // MANAJEMEN DATA APPENDIX, ROLE SINKRONISASI, BIODATA & PENILAIAN
 // ===================================================
 
@@ -18,7 +18,20 @@ const userRole = "{{ $role ?? 'admin' }}";
 const currentUserId = "{{ $currentUserId ?? '1' }}";
 
 // --- UTILS & STORAGE HELPER ---
-function getUsersData() {
+async function getUsersData() {
+    try {
+        let response = await fetch('/admin/users/data', {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (response.ok) {
+            let serverUsers = await response.json();
+            if (serverUsers && Array.isArray(serverUsers)) {
+                return serverUsers;
+            }
+        }
+    } catch (error) {
+        console.error('Gagal mengambil data dari server, beralih ke cache lokal:', error);
+    }
     return JSON.parse(localStorage.getItem('manageUsersData')) ||
            JSON.parse(localStorage.getItem('KILAT_USERS')) ||
            [];
@@ -31,7 +44,6 @@ function saveUsersData(data) {
 
 // --- 1. SINKRONISASI ROLE DARI URL PARAMETER & LOCAL STORAGE ---
 function resolveCurrentRole() {
-    // Ambil sesi user saat ini
     const currentUserSession = JSON.parse(
         localStorage.getItem('KILAT_CURRENT_USER') ||
         localStorage.getItem('kilat_user_data') ||
@@ -41,8 +53,6 @@ function resolveCurrentRole() {
 
     const sessionRole = (currentUserSession.role || '').toLowerCase();
 
-    // PERBAIKAN: Hapus pemeriksaan longgar `sessionName.includes('admin')` agar akun parent
-    // yang usernamenya berawalan "admin." tidak keliru terbaca/dipaksa menjadi role admin.
     if (sessionRole === 'admin' || sessionRole === 'administrator' || sessionRole === 'superadmin') {
         localStorage.setItem('userRole', 'admin');
         localStorage.setItem('KILAT_ACTIVE_ROLE', 'admin');
@@ -91,7 +101,7 @@ let currentUserSession = JSON.parse(
 
 const urlParamsGlobal = new URLSearchParams(window.location.search);
 let currentParentUsername = urlParamsGlobal.get('parent') ||
-    (currentUserSession ? (currentUserSession.username || currentUserSession.email || currentUserSession.name || 'ParentUser') : 'ParentUser');
+    (currentUserSession ? (currentUserSession.username || currentUserSession.email || currentUserSession.name || window.CURRENT_USER_NAME || 'ParentUser') : (window.CURRENT_USER_NAME || 'ParentUser'));
 
 // --- 2. DEKLARASI ELEMEN UI & MODAL ---
 const trickModal = document.getElementById('trickModal');
@@ -104,8 +114,8 @@ const athleteModal = document.getElementById('athleteModal');
 const formTrick = document.getElementById('assessmentForm') || document.getElementById('trickForm');
 const formSpeed = document.getElementById('speedForm');
 
-const athleteInput = document.getElementById('athleteName');
-const athleteFullNameInput = document.getElementById('athleteFullName');
+const athleteInput = document.getElementById('athleteName'); // Nama Panggilan
+const athleteFullNameInput = document.getElementById('athleteFullName'); // Nama Lengkap (Email di database)
 const bioInputs = document.querySelectorAll('.bio-input');
 const waBtn = document.getElementById('waBtn');
 const analysisTextarea = document.getElementById('analysisTextarea');
@@ -228,9 +238,9 @@ if (btnSettings) {
     });
 }
 
-// --- HELPER CEK STATUS / PEMBAYARAN AKTIF ATLET (BERDASARKAN ROLE ATLET) ---
-function isAthleteActiveOrPaidFromUsers(nick) {
-    let manageUsers = getUsersData();
+// --- HELPER CEK STATUS / PEMBAYARAN AKTIF ATLET ---
+async function isAthleteActiveOrPaidFromUsers(nick) {
+    let manageUsers = await getUsersData();
     let athleteUser = manageUsers.find(u => {
         let r = (u.role || '').toLowerCase();
         let uName = (u.name || u.username || u.namaLengkap || '').toLowerCase().trim();
@@ -264,11 +274,11 @@ function isAthleteActiveOrPaidFromUsers(nick) {
     return hasPaid;
 }
 
-// --- DROPDOWN & FILTER ATLET (Hanya Role Atlet yang Aktif atau Sudah Bayar) ---
-function updateAthleteDropdowns() {
+// --- DROPDOWN & FILTER ATLET ---
+async function updateAthleteDropdowns() {
     const athletes = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
     const athletesData = JSON.parse(localStorage.getItem('athletes_data')) || [];
-    const manageUsers = getUsersData();
+    const manageUsers = await getUsersData();
 
     let rawList = [...athletes];
 
@@ -304,8 +314,8 @@ function updateAthleteDropdowns() {
         }
     }
 
-    allAthletes.forEach(nick => {
-        if (!isAthleteActiveOrPaidFromUsers(nick)) return;
+    for (const nick of allAthletes) {
+        if (!await isAthleteActiveOrPaidFromUsers(nick)) continue;
 
         const bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + nick)) || {};
         const extAth = athletesData.find(a => (a.name || a.nickname || a.fullName) === nick) || {};
@@ -315,16 +325,16 @@ function updateAthleteDropdowns() {
             let isLinkedByAdmin = allowedAthletesForParent.some(ath => ath.toLowerCase() === nick.toLowerCase());
             let isConnectedByBio = currentParentUsername && connectedOrtu && connectedOrtu.toLowerCase() === currentParentUsername.toLowerCase();
 
-            if (!isLinkedByAdmin && !isConnectedByBio) return;
+            if (!isLinkedByAdmin && !isConnectedByBio) continue;
         }
 
         const fullName = bio.fullName || extAth.fullName || nick;
 
-        if (filterText && !(nick.toLowerCase().includes(filterText) || fullName.toLowerCase().includes(filterText))) return;
+        if (filterText && !(nick.toLowerCase().includes(filterText) || fullName.toLowerCase().includes(filterText))) continue;
 
         nickOptions += `<option value="${nick}">${nick}</option>`;
-        if (fullName) fullOptions += `<option value="${fullName}">${fullName}</option>`;
-    });
+        if (fullName) fullOptions += `<option value="${fullName}" data-nickname="${nick}" data-fullname="${fullName}">${fullName}</option>`;
+    }
 
     if (athleteSelect) athleteSelect.innerHTML = nickOptions;
     if (athleteSelectFullName) athleteSelectFullName.innerHTML = fullOptions;
@@ -421,7 +431,7 @@ function loadAnalysisForTab(athleteName, tabId) {
     analysisTextarea.value = tabAnalysis[tabId] || '';
 }
 
-// --- FUNGSI MODAL POPUP ISIAN ANALISA & TOMBOL SIMPAN/HAPUS ---
+// --- FUNGSI MODAL POPUP ANALISA ---
 function ensureAnalysisModalExists() {
     let modalEl = document.getElementById('analysisModal');
     if (!modalEl) {
@@ -521,56 +531,6 @@ window.deleteAnalysisModal = function() {
     }
 };
 
-window.enableEditAnalysis = function() {
-    if (!analysisTextarea) return;
-    const athleteName = athleteInput ? athleteInput.value.trim() : '';
-    if (!athleteName) return alert('Pilih atau tentukan atlet terlebih dahulu!');
-    if (currentRole.toLowerCase() === 'parent') return alert('Akses terbatas untuk Parent.');
-
-    analysisTextarea.removeAttribute('readonly');
-    analysisTextarea.focus();
-    alert('Mode Edit Catatan diaktifkan untuk kelas ini. Ubah teks lalu klik Simpan.');
-};
-
-window.saveAnalysisDirect = function() {
-    if (!analysisTextarea) return;
-    const athleteName = athleteInput ? athleteInput.value.trim() : '';
-    if (!athleteName) return alert('Pilih atau tentukan atlet terlebih dahulu!');
-    if (currentRole.toLowerCase() === 'parent') return alert('Akses terbatas untuk Parent.');
-
-    const activeTab = getActiveTabId();
-    let bioData = JSON.parse(localStorage.getItem('KILAT_BIO_' + athleteName)) || {};
-    if (!bioData.analisaPerTab) bioData.analisaPerTab = {};
-
-    bioData.analisaPerTab[activeTab] = analysisTextarea.value;
-    bioData.analisa = analysisTextarea.value;
-
-    localStorage.setItem('KILAT_BIO_' + athleteName, JSON.stringify(bioData));
-    analysisTextarea.setAttribute('readonly', 'true');
-    alert('Catatan / Analisa untuk kelas ini berhasil disimpan!');
-};
-
-window.deleteAnalysisDirect = function() {
-    if (!analysisTextarea) return;
-    const athleteName = athleteInput ? athleteInput.value.trim() : '';
-    if (!athleteName) return alert('Pilih atau tentukan atlet terlebih dahulu!');
-    if (currentRole.toLowerCase() === 'parent') return alert('Akses terbatas untuk Parent.');
-
-    if (confirm('Yakin ingin menghapus catatan / analisa untuk kelas ini?')) {
-        const activeTab = getActiveTabId();
-        let bioData = JSON.parse(localStorage.getItem('KILAT_BIO_' + athleteName)) || {};
-
-        if (bioData.analisaPerTab) {
-            delete bioData.analisaPerTab[activeTab];
-        }
-
-        localStorage.setItem('KILAT_BIO_' + athleteName, JSON.stringify(bioData));
-        analysisTextarea.value = '';
-        analysisTextarea.setAttribute('readonly', 'true');
-        alert('Catatan analisa untuk kelas ini berhasil dihapus.');
-    }
-};
-
 // --- 3. STATE HISTORY & MODAL CONTROL ---
 function openModalSafely(modalEl) {
     if (!modalEl) return;
@@ -623,7 +583,7 @@ window.addEventListener('popstate', (event) => {
     if (anyOpen) event.preventDefault();
 });
 
-// --- 4. PENERAPAN HAK AKSES ROLE ---
+// --- 4. PENERAPAN HAK AKSES ROLE & PENGUNCIAN INPUT UNTUK PARENT ---
 function applyRolePermissions() {
     detectedRole = resolveCurrentRole();
     currentRole = detectedRole.toUpperCase();
@@ -644,7 +604,7 @@ function applyRolePermissions() {
 
     const adminActionElements = Array.from(document.querySelectorAll('button, a')).filter(el => {
         const txt = (el.textContent || '').trim().toUpperCase();
-        return txt.includes('BACKUP') || txt.includes('RESTORE') || txt.includes('CETAK') || txt.includes('HAPUS ATLET') || txt.includes('EDIT DATA ATLET');
+        return txt.includes('CETAK') || txt.includes('HAPUS ATLET') || txt.includes('EDIT DATA ATLET');
     });
 
     if (roleLower === 'admin') {
@@ -653,8 +613,6 @@ function applyRolePermissions() {
         if (btnAddBio) btnAddBio.style.display = 'inline-block';
         if (btnEditBio) btnEditBio.style.display = 'inline-block';
         if (btnDeleteBio) btnDeleteBio.style.display = 'inline-block';
-        if (btnExportData) btnExportData.style.display = 'inline-block';
-        if (btnImportData) btnImportData.style.display = 'inline-block';
         if (btnSettings) btnSettings.style.display = 'inline-block';
         if (btnModeToggle) btnModeToggle.style.display = 'inline-block';
         if (btnPendingNotif) btnPendingNotif.style.display = 'inline-flex';
@@ -779,7 +737,7 @@ function openPendingModal() {
             html += `
                 <div class="pending-item-card" style="border:1px solid #ddd; padding:12px; border-radius:8px; margin-bottom:10px; background:#fff;">
                     <div><strong>Nama Panggilan:</strong> ${item.nick}</div>
-                    <div><strong>Nama Lengkap:</strong> ${item.bio.fullName || '-'}</div>
+                    <div><strong>Nama Lengkap (Email):</strong> ${item.bio.fullName || '-'}</div>
                     <div><strong>NIK:</strong> ${item.bio.nik || '-'}</div>
                     <div><strong>Orang Tua / Parent:</strong> ${item.bio.connectedParent || '-'}</div>
                     <div><strong>WhatsApp:</strong> ${item.bio.wa || '-'}</div>
@@ -797,7 +755,7 @@ function openPendingModal() {
 
 if (btnPendingNotif) btnPendingNotif.addEventListener('click', openPendingModal);
 
-window.approveAthlete = function(nick) {
+window.approveAthlete = async function(nick) {
     if (currentRole.toLowerCase() !== 'admin') return;
     let bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + nick)) || {};
     bio.status = 'Aktif';
@@ -805,10 +763,10 @@ window.approveAthlete = function(nick) {
     alert(`Atlet "${nick}" berhasil diverifikasi dan diset Aktif!`);
     updatePendingNotificationBadge();
     openPendingModal();
-    updateAthleteDropdowns();
+    await updateAthleteDropdowns();
 };
 
-window.rejectAthlete = function(nick) {
+window.rejectAthlete = async function(nick) {
     if (currentRole.toLowerCase() !== 'admin') return;
     if (!confirm(`Tolak pendaftaran atlet "${nick}"? Data akan dihapus.`)) return;
 
@@ -817,25 +775,25 @@ window.rejectAthlete = function(nick) {
     localStorage.removeItem('KILAT_BIO_' + nick);
     localStorage.removeItem('KILAT_PROFIL_' + nick);
 
-    let manageUsers = getUsersData();
+    let manageUsers = await getUsersData();
     manageUsers = manageUsers.filter(u => u.name !== nick && u.username !== nick);
     saveUsersData(manageUsers);
 
     alert(`Pendaftaran atlet "${nick}" ditolak.`);
     updatePendingNotificationBadge();
     openPendingModal();
-    updateAthleteDropdowns();
+    await updateAthleteDropdowns();
 };
 
 if (searchAthlete) searchAthlete.addEventListener('input', updateAthleteDropdowns);
 
 // --- 6. SELEKSI ATLET & BIODATA LOGIC ---
-function handleSelectChange(targetNick) {
+async function handleSelectChange(targetNick) {
     if (targetNick) {
         const bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + targetNick));
 
         if (currentRole.toLowerCase() === 'parent') {
-            const manageUsers = getUsersData();
+            const manageUsers = await getUsersData();
             const parentUserObj = manageUsers.find(u =>
                 (u.username || '').toLowerCase() === currentParentUsername.toLowerCase() ||
                 (u.namaLengkap || u.nama || u.name || '').toLowerCase() === currentParentUsername.toLowerCase()
@@ -871,34 +829,37 @@ function handleSelectChange(targetNick) {
 if (athleteSelect) athleteSelect.addEventListener('change', () => handleSelectChange(athleteSelect.value));
 if (athleteSelectFullName) {
     athleteSelectFullName.addEventListener('change', () => {
+        const selectedOpt = athleteSelectFullName.options[athleteSelectFullName.selectedIndex];
         const val = athleteSelectFullName.value;
         if (!val) return handleSelectChange("");
 
-        const athletesData = JSON.parse(localStorage.getItem('athletes_data')) || [];
-        const athletesList = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+        let nick = selectedOpt ? selectedOpt.getAttribute('data-nickname') : '';
+        if (!nick) {
+            const athletesData = JSON.parse(localStorage.getItem('athletes_data')) || [];
+            const athletesList = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+            let found = athletesData.find(a => a.id == val || a.email == val || a.fullName == val || a.name == val);
+            nick = found ? (found.name || found.nickname || found.id) : val;
 
-        let found = athletesData.find(a => a.id == val || a.fullName == val || a.name == val);
-        let nick = found ? (found.name || found.nickname || found.id) : val;
-
-        if (!athletesList.includes(nick)) {
-            const matchInList = athletesList.find(a => a.toLowerCase() === String(nick).toLowerCase());
-            if (matchInList) nick = matchInList;
+            if (!athletesList.includes(nick)) {
+                const matchInList = athletesList.find(a => a.toLowerCase() === String(nick).toLowerCase());
+                if (matchInList) nick = matchInList;
+            }
         }
 
         handleSelectChange(nick);
     });
 }
 
-// --- 7. TAMBAH ATLET BARU & SINKRONISASI ---
+// --- 7. TAMBAH ATLET BARU & PENGUNCIAN NAMA WALI/KELAS/STATUS ---
 if (btnAddBio) {
-    btnAddBio.addEventListener('click', (e) => {
+    btnAddBio.addEventListener('click', async (e) => {
         e.preventDefault();
         if (currentRole.toLowerCase() === 'coach') {
             return alert('Akses Terbatas: Coach tidak dapat menambah atlet baru.');
         }
 
         if (athleteModal && currentRole.toLowerCase() !== 'parent') {
-            openAthleteModal();
+            await openAthleteModal();
             return;
         }
 
@@ -908,36 +869,36 @@ if (btnAddBio) {
             if (input.tagName === 'SELECT') input.removeAttribute('disabled');
         });
 
+        const fieldOrtu = document.getElementById('bioOrtu');
+        if (fieldOrtu) {
+            fieldOrtu.value = currentParentUsername || window.CURRENT_USER_NAME || '';
+            fieldOrtu.setAttribute('readonly', 'true');
+        }
+
         if (currentRole.toLowerCase() === 'parent') {
-            const fieldOrtu = document.getElementById('bioOrtu');
-            if (fieldOrtu) {
-                fieldOrtu.value = currentParentUsername;
-                fieldOrtu.setAttribute('readonly', true);
-            }
             const fieldKelas = document.getElementById('bioKelas');
             if (fieldKelas) {
                 fieldKelas.value = 'PEMULA';
-                fieldKelas.removeAttribute('disabled');
+                fieldKelas.setAttribute('disabled', 'true');
             }
             const fieldStatus = document.getElementById('bioStatus');
             if (fieldStatus) {
                 fieldStatus.value = 'Aktif';
-                fieldStatus.removeAttribute('disabled');
+                fieldStatus.setAttribute('disabled', 'true');
             }
         } else {
             const fieldStatus = document.getElementById('bioStatus');
             if (fieldStatus) fieldStatus.value = 'Aktif';
         }
 
-        if (btnAddBio) btnAddBio.style.display = 'none';
-        if (btnEditBio) btnEditBio.style.display = 'inline-block';
         if (btnSaveBio) btnSaveBio.style.display = 'inline-block';
         if (athleteInput) athleteInput.focus();
     });
 }
 
 if (btnEditBio) {
-    btnEditBio.addEventListener('click', () => {
+    btnEditBio.addEventListener('click', async (e) => {
+        e.preventDefault();
         if (currentRole.toLowerCase() === 'coach') {
             return alert('Akses Terbatas: Coach tidak dapat mengedit biodata atlet.');
         }
@@ -947,7 +908,7 @@ if (btnEditBio) {
 
         const existingBio = JSON.parse(localStorage.getItem('KILAT_BIO_' + currentNick)) || {};
         if (currentRole.toLowerCase() === 'parent') {
-            const manageUsers = getUsersData();
+            const manageUsers = await getUsersData();
             const parentUserObj = manageUsers.find(u =>
                 (u.username || '').toLowerCase() === currentParentUsername.toLowerCase() ||
                 (u.namaLengkap || u.nama || u.name || '').toLowerCase() === currentParentUsername.toLowerCase()
@@ -970,36 +931,59 @@ if (btnEditBio) {
 
         if (currentRole.toLowerCase() === 'parent') {
             if (athleteInput) athleteInput.setAttribute('readonly', true);
+
             const fieldOrtu = document.getElementById('bioOrtu');
-            if (fieldOrtu) fieldOrtu.setAttribute('readonly', true);
+            if (fieldOrtu) {
+                fieldOrtu.value = currentParentUsername || window.CURRENT_USER_NAME || '';
+                fieldOrtu.setAttribute('readonly', 'true');
+            }
+            const fieldKelas = document.getElementById('bioKelas');
+            if (fieldKelas) fieldKelas.setAttribute('disabled', 'true');
+            const fieldStatus = document.getElementById('bioStatus');
+            if (fieldStatus) fieldStatus.setAttribute('disabled', 'true');
         }
 
-        if (btnAddBio) btnAddBio.style.display = 'none';
-        if (btnEditBio) btnEditBio.style.display = 'inline-block';
         if (btnSaveBio) btnSaveBio.style.display = 'inline-block';
         if (athleteInput) athleteInput.focus();
     });
 }
 
-function syncAthleteDataToExternalFiles(athleteName, bioData) {
+async function syncAthleteDataToExternalFiles(athleteName, bioData) {
+    const parentActiveName = currentParentUsername || window.CURRENT_USER_NAME || bioData.ortu || bioData.connectedParent || '';
+
+    if (parentActiveName) {
+        bioData.connectedParent = parentActiveName;
+        bioData.ortu = parentActiveName;
+    }
+
     if (currentRole.toLowerCase() === 'parent') {
-        bioData.connectedParent = currentParentUsername;
-        bioData.ortu = currentParentUsername;
-        bioData.kelas = bioData.kelas || 'PEMULA';
+        bioData.kelas = 'PEMULA';
         bioData.status = 'Aktif';
+    }
 
-        let manageUsers = getUsersData();
-        let parentIndex = manageUsers.findIndex(u =>
-            (u.username || '').toLowerCase() === currentParentUsername.toLowerCase() ||
-            (u.namaLengkap || u.nama || u.name || '').toLowerCase() === currentParentUsername.toLowerCase()
-        );
+    let manageUsers = await getUsersData();
+    let parentIndex = manageUsers.findIndex(u =>
+        (u.username || '').toLowerCase() === parentActiveName.toLowerCase() ||
+        (u.namaLengkap || u.nama || u.name || '').toLowerCase() === parentActiveName.toLowerCase()
+    );
 
-        if (parentIndex !== -1) {
-            if (!manageUsers[parentIndex].atletTautan) manageUsers[parentIndex].atletTautan = [];
-            if (!manageUsers[parentIndex].atletTautan.some(ath => ath.toLowerCase() === athleteName.toLowerCase())) {
-                manageUsers[parentIndex].atletTautan.push(athleteName);
-                saveUsersData(manageUsers);
-            }
+    if (parentIndex !== -1) {
+        if (!manageUsers[parentIndex].atletTautan) manageUsers[parentIndex].atletTautan = [];
+        if (!manageUsers[parentIndex].atletTautan.some(ath => ath.toLowerCase() === athleteName.toLowerCase())) {
+            manageUsers[parentIndex].atletTautan.push(athleteName);
+            saveUsersData(manageUsers);
+        }
+    } else {
+        if (parentActiveName) {
+            manageUsers.push({
+                id: Date.now(),
+                name: parentActiveName,
+                username: parentActiveName,
+                role: 'parent',
+                status: 'Aktif',
+                atletTautan: [athleteName]
+            });
+            saveUsersData(manageUsers);
         }
     }
 
@@ -1016,12 +1000,13 @@ function syncAthleteDataToExternalFiles(athleteName, bioData) {
     const athItem = {
         id: athleteName,
         name: athleteName,
+        email: bioData.fullName || athleteName,
         fullName: bioData.fullName || athleteName,
         nik: bioData.nik || '-',
         gender: bioData.gender || '-',
         tglLahir: bioData.tglLahir || '-',
         alamat: bioData.alamat || '-',
-        ortu: bioData.ortu || '-',
+        ortu: parentActiveName || '-',
         kelas: bioData.kelas || 'PEMULA',
         status: bioData.status || 'Aktif',
         wa: bioData.wa || '-'
@@ -1032,40 +1017,41 @@ function syncAthleteDataToExternalFiles(athleteName, bioData) {
 
     const profilPayload = {
         name: athleteName,
+        email: bioData.fullName || athleteName,
         fullName: bioData.fullName || athleteName,
         nik: bioData.nik || '-',
         gender: bioData.gender || '-',
         tglLahir: bioData.tglLahir || '-',
         alamat: bioData.alamat || '-',
-        ortu: bioData.ortu || '-',
+        ortu: parentActiveName || '-',
         kelas: bioData.kelas || 'PEMULA',
         status: bioData.status || 'Aktif',
         wa: bioData.wa || '-',
         analisa: bioData.analisa || '',
         analisaPerTab: bioData.analisaPerTab || {},
-        connectedParent: bioData.connectedParent || '-',
+        connectedParent: parentActiveName || '-',
         updatedAt: new Date().toISOString()
     };
     localStorage.setItem('KILAT_PROFIL_' + athleteName, JSON.stringify(profilPayload));
 
-    let manageUsers = getUsersData();
     let existingIndex = manageUsers.findIndex(u => u.username === athleteName || u.name === athleteName);
 
     const userRecord = {
         id: existingIndex >= 0 ? manageUsers[existingIndex].id : Date.now(),
         nik: bioData.nik || '-',
-        username: athleteName,
+        username: bioData.fullName || athleteName,
+        email: bioData.fullName || athleteName,
         name: athleteName,
         fullName: bioData.fullName || athleteName,
         gender: bioData.gender || '-',
         birthDate: bioData.tglLahir || '-',
         address: bioData.alamat || '-',
-        parentName: bioData.ortu || '-',
+        parentName: parentActiveName || '-',
         class: bioData.kelas || 'PEMULA',
         status: bioData.status || 'Aktif',
         wa: bioData.wa || '-',
-        role: 'Atlet',
-        connectedParent: bioData.connectedParent || '-',
+        role: 'atlet',
+        connectedParent: parentActiveName || '-',
         updatedAt: new Date().toISOString()
     };
 
@@ -1076,10 +1062,47 @@ function syncAthleteDataToExternalFiles(athleteName, bioData) {
     }
 
     saveUsersData(manageUsers);
+
+    const backendPayload = {
+        name: athleteName,
+        fullName: bioData.fullName || athleteName,
+        parent: parentActiveName || '-',
+        nik: bioData.nik || '',
+        gender: bioData.gender || '',
+        tglLahir: bioData.tglLahir || '',
+        alamat: bioData.alamat || '',
+        kelas: bioData.kelas || 'PEMULA',
+        status: bioData.status || 'Aktif',
+        wa: bioData.wa || ''
+    };
+
+    fetch('/admin/atlet/store-api', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+        },
+        body: JSON.stringify(backendPayload)
+    })
+    .then(async res => {
+        let contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return res.json();
+        } else {
+            throw new Error("Server mengembalikan respons non-JSON.");
+        }
+    })
+    .then(data => {
+        console.log('✅ Sinkronisasi atlet ke database server berhasil:', data);
+    })
+    .catch(err => {
+        console.warn('⚠️ Gagal sinkronisasi otomatis ke server backend:', err);
+    });
 }
 
 if (btnSaveBio) {
-    btnSaveBio.addEventListener('click', () => {
+    btnSaveBio.addEventListener('click', async () => {
         if (currentRole.toLowerCase() === 'coach') {
             return alert('Akses Terbatas: Coach tidak dapat mengedit/menyimpan biodata atlet.');
         }
@@ -1094,6 +1117,8 @@ if (btnSaveBio) {
             currentTabAnalisa[activeTab] = analysisTextarea.value;
         }
 
+        const parentSignName = currentParentUsername || window.CURRENT_USER_NAME || (document.getElementById('bioOrtu') ? document.getElementById('bioOrtu').value : '');
+
         const bioData = {
             ...existingBio,
             nik: document.getElementById('bioNIK') ? document.getElementById('bioNIK').value : '',
@@ -1101,20 +1126,20 @@ if (btnSaveBio) {
             gender: document.getElementById('bioGender') ? document.getElementById('bioGender').value : '',
             tglLahir: document.getElementById('bioTglLahir') ? document.getElementById('bioTglLahir').value : '',
             alamat: document.getElementById('bioAlamat') ? document.getElementById('bioAlamat').value : '',
-            ortu: currentRole.toLowerCase() === 'parent' ? currentParentUsername : (document.getElementById('bioOrtu') ? document.getElementById('bioOrtu').value : ''),
-            kelas: currentRole.toLowerCase() === 'parent' ? (existingBio.kelas || 'PEMULA') : (document.getElementById('bioKelas') ? document.getElementById('bioKelas').value : 'PEMULA'),
+            ortu: parentSignName,
+            kelas: currentRole.toLowerCase() === 'parent' ? 'PEMULA' : (document.getElementById('bioKelas') ? document.getElementById('bioKelas').value : 'PEMULA'),
             status: currentRole.toLowerCase() === 'parent' ? 'Aktif' : (document.getElementById('bioStatus') ? document.getElementById('bioStatus').value : 'Aktif'),
             wa: document.getElementById('bioWA') ? document.getElementById('bioWA').value : '',
             analisa: analysisTextarea ? analysisTextarea.value : '',
             analisaPerTab: currentTabAnalisa,
-            connectedParent: existingBio.connectedParent || (currentRole.toLowerCase() === 'parent' ? currentParentUsername : '-')
+            connectedParent: existingBio.connectedParent || parentSignName
         };
 
-        syncAthleteDataToExternalFiles(athleteName, bioData);
+        await syncAthleteDataToExternalFiles(athleteName, bioData);
         localStorage.setItem('lastActiveAthlete', athleteName);
 
         updateWaButton(bioData.wa);
-        updateAthleteDropdowns();
+        await updateAthleteDropdowns();
         updatePendingNotificationBadge();
 
         if (athleteSelect) athleteSelect.value = athleteName;
@@ -1126,7 +1151,7 @@ if (btnSaveBio) {
 }
 
 if (btnDeleteBio) {
-    btnDeleteBio.addEventListener('click', () => {
+    btnDeleteBio.addEventListener('click', async () => {
         if (currentRole.toLowerCase() !== 'admin') {
             return alert('Akses Terbatas: Hanya Admin yang dapat menghapus atlet.');
         }
@@ -1143,12 +1168,12 @@ if (btnDeleteBio) {
             localStorage.removeItem('KILAT_PROFIL_' + athleteName);
             localStorage.removeItem('lastActiveAthlete');
 
-            let manageUsers = getUsersData();
+            let manageUsers = await getUsersData();
             manageUsers = manageUsers.filter(u => u.name !== athleteName && u.username !== athleteName);
             saveUsersData(manageUsers);
 
-            handleSelectChange("");
-            updateAthleteDropdowns();
+            await handleSelectChange("");
+            await updateAthleteDropdowns();
             updatePendingNotificationBadge();
             alert(`Data atlet "${athleteName}" berhasil dihapus.`);
         }
@@ -1166,7 +1191,7 @@ function resetEditMode() {
     applyRolePermissions();
 }
 
-function loadBiodata(athleteName) {
+async function loadBiodata(athleteName) {
     const nikInput = document.getElementById('bioNIK');
 
     if (!athleteName) {
@@ -1181,7 +1206,7 @@ function loadBiodata(athleteName) {
     const bioData = JSON.parse(localStorage.getItem('KILAT_BIO_' + athleteName));
     if (bioData) {
         if (currentRole.toLowerCase() === 'parent') {
-            const manageUsers = getUsersData();
+            const manageUsers = await getUsersData();
             const parentUserObj = manageUsers.find(u =>
                 (u.username || '').toLowerCase() === currentParentUsername.toLowerCase() ||
                 (u.namaLengkap || u.nama || u.name || '').toLowerCase() === currentParentUsername.toLowerCase()
@@ -1194,7 +1219,7 @@ function loadBiodata(athleteName) {
 
             if (!isLinkedByAdmin && !isConnectedByBio) {
                 alert('⚠️ Akses Terbatas: Anda tidak berhak melihat data atlet dari parent lain.');
-                handleSelectChange("");
+                await handleSelectChange("");
                 return;
             }
         }
@@ -1204,7 +1229,11 @@ function loadBiodata(athleteName) {
         if (document.getElementById('bioGender')) document.getElementById('bioGender').value = bioData.gender || '';
         if (document.getElementById('bioTglLahir')) document.getElementById('bioTglLahir').value = bioData.tglLahir || '';
         if (document.getElementById('bioAlamat')) document.getElementById('bioAlamat').value = bioData.alamat || '';
-        if (document.getElementById('bioOrtu')) document.getElementById('bioOrtu').value = bioData.ortu || '';
+
+        if (document.getElementById('bioOrtu')) {
+            document.getElementById('bioOrtu').value = bioData.ortu || bioData.connectedParent || currentParentUsername || window.CURRENT_USER_NAME || '';
+        }
+
         if (document.getElementById('bioKelas')) document.getElementById('bioKelas').value = bioData.kelas || 'PEMULA';
         if (document.getElementById('bioStatus')) document.getElementById('bioStatus').value = bioData.status || 'Aktif';
         if (document.getElementById('bioWA')) document.getElementById('bioWA').value = bioData.wa || '';
@@ -1938,9 +1967,9 @@ if (formSpeed) {
 }
 
 // --- 9. INITIALIZATION & TABS ---
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", async function() {
     applyRolePermissions();
-    updateAthleteDropdowns();
+    await updateAthleteDropdowns();
     hideTrickNameField();
     ensureScoreSelectOptions();
     ensureYoutubeInputInTrickModal();
@@ -1948,7 +1977,7 @@ document.addEventListener("DOMContentLoaded", function() {
     loadClubLogoToView();
 
     const lastActive = localStorage.getItem('lastActiveAthlete');
-    if (lastActive) handleSelectChange(lastActive);
+    if (lastActive) await handleSelectChange(lastActive);
     else updateDynamicComponents();
 });
 
@@ -1972,14 +2001,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // --- 10. MANAJEMEN AKUN & ADMIN PANEL ---
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof renderTable === 'function') renderTable();
-    updateStatsCounter();
+document.addEventListener('DOMContentLoaded', async function() {
+    if (typeof renderTable === 'function') await renderTable();
+    await updateStatsCounter();
 });
 
-function updateStatsCounter() {
-    const users = getUsersData();
-    let adminCount = users.filter(u => (u.role || '').toLowerCase() === 'admin').length;
+async function updateStatsCounter() {
+    const users = await getUsersData();
+    let adminCount = users.filter(u => (u.role || '').toLowerCase() === 'admin' || (u.role || '').toLowerCase() === 'administrator').length;
     let coachCount = users.filter(u => (u.role || '').toLowerCase() === 'coach').length;
     let parentCount = users.filter(u => (u.role || '').toLowerCase() === 'parent').length;
     let athletes = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
@@ -1990,11 +2019,11 @@ function updateStatsCounter() {
     if (document.getElementById('count-athlete')) document.getElementById('count-athlete').innerText = athletes.length;
 }
 
-window.renderTable = function() {
+window.renderTable = async function() {
     const container = document.getElementById('accountTableBody');
     if (!container) return;
 
-    const users = getUsersData();
+    const users = await getUsersData();
     const filterRole = document.getElementById('filterRole') ? document.getElementById('filterRole').value : 'All';
     const searchQuery = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase().trim() : '';
 
@@ -2011,10 +2040,13 @@ window.renderTable = function() {
         return;
     }
 
-    filteredUsers.forEach((user, index) => {
+    filteredUsers.forEach((user) => {
+        let originalIndex = users.findIndex(u => u.id === user.id);
+        if (originalIndex === -1) originalIndex = users.indexOf(user);
+
         let userName = user.namaLengkap || user.nama || user.name || 'Admin';
         let userRole = (user.role || 'Admin').toUpperCase();
-        let userEmail = user.username || user.email || '-';
+        let userEmail = user.email || user.username || '-';
         let userPass = user.password || '******';
         let userStatus = user.status || 'Aktif';
         let linkedAthletes = user.atletTautan || user.athletes || [];
@@ -2024,7 +2056,7 @@ window.renderTable = function() {
             athletesHtml = linkedAthletes.map((ath, athIdx) => `
                 <span class="athlete-tag" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(59, 130, 246, 0.15); color: #1d4ed8; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; margin: 2px;">
                     ${ath}
-                    <button type="button" onclick="unlinkAthlete(${index}, ${athIdx})" title="Hapus" style="background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer;">&times;</button>
+                    <button type="button" onclick="unlinkAthlete(${originalIndex}, ${athIdx})" title="Hapus" style="background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer;">&times;</button>
                 </span>
             `).join('');
         }
@@ -2034,8 +2066,8 @@ window.renderTable = function() {
         rowEl.innerHTML = `
             <div><strong>${userName}</strong></div>
             <div style="text-align: center; display: flex; gap: 5px; justify-content: center;">
-                <button type="button" style="background:#3b82f6; color:#fff; border:none; border-radius:4px; padding:3px 7px; cursor:pointer;" onclick="editAccount(${index})"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button type="button" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:3px 7px; cursor:pointer;" onclick="deleteAccount(${index})"><i class="fa-solid fa-trash"></i></button>
+                <button type="button" style="background:#3b82f6; color:#fff; border:none; border-radius:4px; padding:3px 7px; cursor:pointer;" onclick="editAccount(${originalIndex})"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button type="button" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:3px 7px; cursor:pointer;" onclick="deleteAccount(${originalIndex})"><i class="fa-solid fa-trash"></i></button>
             </div>
             <div><span class="badge-role">${userRole}</span></div>
             <div>${userEmail}</div>
@@ -2046,11 +2078,11 @@ window.renderTable = function() {
         container.appendChild(rowEl);
     });
 
-    updateStatsCounter();
+    await updateStatsCounter();
 };
 
-window.unlinkAthlete = function(userIndex, athleteIndex) {
-    let users = getUsersData();
+window.unlinkAthlete = async function(userIndex, athleteIndex) {
+    let users = await getUsersData();
     let user = users[userIndex];
     if (!user) return;
 
@@ -2061,25 +2093,46 @@ window.unlinkAthlete = function(userIndex, athleteIndex) {
         targetAthletes.splice(athleteIndex, 1);
         user.atletTautan = targetAthletes;
         saveUsersData(users);
-        renderTable();
+
+        try {
+            await fetch(`/admin/users/update/${user.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    name: user.namaLengkap || user.name,
+                    email: user.username || user.email,
+                    role: user.role,
+                    status: user.status,
+                    atletTautan: targetAthletes
+                })
+            });
+        } catch (e) {
+            console.warn('Gagal sinkronisasi unlinked ke server:', e);
+        }
+
+        await renderTable();
     }
 };
 
-window.openAccountModal = function(editIndex = null) {
+window.openAccountModal = async function(editIndex = null) {
     const modal = document.getElementById('accountModal');
     const titleEl = document.getElementById('accModalTitle');
     const accIdInput = document.getElementById('accId');
     const form = document.getElementById('accountForm');
     if (form) form.reset();
 
-    if (editIndex !== null) {
-        let users = getUsersData();
+    if (editIndex !== null && editIndex !== '') {
+        let users = await getUsersData();
         let user = users[editIndex];
         if (user) {
-            if (accIdInput) accIdInput.value = editIndex;
+            if (accIdInput) accIdInput.value = user.id || editIndex;
             if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-user-pen"></i> Edit Akun';
             if (document.getElementById('accName')) document.getElementById('accName').value = user.namaLengkap || user.nama || user.name || '';
-            if (document.getElementById('accUsername')) document.getElementById('accUsername').value = user.username || user.email || '';
+            if (document.getElementById('accUsername')) document.getElementById('accUsername').value = user.email || user.username || '';
             if (document.getElementById('accPassword')) document.getElementById('accPassword').value = user.password || '';
             if (document.getElementById('accRole')) document.getElementById('accRole').value = user.role || 'Admin';
             if (document.getElementById('accStatus')) document.getElementById('accStatus').value = user.status || 'Aktif';
@@ -2094,16 +2147,16 @@ window.openAccountModal = function(editIndex = null) {
 
 window.editAccount = function(index) { openAccountModal(index); };
 
-window.openAthleteModal = function() {
-    renderAthleteParentOptions();
+window.openAthleteModal = async function() {
+    await renderAthleteParentOptions();
     if (athleteModal) openModalSafely(athleteModal);
 };
 
-window.renderAthleteParentOptions = function() {
+window.renderAthleteParentOptions = async function() {
     const selectParent = document.getElementById('athParent');
     if (!selectParent) return;
 
-    let users = getUsersData();
+    let users = await getUsersData();
     let parentUsers = users.filter(u => {
         let r = (u.role || '').toLowerCase();
         return r === 'parent' || r === 'admin';
@@ -2114,7 +2167,7 @@ window.renderAthleteParentOptions = function() {
     } else {
         selectParent.innerHTML = '<option value="" disabled selected>-- Pilih Akun Parent --</option>';
         parentUsers.forEach(p => {
-            let pName = p.namaLengkap || p.nama || p.username;
+            let pName = p.namaLengkap || p.nama || p.name || p.username;
             selectParent.innerHTML += `<option value="${pName}">${pName} [Role: ${(p.role || 'User').toUpperCase()}]</option>`;
         });
     }
@@ -2134,7 +2187,6 @@ window.saveAccount = function(e) {
     let role = document.getElementById('accRole').value;
     let status = document.getElementById('accStatus').value;
 
-    // Payload data yang dikirim ke backend Laravel
     let payload = {
         name: name,
         email: username,
@@ -2145,7 +2197,6 @@ window.saveAccount = function(e) {
 
     let url = (editIndex !== "" && editIndex !== null && editIndex !== undefined) ? `/admin/users/update/${editIndex}` : `/admin/users/store`;
 
-    // Kirim data ke backend Laravel menggunakan Fetch API
     fetch(url, {
         method: 'POST',
         headers: {
@@ -2163,15 +2214,14 @@ window.saveAccount = function(e) {
             throw new Error("Server mengembalikan respons non-JSON.");
         }
     })
-    .then(data => {
+    .then(async data => {
         if (data && (data.success || data.status === 'success')) {
             alert('✅ Akun berhasil disimpan ke database server!');
             closeModal('accountModal');
             if (e && e.target && typeof e.target.reset === 'function') {
                 e.target.reset();
             }
-            // Muat ulang halaman agar data terbaru dari database server langsung termuat
-            window.location.reload();
+            if (typeof renderTable === 'function') await renderTable();
         } else {
             alert('⚠️ Gagal menyimpan akun ke server: ' + (data.message || 'Kesalahan tidak diketahui.'));
         }
@@ -2184,7 +2234,7 @@ window.saveAccount = function(e) {
     return false;
 };
 
-window.saveAthlete = function(e) {
+window.saveAthlete = async function(e) {
     if (e) e.preventDefault();
     let athNameInput = document.getElementById('athName');
     let athParentInput = document.getElementById('athParent');
@@ -2194,7 +2244,7 @@ window.saveAthlete = function(e) {
     if (!athName) return alert("⚠️ Nama Panggilan atlet tidak boleh kosong!");
     if (!athParent) return alert("⚠️ Harap pilih akun Parent untuk menautkan atlet!");
 
-    let users = getUsersData();
+    let users = await getUsersData();
     let parentIndex = users.findIndex(u => (u.namaLengkap || u.nama || u.username) === athParent);
 
     if (parentIndex !== -1) {
@@ -2211,20 +2261,39 @@ window.saveAthlete = function(e) {
         localStorage.setItem('KILAT_ATHLETES_LIST', JSON.stringify(athletes));
     }
 
-    syncAthleteDataToExternalFiles(athName, { fullName: athName, ortu: athParent, connectedParent: athParent, kelas: 'PEMULA', status: 'Aktif' });
-    updateAthleteDropdowns();
-    renderTable();
+    await syncAthleteDataToExternalFiles(athName, { fullName: athName, ortu: athParent, connectedParent: athParent, kelas: 'PEMULA', status: 'Aktif' });
+    await updateAthleteDropdowns();
+    await renderTable();
     closeModal('athleteModal');
     if (e && e.target) e.target.reset();
     alert(`Atlet "${athName}" berhasil ditambahkan dan ditautkan ke parent ${athParent}.`);
 };
 
-window.deleteAccount = function(index) {
+window.deleteAccount = async function(index) {
+    let users = await getUsersData();
+    let user = users[index];
+    if (!user) return;
+
     if (confirm('Yakin ingin menghapus akun ini?')) {
-        let users = getUsersData();
-        users.splice(index, 1);
-        saveUsersData(users);
-        renderTable();
+        try {
+            let response = await fetch(`/admin/users/delete/${user.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                }
+            });
+            let result = await response.json();
+            if (result.success) {
+                alert('✅ Akun berhasil dihapus dari database.');
+                await renderTable();
+            } else {
+                alert('⚠️ Gagal menghapus akun.');
+            }
+        } catch (error) {
+            console.error('Error menghapus akun:', error);
+            alert('❌ Terjadi kesalahan koneksi ke server.');
+        }
     }
 };
 

@@ -154,7 +154,8 @@ window.renderTable = async function() {
     let currentGridColumns = tableHeader ? window.getComputedStyle(tableHeader).gridTemplateColumns : '';
 
     filteredUsers.forEach((user) => {
-        let originalIndex = users.findIndex(u => u.id === user.id || u.username === user.username);
+        // Cari indeks asli berdasarkan ID yang unik dari database server
+        let originalIndex = users.findIndex(u => u.id === user.id);
         if (originalIndex === -1) originalIndex = users.indexOf(user);
 
         let rawRole = user.role || 'Admin';
@@ -252,6 +253,49 @@ window.closeModal = function(modalId) {
     if (modal) {
         modal.classList.remove('show');
         modal.style.display = 'none';
+    }
+};
+
+// --- FUNGSI MENGHAPUS TAUTAN ATLET DARI AKUN ---
+window.unlinkAthlete = async function(userIndex, athleteIndex) {
+    let users = await getUsersData();
+    let user = users[userIndex];
+    if (!user) return;
+
+    let targetAthletes = user.atletTautan || user.athletes || [];
+    let athleteName = targetAthletes[athleteIndex];
+
+    if (confirm(`Yakin ingin menghapus tautan atlet "${athleteName}" dari akun ini?`)) {
+        targetAthletes.splice(athleteIndex, 1);
+        user.atletTautan = targetAthletes;
+
+        try {
+            let response = await fetch(`/admin/users/update/${user.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    name: user.namaLengkap || user.name,
+                    email: user.username || user.email,
+                    role: user.role,
+                    status: user.status,
+                    atletTautan: targetAthletes
+                })
+            });
+
+            let result = await response.json();
+            if (result.success) {
+                await renderTable();
+            } else {
+                alert('⚠️ Gagal memperbarui tautan atlet di server.');
+            }
+        } catch (error) {
+            console.error('Error saat unlinked atlet:', error);
+            alert('❌ Terjadi kesalahan koneksi ke server.');
+        }
     }
 };
 

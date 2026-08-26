@@ -12,14 +12,27 @@ class AdminUserController extends Controller
     public function getUsersJson()
     {
         $users = User::all()->map(function($user) {
+            // Ambil data atlet yang benar-benar tertaut berdasarkan parentName atau connectedParent jika atletTautan kosong
+            $atletTautan = $user->atletTautan ?? [];
+            if (empty($atletTautan) && strtolower($user->role) === 'parent') {
+                $atletTautan = User::where('role', 'atlet')
+                    ->where(function($q) use ($user) {
+                        $q->where('parentName', $user->name)
+                          ->orWhere('parentName', $user->namaLengkap)
+                          ->orWhere('connectedParent', $user->name);
+                    })
+                    ->pluck('name')
+                    ->toArray();
+            }
+
             return [
                 'id' => $user->id,
                 'namaLengkap' => $user->name,
                 'username' => $user->email,
                 'password' => '******',
                 'role' => $user->role,
-                'status' => 'Aktif',
-                'atletTautan' => []
+                'status' => $user->status ?? 'Aktif',
+                'atletTautan' => is_array($atletTautan) ? $atletTautan : (json_decode($atletTautan, true) ?? [])
             ];
         });
         return response()->json($users);
@@ -37,6 +50,7 @@ class AdminUserController extends Controller
             'password' => Hash::make($request->password),
             'role' => $assignedRole,
             'status' => $request->status ?? 'Aktif',
+            'atletTautan' => $request->atletTautan ?? []
         ]);
 
         return response()->json([
@@ -62,6 +76,11 @@ class AdminUserController extends Controller
         }
 
         $user->status = $request->status ?? $user->status;
+
+        if ($request->has('atletTautan')) {
+            $user->atletTautan = $request->atletTautan;
+        }
+
         $user->save();
 
         return response()->json([

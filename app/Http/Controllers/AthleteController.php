@@ -3,57 +3,126 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Athlete;
-use App\Models\AthleteEditRequest; // Pastikan Anda membuat model & migration untuk tabel ini
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AthleteController extends Controller
 {
-    // Method untuk memproses klik "Simpan" pada Edit Data Atlet
-    public function updateRequest(Request $request, $id)
+    public function index()
     {
-        $user = Auth::user();
+        $athletes = User::where('role', 'atlet')->get();
+        return view('admin.athletes.index', compact('athletes'));
+    }
 
-        // Jika ADMIN, langsung update data utama
-        if ($user->role === 'admin') {
-            $athlete = Athlete::findOrFail($id);
-            $athlete->update($request->all());
-            return response()->json(['message' => 'Data berhasil diupdate!']);
-        }
-
-        // Jika PARENT, simpan ke tabel antrean (staging)
-        if ($user->role === 'parent') {
-            AthleteEditRequest::create([
-                'athlete_id' => $id,
-                'requested_by' => $user->id,
-                'requested_data' => json_encode($request->except(['_token'])), // Simpan data baru sebagai JSON
-                'status' => 'pending'
+    public function storeFromAppendix(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name'      => 'required|string|max:255',      // Nama Panggilan Atlet
+                'fullName'  => 'required|string|max:255',      // Nama Lengkap Atlet
+                'parent'    => 'nullable|string|max:255',      // Nama Wali / Parent
+                'nik'       => 'nullable|string|max:30',
+                'gender'    => 'nullable|string|max:20',
+                'tglLahir'  => 'nullable|string|max:30',
+                'alamat'    => 'nullable|string',
+                'kelas'     => 'nullable|string|max:50',
+                'status'    => 'nullable|string|max:50',
+                'wa'        => 'nullable|string|max:30'
             ]);
+
+            // 1. Simpan/Update data user atlet
+            $identifierEmail = strtolower(trim(str_replace(' ', '', $validated['fullName']))) . '@kilat.com';
+
+            $athleteUser = User::updateOrCreate(
+                ['email' => $identifierEmail],
+                [
+                    'name'       => $validated['name'],
+                    'namaLengkap'=> $validated['fullName'],
+                    'password'   => Hash::make($validated['nik'] ?? 'password123'),
+                    'role'       => 'atlet',
+                    'status'     => $validated['status'] ?? 'Aktif',
+                    'wa'         => $validated['wa'] ?? null,
+                    'kelas'      => $validated['kelas'] ?? 'PEMULA',
+                    'parentName' => $validated['parent'] ?? null,
+                ]
+            );
+
+            // 2. TAUTKAN NAMA ATLET KE AKUN PARENT YANG SESUAI DI DATABASE
+            if (!empty($validated['parent'])) {
+                $parentNameInput = trim($validated['parent']);
+
+                // Cari akun parent berdasarkan name, namaLengkap, atau email
+                $parentUser = User::where('role', 'parent')
+                    ->where(function($q) use ($parentNameInput) {
+                        $q->where('name', 'LIKE', "%{$parentNameInput}%")
+                          ->orWhere('namaLengkap', 'LIKE', "%{$parentNameInput}%")
+                          ->orWhere('email', 'LIKE', "%{$parentNameInput}%");
+                    })->first();
+
+                if ($parentUser) {
+                    $currentTautan = $parentUser->atletTautan ?? [];
+                    if (is_string($currentTautan)) {
+                        $currentTautan = json_decode($currentTautan, true) ?? [];
+                    }
+
+                    // Jika nama panggilan atlet belum ada di daftar, masukkan
+                    if (!in_array($validated['name'], $currentTautan)) {
+                        $currentTautan[] = $validated['name'];
+                        $parentUser->atletTautan = $currentTautan;
+                        $parentUser->save();
+                    }
+                }
+            }
 
             return response()->json([
-                'message' => 'Perubahan data berhasil dikirim. Menunggu verifikasi Admin.'
-            ]);
+                'success' => true,
+                'message' => 'Data atlet dan tautan parent berhasil disimpan ke database server.',
+                'data'    => $athleteUser
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan atlet dari appendix: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan pada server: ' . $e->getMessage()
+            ], 500);
         }
     }
 
-    // Method khusus ADMIN untuk menyetujui perubahan dari Parent
-    public function approveEdit($requestId)
+    public function store(Request $request)
     {
-        $editRequest = AthleteEditRequest::findOrFail($requestId);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'fullName' => 'required|string|max:255',
+        ]);
 
-        if ($editRequest->status === 'pending') {
-            $athlete = Athlete::findOrFail($editRequest->athlete_id);
+        $identifierEmail = strtolower(trim(str_replace(' ', '', $request->fullName))) . '@kilat.com';
 
-            // Decode JSON dari tabel request dan terapkan ke tabel utama
-            $newData = json_decode($editRequest->requested_data, true);
-            $athlete->update($newData);
+        User::updateOrCreate(
+            ['email' => $identifierEmail],
+            [
+                'name' => $request->name,
+                'namaLengkap' => $request->fullName,
+                'password' => Hash::make('password123'),
+                'role' => 'atlet',
+                'status' => 'Aktif'
+            ]
+        );
 
-            // Ubah status request menjadi approved
-            $editRequest->update(['status' => 'approved']);
+        return redirect()->back()->with('success', 'Data atlet berhasil disimpan.');
+    }
 
-            return back()->with('success', 'Perubahan data atlet dari Parent telah disetujui.');
+    public function destroy($id)
+    {
+        $athlete = User::where('role', 'atlet')->where('id', $id)->first();
+
+        if ($athlete) {
+            $athlete->delete();
+            return response()->json(['success' => true, 'message' => 'Data atlet berhasil dihapus dari database.']);
         }
 
-        return back()->with('error', 'Request sudah diproses sebelumnya.');
+        return response()->json(['success' => false, 'message' => 'Atlet tidak ditemukan.'], 404);
     }
 }

@@ -384,18 +384,8 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
     transform: scale(0.98);
 }
 
-.bio-actions a[href*="sql-backup"] {
-    background-color: var(--clay-orange);
-    color: var(--text-dark);
-}
-
 .bio-actions button[onclick*="print"] {
     background-color: var(--clay-blue);
-    color: var(--text-dark);
-}
-
-#btnExportData {
-    background-color: var(--clay-purple);
     color: var(--text-dark);
 }
 
@@ -521,8 +511,8 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
         <select id="athleteSelectFullName" title="Pilih Nama Lengkap" class="clay-select-top">
             <option value="">-- NAMA LENGKAP --</option>
             @foreach($athletes as $athlete)
-                <option value="{{ $athlete->id }}" data-fullname="{{ $athlete->name }}" data-nickname="{{ $athlete->nickname ?? $athlete->name }}">
-                    {{ strtoupper($athlete->name) }}
+                <option value="{{ $athlete->id }}" data-fullname="{{ $athlete->email }}" data-nickname="{{ $athlete->name }}">
+                    {{ strtoupper($athlete->email) }}
                 </option>
             @endforeach
         </select>
@@ -532,7 +522,7 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
             <option value="">-- PANGGILAN --</option>
             @foreach($athletes as $athlete)
                 <option value="{{ $athlete->id }}">
-                    {{ strtoupper($athlete->nickname ?? $athlete->name) }}
+                    {{ strtoupper($athlete->name) }}
                 </option>
             @endforeach
         </select>
@@ -542,7 +532,7 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
         <span class="role-badge" id="roleInfoBadge">👤 AKSES AKUN: <span id="roleLabelDisplay" class="role-display-text">{{ strtoupper($role) }}</span></span>
 
         @if($role === 'admin')
-            <a href="{{ route('admin.index') }}" class="btn-home btn-orange" title="Menu Admin"><i class="fa-solid fa-gauge-high"></i> Panel Admin</a>
+            <a href="{{ route('admin.index') }}" class="btn-home btn-orange" title="Menu Admin" id="btnPanelAdmin"><i class="fa-solid fa-gauge-high"></i> Panel Admin</a>
         @endif
 
         @if(in_array($role, ['admin', 'coach']))
@@ -553,6 +543,9 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 
         @if($role === 'admin')
             <button id="btnSettings" class="btn-settings">⚙️ Pengaturan</button>
+            <button id="btnPendingNotif" class="curr-btn btn-yellow" style="display: inline-flex; align-items: center; gap: 4px; position: relative;" title="Verifikasi Atlet Baru">
+                🔔 Pending <span class="badge-count" style="background: red; color: white; padding: 1px 5px; border-radius: 50%; font-size: 9px; display: none;">0</span>
+            </button>
         @endif
     </div>
 </div>
@@ -560,7 +553,7 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 <div class="page-container" id="mainContainer">
 
     <div class="header">
-        <div class="logo-area">
+        <div class="logo-area" id="logoClubContainer">
             <img id="displayLogo" src="https://via.placeholder.com/250x90/7b61ff/ffffff?text=LOGO+KILAT" alt="Logo Club" class="logo-frame">
         </div>
         <div class="title-area">
@@ -569,24 +562,21 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
         </div>
     </div>
 
+    <!-- KEDUA TOMBOL TAMBAH DAN EDIT DITAMPILKAN BERDAMPINGAN SEJAK AWAL -->
     <div class="bio-actions" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
         <button onclick="window.print()" class="curr-btn btn-blue" style="display: inline-block !important;">🖨️ Cetak</button>
 
         @if($role === 'admin')
-            <a href="{{ route('admin.setting.sql-backup') }}" class="curr-btn btn-purple">💾 Backup (SQL)</a>
-            <button id="btnExportData" class="curr-btn btn-purple">💾 Backup (json)</button>
-            <button id="btnImportData" class="curr-btn btn-pink" onclick="document.getElementById('importFile').click()">📂 Restore (json)</button>
-            <input type="file" id="importFile" accept=".json" style="display:none;">
             <button id="btnDeleteBio" class="curr-btn btn-danger">🗑️ Hapus Atlet</button>
         @endif
 
         @if(in_array($role, ['admin', 'parent']))
-            <button id="btnAddBio" class="curr-btn btn-blue">➕ Tambah Atlet Baru</button>
+            <button id="btnAddBio" class="curr-btn btn-blue" style="display: inline-block !important;">➕ Tambah Atlet Baru</button>
         @endif
 
         @if(in_array($role, ['admin', 'coach', 'parent']))
             <button id="btnEditBio" class="curr-btn btn-yellow" style="display: inline-block !important;">✏️ Edit Data Atlet</button>
-            <button id="btnSaveBio" class="curr-btn btn-success" style="display:none;">💾 Submit / Simpan</button>
+            <button id="btnSaveBio" class="curr-btn btn-success" style="display: none;">💾 Submit / Simpan</button>
         @endif
     </div>
 
@@ -607,7 +597,7 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
             </tr>
             <tr><td>TANGGAL LAHIR</td><td> <input type="date" id="bioTglLahir" class="bio-input" readonly></td></tr>
             <tr><td>ALAMAT LENGKAP</td><td> <input type="text" id="bioAlamat" class="bio-input" placeholder="-" readonly></td></tr>
-            <tr><td>NAMA WALI</td><td> <input type="text" id="bioOrtu" class="bio-input" placeholder="-" readonly></td></tr>
+            <tr><td>NAMA WALI</td><td> <input type="text" id="bioOrtu" class="bio-input" value="{{ strtoupper($user->name ?? $user->username ?? '') }}" placeholder="-" readonly></td></tr>
             <tr>
                 <td>WHATSAPP</td>
                 <td>
@@ -905,7 +895,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
         <span class="close-btn" onclick="closeModalSafely(document.getElementById('trickModal'))">&times;</span>
         <h3 id="trickModalTitle">Penilaian Trik</h3>
         <form id="assessmentForm">
-            <!-- PENGGUNAAN CLASS BARU UNTUK MENGHINDARI TARGET JS LAMA -->
             <div class="form-group custom-trick-group">
                 <label for="modalTrickName">Nama Trik/Materi (Admin Edit):</label>
                 @if($role === 'admin')
@@ -1034,13 +1023,35 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
         </div>
     </div>
 </div>
+
+<!-- MODAL TAMBAH ATLET BARU (UNTUK PARENT/ADMIN) -->
+<div id="athleteModal" class="modal" style="display:none; position:fixed; z-index:10000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background:#fff; margin:50px auto; padding:25px; width:90%; max-width:450px; border-radius:12px;">
+        <span class="close-btn" onclick="closeModalSafely(document.getElementById('athleteModal'))">&times;</span>
+        <h3>➕ Tambah Atlet Baru</h3>
+        <form onsubmit="saveAthlete(event)">
+            <div class="form-group" style="margin-bottom:12px;">
+                <label for="athName">Nama Panggilan Atlet:</label>
+                <input type="text" id="athName" class="form-control" placeholder="Contoh: Budi" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;">
+            </div>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label for="athParent">Tautkan ke Akun Parent / Wali:</label>
+                <select id="athParent" class="form-control" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;">
+                    <option value="" disabled selected>-- Pilih Akun Parent --</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-btn" style="width:100%; background:#22c55e; color:#fff; padding:10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Simpan & Tautkan Atlet</button>
+        </form>
+    </div>
+</div>
+
 @include('layouts.footer')
 </div>
 
-<!-- SCRIPT INJEKSI ROLE BACKEND LARAVEL (DIPINDAH KE ATAS APPENDIX.JS) -->
 <script>
     window.USER_ROLE = "{{ strtolower($role) }}";
     window.CURRENT_USER_ID = "{{ $currentUserId }}";
+    window.CURRENT_USER_NAME = "{{ strtoupper($user->name ?? $user->username ?? '') }}";
 
     localStorage.setItem('userRole', window.USER_ROLE);
     if(window.USER_ROLE === 'admin') {
@@ -1051,25 +1062,18 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 <script src="{{ asset('js/appendix.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
-        // --- 0. LOCAL STORAGE SETUP (Agar nama trik tersimpan saat halaman direfresh) ---
-        // Mencari semua sel matriks yang memuat teks trik (td yang bisa diklik)
         const allTrickCells = document.querySelectorAll('.matrix-table td:not(.col-num):not(.col-family)');
 
         allTrickCells.forEach((cell, index) => {
-            // Beri ID unik ke masing-masing sel berdasarkan posisinya di tabel (index)
             const uniqueCellId = 'trick_custom_name_' + index;
             cell.dataset.storageId = uniqueCellId;
 
-            // Cek apakah ada nama kustom tersimpan di Local Storage browser
             const savedCustomName = localStorage.getItem(uniqueCellId);
             if (savedCustomName) {
-                // Jika ada yang tersimpan, ganti teks sel dengan teks tersebut
                 cell.innerText = savedCustomName;
             }
         });
 
-        // --- 1. EVENT DELEGATION UNTUK MENANGKAP KLIK SEL ---
         window.activeTrickCell = null;
 
         document.querySelector('.page-container').addEventListener('click', function(e) {
@@ -1078,7 +1082,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
             if (cell) {
                 window.activeTrickCell = cell;
 
-                // Pastikan nilai input di modal terisi dengan nama trik dari sel yang diklik
                 const modalTrickNameInput = document.getElementById('modalTrickName');
                 const massTrickNameInput = document.getElementById('massTrickName');
 
@@ -1091,7 +1094,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
             }
         });
 
-        // --- 2. LOGIKA EDIT NAMA TRIK MODAL INDIVIDU ---
         const btnEditTrickName = document.getElementById('btnEditTrickName');
         const btnSaveTrickName = document.getElementById('btnSaveTrickName');
         const modalTrickNameInput = document.getElementById('modalTrickName');
@@ -1099,7 +1101,7 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 
         if (btnEditTrickName && btnSaveTrickName && modalTrickNameInput) {
             btnEditTrickName.addEventListener('click', function(e) {
-                e.preventDefault(); // Hindari terpicunya form
+                e.preventDefault();
 
                 if (!modalTrickNameInput.value && trickModalTitle) {
                     modalTrickNameInput.value = trickModalTitle.innerText.replace('Penilaian Trik: ', '').trim();
@@ -1108,13 +1110,12 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
                 modalTrickNameInput.removeAttribute('readonly');
                 modalTrickNameInput.focus();
 
-                // Gunakan setProperty dengan prioritas important untuk paksa menimpa css/js lain
                 btnEditTrickName.style.setProperty('display', 'none', 'important');
                 btnSaveTrickName.style.setProperty('display', 'inline-flex', 'important');
             });
 
             btnSaveTrickName.addEventListener('click', function(e) {
-                e.preventDefault(); // Hindari terpicunya form
+                e.preventDefault();
                 const newName = modalTrickNameInput.value.trim();
 
                 if (newName !== '') {
@@ -1125,7 +1126,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
                     if (window.activeTrickCell) {
                         window.activeTrickCell.innerText = newName;
 
-                        // --- SIMPAN KE LOCAL STORAGE ---
                         const storageId = window.activeTrickCell.dataset.storageId;
                         if (storageId) {
                             localStorage.setItem(storageId, newName);
@@ -1149,7 +1149,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
             });
         }
 
-        // --- 3. LOGIKA EDIT NAMA TRIK MODAL MASSAL ---
         const btnEditMassTrickName = document.getElementById('btnEditMassTrickName');
         const btnSaveMassTrickName = document.getElementById('btnSaveMassTrickName');
         const massTrickNameInput = document.getElementById('massTrickName');
@@ -1172,7 +1171,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
                     if (window.activeTrickCell) {
                         window.activeTrickCell.innerText = newName;
 
-                        // --- SIMPAN KE LOCAL STORAGE ---
                         const storageId = window.activeTrickCell.dataset.storageId;
                         if (storageId) {
                             localStorage.setItem(storageId, newName);

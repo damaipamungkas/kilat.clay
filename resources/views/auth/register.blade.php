@@ -8,13 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrasi Akun Parent - KILAT⚡</title>
 
-    <!-- Mengubah font menjadi khas Claymorphism KILAT -->
+    <!-- Font & Icon -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Script Firebase (Dipertahankan) -->
-    <script src="firebase-config.js"></script>
-    <!-- CSS Terpisah & Dinamis dengan ID mainStylesheet -->
+    <!-- CSS Terpisah & Dinamis -->
     <link rel="stylesheet" id="mainStylesheet" href="{{ asset('css/auth.css') }}">
 </head>
 <body>
@@ -35,20 +33,33 @@
 <div class="container">
     <header class="hero">
         <h1>SISTEM REGISTRASI<br>ORANG TUA (PARENT)</h1>
-@include('layouts.divider')
+        @include('layouts.divider')
     </header>
 
-@include('layouts.slider')
+    @include('layouts.slider')
 
     <div class="wrapper">
         <div class="tech-card">
             <div class="card-bg">
-                <h2 class="card-title"><i class="fa-solid fa-user-plus"></i> Registrasi Akun Baru</h2>
+                <h2 class="card-title"><i class="fa-solid fa-user-plus"></i> Registrasi Akun Baru (Parent)</h2>
 
-                <form id="registrationForm" class="reg-form" onsubmit="executeSubmit(event)">
+                <!-- TAMPILKAN PESAN ERROR JIKA ADA -->
+                @if ($errors->any())
+                    <div class="alert alert-danger" style="color: #ff6b6b; margin-bottom: 15px; font-size: 0.85rem;">
+                        <ul style="padding-left: 15px; margin: 0;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-                    <!-- MEMASTIKAN ROLE OTOMATIS BERVALU "parent" -->
-                    <input type="hidden" name="role" id="role" value="parent">
+                <!-- FORM DIARAHKAN KE ROUTE STORE DENGAN METHOD POST -->
+                <form id="registrationForm" class="reg-form" action="{{ route('register.store') }}" method="POST">
+                    @csrf
+
+                    <!-- PENGATURAN ROLE OTOMATIS: PARENT -->
+                    <input type="hidden" name="role" value="parent">
 
                     <div class="input-group">
                         <label for="nama">IDENTITAS PENGGUNA</label>
@@ -58,7 +69,7 @@
                                 <option value="Mr.">Mr.</option>
                                 <option value="Mrs.">Mrs.</option>
                             </select>
-                            <input type="text" id="nama" name="nama" class="sci-fi-text-inner" placeholder="Masukkan nama panggilan..." required autocomplete="off">
+                            <input type="text" id="nama" name="name" class="sci-fi-text-inner" placeholder="Masukkan nama panggilan..." value="{{ old('name') }}" required autocomplete="off">
                         </div>
                     </div>
 
@@ -66,8 +77,7 @@
                         <label for="username">ALAMAT EMAIL SISTEM</label>
                         <div class="input-wrapper sci-fi-input-composite">
                             <i class="fa-solid fa-envelope"></i>
-                            <!-- PREFIX "parent." DIHAPUS AGAR BISA DIISI MANUAL -->
-                            <input type="text" id="username" name="username" class="sci-fi-text-inner" placeholder="Masukkan email, contoh (parent.nama@kilat.com)" required autocomplete="off">
+                            <input type="email" id="username" name="email" class="sci-fi-text-inner" placeholder="Masukkan email aktif (contoh: parent@kilat.com)" value="{{ old('email') }}" required autocomplete="off">
                         </div>
                     </div>
 
@@ -117,7 +127,8 @@
 
 <div class="skate-scroll-track" id="skateTrack"></div>
 <div class="skate-scroll-thumb" id="skateThumb" title="Tarik untuk scroll"></div>
-<script src="{{ asset('js/auth/register.js') }}"></script>
+
+<!-- Menggunakan Script JS Bawaan Laravel Standard, Hapus onsubmit JS kustom agar form murni POST -->
 <script src="{{ asset('js/auth.js') }}"></script>
 </body>
 </html>

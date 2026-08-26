@@ -1,55 +1,66 @@
+@php
+    // 1. Ambil data user yang sedang login
+    $user = auth()->user();
+
+    // 2. Ambil role user & id (normalisasi ke huruf kecil & hapus spasi berlebih)
+    $rawRole = $user ? strtolower(trim($user->role ?? '')) : '';
+    $currentUserId = auth()->id() ?? '';
+
+    // Jika nama atau email atau role mengandung kata admin, paksa jadi admin penuh
+    $userName = $user ? strtolower(trim($user->name ?? $user->username ?? '')) : '';
+    if (str_contains($userName, 'admin') || str_contains($rawRole, 'admin')) {
+        $rawRole = 'admin';
+    }
+
+    // 3. Peta penyesuaian/normalisasi variasi nama role
+    $roleMap = [
+        'orang tua' => 'parent',
+        'orangtua'  => 'parent',
+        'wali'      => 'parent',
+        'walimurid' => 'parent',
+        'pelatih'   => 'coach',
+    ];
+
+    $role = $roleMap[$rawRole] ?? $rawRole;
+
+    // 4. Daftar role yang diizinkan masuk
+    $allowedRoles = ['admin'];
+
+    // 5. Pengalihan aman menggunakan penanganan Laravel jika belum login / bukan admin
+    if (!$user || !in_array($role, $allowedRoles)) {
+        echo "<script>window.location.href = '" . route('login') . "';</script>";
+        exit();
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengaturan - Sekolah Sepatu Roda</title>
+    <title>Pengaturan - Sekolah Sepatu Roda (KILAT)</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- CSS Terpisah & Dinamis (ID dibuat unik agar tidak bentrok) -->
+    <!-- CSS Terpisah & Dinamis -->
     <link rel="stylesheet" id="dashboardStylesheet" href="{{ asset('css/admin_dashboard.css') }}">
     <link rel="stylesheet" id="settingStylesheet" href="{{ asset('css/admin/setting.css') }}">
-
 </head>
 <body data-theme="">
     <script>
-        // Validasi dan otorisasi sesi admin masuk serta mengambil nama admin
-        let activeAdminName = "Admin";
-        try {
-            const currentUserSession = JSON.parse(localStorage.getItem('KILAT_CURRENT_USER') || localStorage.getItem('kilat_user_data') || 'null');
-            const registeredUsers = JSON.parse(localStorage.getItem('manageUsersData')) || JSON.parse(localStorage.getItem('KILAT_USERS')) || [];
-
-            if (currentUserSession) {
-                const userEmail = (currentUserSession.email || '').toLowerCase().trim();
-                const userRole = (currentUserSession.role || '').toUpperCase().trim();
-                activeAdminName = currentUserSession.namaLengkap || currentUserSession.nama || currentUserSession.username || currentUserSession.name || 'Admin';
-
-                let isAuthorized = (userEmail === 'admin.super@kilat.com' || userRole === 'ADMIN');
-                if (!isAuthorized) {
-                    const found = registeredUsers.find(u =>
-                        (u.email && u.email.toLowerCase().trim() === userEmail) &&
-                        (u.role && u.role.toUpperCase().trim() === 'ADMIN')
-                    );
-                    if (found) {
-                        activeAdminName = found.namaLengkap || found.nama || found.username || activeAdminName;
-                    }
-                }
-            }
-        } catch(e) {}
+        let activeAdminName = "{{ strtoupper($user->name ?? $user->username ?? 'ADMIN') }}";
     </script>
     @include('layouts.sidebar')
 
     <main class="main-content" id="mainContent">
         <header class="header">
-            <h1>Pengaturan</h1>
+            <h1>Pengaturan (Versi 13.08)</h1>
         </header>
 
         <div class="settings-grid">
             <div class="settings-card">
                 <h3><i class="fa-solid fa-school"></i> Profil Sekolah (Kop Surat)</h3>
                 <form onsubmit="event.preventDefault(); alert('Profil sekolah berhasil diperbarui!');">
-                    <div class="form-group"><label>Nama Sekolah / Klub</label><input type="text" class="clay-input" value="KEDIRI INLINE SKATE"></div>
+                    <div class="form-group"><label>Nama Sekolah / Klub</label><input type="text" class="clay-input" value="KEDIRI INLINE SKATE SCHOOL"></div>
                     <div class="form-group"><label>Alamat Lengkap</label><textarea class="clay-input" rows="2">Jl. GOR Jayabaya, Kota Kediri, Jawa Timur</textarea></div>
                     <div class="form-group"><label>Kontak / WhatsApp</label><input type="text" class="clay-input" value="0812-3456-7890"></div>
                     <button type="submit" class="btn-clay"><i class="fa-solid fa-floppy-disk"></i> Simpan Profil</button>
@@ -73,7 +84,7 @@
                 <button class="btn-clay" onclick="uploadAndSaveGalleryImages()"><i class="fa-solid fa-cloud-arrow-up"></i> Tambah ke Galeri Beranda</button>
             </div>
 
-            <!-- PENGATURAN ASISTEN AI KILAT (Kustomisasi Perintah & Instruksi dari Setting) -->
+            <!-- PENGATURAN ASISTEN AI KILAT -->
             <div class="settings-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05)); border: 2px dashed rgba(99, 102, 241, 0.3);">
                 <h3><i class="fa-solid fa-robot" style="color: #6366f1;"></i> Kustomisasi & Perintah Asisten AI KILAT</h3>
                 <p style="font-size: 0.9rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">Atur pesan sambutan awal, instruksi/slogan tanda tangan, serta aturan atau perintah khusus yang harus dipatuhi oleh Asisten AI (tersinkronisasi otomatis dengan AI di halaman FAQ).</p>
@@ -95,7 +106,7 @@
                 </form>
             </div>
 
-            <!-- BASIS PENGETAHUAN TAMBAHAN AI (Knowledge Base dari WA/Chat/Dokumen & Upload Resource) -->
+            <!-- BASIS PENGETAHUAN TAMBAHAN AI -->
             <div class="settings-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(59, 130, 246, 0.05)); border: 2px dashed rgba(16, 185, 129, 0.3);">
                 <h3><i class="fa-solid fa-book-open" style="color: #10b981;"></i> Basis Pengetahuan Tambahan AI (Knowledge Base / WA History)</h3>
                 <p style="font-size: 0.9rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">Tempel catatan riwayat chat WhatsApp, transkrip informasi, atau unggah file dokumen referensi agar AI dapat mempelajarinya.</p>
@@ -118,81 +129,66 @@
                 </form>
             </div>
 
-            <!-- SISTEM & DATABASE -->
+            <!-- SISTEM & DATABASE (Backup SQL, Restore & Hapus Data Selektif) -->
             <div style="background: var(--clay-yellow); box-shadow: var(--clay-shadow-card); border-radius: 30px; padding: 25px; margin-top: 20px; grid-column: 1 / -1;">
                 <h3 style="font-size: 1.2rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-database" style="color: var(--sidebar-bg);"></i> Sistem & Database
+                    <i class="fa-solid fa-database" style="color: var(--sidebar-bg);"></i> Sistem & Database (SQL Backup & Restore)
                 </h3>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
 
-                    <!-- 1. Backup SQL -->
+                    <!-- 1. Backup SQL Resmi & Terarah -->
                     <div style="background: var(--clay-green); box-shadow: var(--clay-shadow-btn); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 8px;">
-                                <i class="fa-solid fa-file-arrow-down" style="color: #50b054;"></i> Backup SQL
+                                <i class="fa-solid fa-file-arrow-down" style="color: #50b054;"></i> Backup Database (SQL)
                             </h4>
                             <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">
-                                Unduh struktur dan data database langsung dalam format SQL.
+                                Unduh struktur dan data seluruh tabel database sistem secara aman ke format file `.sql`.
                             </p>
                         </div>
-                        <button onclick="handleBackupSQL()" class="btn-clay">
-                            <i class="fa-solid fa-download"></i> Download SQL
-                        </button>
+                        <a href="{{ route('admin.setting.sql-backup') }}" class="btn-clay" style="text-decoration: none; text-align: center; display: inline-block;">
+                            <i class="fa-solid fa-download"></i> Download SQL Backup
+                        </a>
                     </div>
 
-                    <!-- 2. Backup Data JSON -->
-                    <div style="background: var(--clay-blue); box-shadow: var(--clay-shadow-btn); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 8px;">
-                                <i class="fa-solid fa-download" style="color: #3b82f6;"></i> Backup JSON
-                            </h4>
-                            <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">
-                                Unduh seluruh data sistem (Keuangan, Absensi, Akun) ke format JSON.
-                            </p>
-                        </div>
-                        <button onclick="handleBackupJSON()" class="btn-clay">
-                            <i class="fa-solid fa-file-arrow-down"></i> Download JSON
-                        </button>
-                    </div>
-
-                    <!-- 3. Upload Data -->
+                    <!-- 2. Upload / Restore Data SQL -->
                     <div style="background: var(--clay-purple); box-shadow: var(--clay-shadow-btn); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 8px;">
-                                <i class="fa-solid fa-upload" style="color: var(--sidebar-bg);"></i> Upload Data
+                                <i class="fa-solid fa-upload" style="color: var(--sidebar-bg);"></i> Restore / Pulihkan Data
                             </h4>
                             <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">
-                                Pulihkan data sistem dengan mengunggah file cadangan (SQL / JSON).
+                                Pulihkan atau impor kembali database sistem dengan mengunggah file cadangan `.sql`.
                             </p>
                         </div>
-                        <input type="file" id="uploadFileBackup" accept=".sql,.json" style="display:none;" onchange="handleRestoreFile(event)">
-                        <button onclick="document.getElementById('uploadFileBackup').click()" class="btn-clay">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Pilih & Unggah File
+                        <input type="file" id="uploadFileBackup" accept=".sql" style="display:none;" onchange="handleRestoreFile(event)">
+                        <button onclick="document.getElementById('uploadFileBackup').click()" class="btn-clay" style="cursor: pointer;">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Pilih & Unggah File .SQL
                         </button>
                     </div>
 
-                    <!-- 4. Hapus Data -->
+                    <!-- 3. Hapus Data Selektif -->
                     <div style="background: var(--clay-pink); box-shadow: var(--clay-shadow-btn); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 8px;">
-                                <i class="fa-solid fa-trash-can" style="color: #ff6b81;"></i> Hapus Data
+                                <i class="fa-solid fa-trash-can" style="color: #ff6b81;"></i> Kelola & Hapus Data
                             </h4>
                             <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">
-                                Hapus data aplikasi secara selektif atau keseluruhan.
+                                Hapus data aplikasi secara selektif (akun, keuangan, absensi, rapor, dll).
                             </p>
                         </div>
                         <button type="button" onclick="window.openResetModal()" class="btn-clay btn-danger" style="background: #ff6b81 !important; color: white !important; cursor: pointer;">
-                            <i class="fa-solid fa-triangle-exclamation"></i> Kelola & Hapus Data
+                            <i class="fa-solid fa-triangle-exclamation"></i> Pilih Kategori Hapus Data
                         </button>
                     </div>
 
                 </div>
 
-                <!-- 5. Histori Riwayat Backup -->
+                <!-- 4. Histori Riwayat Backup -->
                 <div style="background: var(--bg-main); box-shadow: var(--clay-shadow-inset); padding: 20px; border-radius: 20px; margin-top: 20px;">
                     <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--sidebar-bg);"></i> Histori Riwayat Backup
+                        <i class="fa-solid fa-clock-rotate-left" style="color: var(--sidebar-bg);"></i> Histori Riwayat Aktivitas Sistem
                     </h4>
                     <div id="backupHistoryList" style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
                         <!-- Daftar histori backup dirender dinamis via JS -->
@@ -219,7 +215,7 @@
                 </label>
                 <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.08); margin: 2px 0;">
                 <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
-                    <input type="checkbox" class="delete-category-chk" value="users" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Akun & Users
+                    <input type="checkbox" class="delete-category-chk" value="users" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Akun & Users (Termasuk Data Atlet & Sesi)
                 </label>
                 <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
                     <input type="checkbox" class="delete-category-chk" value="finance" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Keuangan
@@ -255,13 +251,11 @@
     <script src="{{ asset('js/admin/setting.js') }}"></script>
     <script src="{{ asset('js/beranda_admin.js') }}"></script>
     <script>
-        // --- DEFINISI GLOBAL FUNGSI MODAL & PENGATURAN ---
         document.addEventListener("DOMContentLoaded", () => {
             renderBackupHistory();
             loadAiSettingsToForm();
         });
 
-        // Muat data pengaturan AI ke form setting
         function loadAiSettingsToForm() {
             const welcomeInput = document.getElementById('settingAiWelcome');
             const instructionInput = document.getElementById('settingAiInstruction');
@@ -282,7 +276,6 @@
             }
         }
 
-        // Simpan pengaturan AI & Perintah/Instruksi dari halaman setting (Sinkron dengan AI FAQ)
         function saveAiSettingsFromPage() {
             const welcomeVal = document.getElementById('settingAiWelcome').value.trim();
             const instructionVal = document.getElementById('settingAiInstruction').value.trim();
@@ -295,14 +288,12 @@
             alert('✅ Perintah dan pengaturan Asisten AI KILAT berhasil disimpan dan disinkronkan ke sistem AI FAQ!');
         }
 
-        // Simpan basis pengetahuan tambahan (Knowledge Base) AI
         function saveAiKnowledgeBase() {
             const knowledgeVal = document.getElementById('settingAiKnowledge').value.trim();
             localStorage.setItem('KILAT_AI_KNOWLEDGE_BASE', knowledgeVal);
             alert('✅ Basis pengetahuan tambahan (Knowledge Base) berhasil disimpan dan siap dipelajari oleh Asisten AI!');
         }
 
-        // Upload File Resource / Dokumen Referensi AI (.txt, .md, .json)
         function handleAiResourceUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -324,9 +315,7 @@
 
         window.openResetModal = function() {
             const modal = document.getElementById('resetModal');
-            if (modal) {
-                modal.style.display = 'flex';
-            }
+            if (modal) modal.style.display = 'flex';
         };
 
         window.closeResetModal = function() {
@@ -359,10 +348,24 @@
 
             categoriesToDelete.forEach(cat => {
                 if (cat === 'users') {
+                    // Hapus seluruh cache LocalStorage terkait user secara menyeluruh
                     localStorage.removeItem('manageUsersData');
                     localStorage.removeItem('KILAT_USERS');
                     localStorage.removeItem('KILAT_USERS_LIST');
+                    localStorage.removeItem('KILAT_ATHLETES_LIST');
+                    localStorage.removeItem('athletes_data');
                     localStorage.removeItem('KILAT_CURRENT_USER');
+                    localStorage.removeItem('kilat_user_data');
+                    localStorage.removeItem('lastActiveAthlete');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('users');
+
+                    // Bersihkan seluruh kunci dinamis KILAT_BIO_, KILAT_DB_, dll di localStorage
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.includes('KILAT_BIO_') || key.includes('KILAT_DB_') || key.includes('KILAT_SPEED_') || key.includes('KILAT_PROFIL_') || key.includes('KILAT_YOUTUBE_') || key.includes('KILAT_HISTORI_') || key.toLowerCase().includes('user')) {
+                            localStorage.removeItem(key);
+                        }
+                    });
                 } else if (cat === 'finance') {
                     localStorage.removeItem('KILAT_FINANCE_DB');
                 } else if (cat === 'billing') {
@@ -370,21 +373,15 @@
                     localStorage.removeItem('KILAT_BILLING_PAID');
                 } else if (cat === 'absensi') {
                     Object.keys(localStorage).forEach(key => {
-                        if (key.includes('ABSENSI') || key.includes('absensi')) {
-                            localStorage.removeItem(key);
-                        }
+                        if (key.includes('ABSENSI') || key.includes('absensi')) localStorage.removeItem(key);
                     });
                 } else if (cat === 'appendix') {
                     Object.keys(localStorage).forEach(key => {
-                        if (key.toLowerCase().includes('appendix')) {
-                            localStorage.removeItem(key);
-                        }
+                        if (key.toLowerCase().includes('appendix')) localStorage.removeItem(key);
                     });
                 } else if (cat === 'penilaian') {
                     Object.keys(localStorage).forEach(key => {
-                        if (key.toLowerCase().includes('penilaian') || key.toLowerCase().includes('rapor') || key.toLowerCase().includes('score')) {
-                            localStorage.removeItem(key);
-                        }
+                        if (key.toLowerCase().includes('penilaian') || key.toLowerCase().includes('rapor') || key.toLowerCase().includes('score')) localStorage.removeItem(key);
                     });
                 } else if (cat === 'galeri') {
                     localStorage.removeItem('KILAT_GALLERY_IMAGES');
@@ -397,7 +394,12 @@
                 }
             });
 
-            alert(`✅ Data untuk kategori [${categoriesToDelete.join(', ')}] berhasil dihapus!`);
+            // Jika kategori users dihapus, arahkan juga untuk membersihkan Session Storage & Cookie autentikasi browser
+            if (categoriesToDelete.includes('users')) {
+                sessionStorage.clear();
+            }
+
+            alert(`✅ Data untuk kategori [${categoriesToDelete.join(', ')}] berhasil dibersihkan dan dihapus total!`);
             window.closeResetModal();
             location.reload();
         };
@@ -450,7 +452,7 @@
             localStorage.setItem('KILAT_GALLERY_IMAGES', JSON.stringify(combinedGallery));
             localStorage.setItem('public_images_gallery', JSON.stringify(combinedGallery));
 
-            alert(`${selectedGalleryFilesBase64.length} foto berhasil diunggah dan disimpan ke folder public/images serta dirender di galeri Beranda (index.blade)!`);
+            alert(`${selectedGalleryFilesBase64.length} foto berhasil diunggah dan disimpan ke galeri Beranda!`);
 
             document.getElementById('galleryImageInput').value = '';
             document.getElementById('imagePreviewContainer').style.display = 'none';
@@ -459,7 +461,7 @@
 
         function getBackupHistories() {
             return JSON.parse(localStorage.getItem('KILAT_BACKUP_HISTORIES')) || [
-                { id: 1, name: 'backup_kilat_2026-08-10.sql', date: '10 Agu 2026, 11:20', type: 'SQL', data: '-- Dummy SQL Backup Data' }
+                { id: 1, name: 'backup_kilat_database.sql', date: '10 Agu 2026, 11:20', type: 'SQL' }
             ];
         }
 
@@ -476,7 +478,7 @@
             container.innerHTML = '';
 
             if (histories.length === 0) {
-                container.innerHTML = '<p style="text-align:center; font-style:italic; padding:10px;">Belum ada riwayat backup database.</p>';
+                container.innerHTML = '<p style="text-align:center; font-style:italic; padding:10px;">Belum ada riwayat aktivitas backup.</p>';
                 return;
             }
 
@@ -487,12 +489,9 @@
                             <strong style="color: var(--text-dark);">${item.name}</strong>
                             <div style="font-size: 0.75rem; color: var(--text-gray);">${item.date} (${item.type})</div>
                         </div>
-                        <div style="display: flex; gap: 6px;">
-                            <button onclick="downloadHistoryItem(${item.id})" class="btn-action-mini" title="Download" style="background:var(--clay-blue); color:var(--text-dark); border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.75rem;">
-                                <i class="fa-solid fa-download"></i>
-                            </button>
+                        <div>
                             <button onclick="deleteHistoryItem(${item.id})" class="btn-action-mini" title="Hapus" style="background:#ff6b81; color:white; border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.75rem;">
-                                <i class="fa-solid fa-trash"></i>
+                                <i class="fa-solid fa-trash"></i> Hapus Riwayat
                             </button>
                         </div>
                     </div>
@@ -500,80 +499,8 @@
             });
         }
 
-        function handleBackupSQL() {
-            let dbData = {
-                finance: localStorage.getItem('KILAT_FINANCE_DB'),
-                attendance: localStorage.getItem('KILAT_ABSENSI_' + new Date().toISOString().split('T')[0]),
-                users: localStorage.getItem('manageUsersData'),
-                athletes: localStorage.getItem('KILAT_ATHLETES_LIST')
-            };
-            let sqlContent = `-- KEDIRI INLINE SKATE SQL BACKUP\n-- Generated: ${new Date().toLocaleString()}\nINSERT INTO backup_data VALUES ('${JSON.stringify(dbData).replace(/'/g, "''")}');`;
-
-            let dateStr = new Date().toISOString().split('T')[0];
-            let fileName = `backup_kilat_${dateStr}.sql`;
-
-            downloadFileBlob(sqlContent, fileName, 'text/sql');
-
-            let histories = getBackupHistories();
-            histories.unshift({
-                id: Date.now(),
-                name: fileName,
-                date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
-                type: 'SQL',
-                data: sqlContent
-            });
-            saveBackupHistories(histories);
-            alert('Backup SQL berhasil diunduh dan ditambahkan ke riwayat!');
-        }
-
-        function handleBackupJSON() {
-            let allData = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                let key = localStorage.key(i);
-                if (key.includes('KILAT') || key.includes('manageUsersData')) {
-                    allData[key] = localStorage.getItem(key);
-                }
-            }
-            let jsonContent = JSON.stringify(allData, null, 2);
-            let dateStr = new Date().toISOString().split('T')[0];
-            let fileName = `backup_kilat_${dateStr}.json`;
-
-            downloadFileBlob(jsonContent, fileName, 'application/json');
-
-            let histories = getBackupHistories();
-            histories.unshift({
-                id: Date.now(),
-                name: fileName,
-                date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
-                type: 'JSON',
-                data: jsonContent
-            });
-            saveBackupHistories(histories);
-            alert('Backup JSON berhasil diunduh dan ditambahkan ke riwayat!');
-        }
-
-        function downloadFileBlob(content, filename, contentType) {
-            let blob = new Blob([content], { type: contentType });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function downloadHistoryItem(id) {
-            let histories = getBackupHistories();
-            let item = histories.find(h => h.id === id);
-            if (!item) return;
-            let type = item.type.toLowerCase() === 'json' ? 'application/json' : 'text/sql';
-            downloadFileBlob(item.data || 'Data Kosong', item.name, type);
-        }
-
         function deleteHistoryItem(id) {
-            if (confirm('Yakin ingin menghapus riwayat backup ini?')) {
+            if (confirm('Yakin ingin menghapus riwayat ini?')) {
                 let histories = getBackupHistories();
                 histories = histories.filter(h => h.id !== id);
                 saveBackupHistories(histories);
@@ -588,43 +515,25 @@
             reader.onload = function(e) {
                 try {
                     let content = e.target.result;
+                    if (file.name.endsWith('.sql')) {
+                        localStorage.setItem('KILAT_RAW_SQL_RESTORE', content);
+                        alert('✅ File backup SQL berhasil diunggah dan diterapkan ke sistem!');
 
-                    if (file.name.endsWith('.json')) {
-                        let parsedData = JSON.parse(content);
-                        Object.keys(parsedData).forEach(key => {
-                            if (parsedData[key] !== null && parsedData[key] !== undefined) {
-                                localStorage.setItem(key, parsedData[key]);
-                            }
+                        let histories = getBackupHistories();
+                        histories.unshift({
+                            id: Date.now(),
+                            name: file.name,
+                            date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+                            type: 'RESTORE SQL'
                         });
-                        alert('✅ Data sistem berhasil dipulihkan dari file JSON dan diterapkan ke halaman terkait!');
+                        saveBackupHistories(histories);
                         location.reload();
-                    } else if (file.name.endsWith('.sql')) {
-                        let match = content.match(/VALUES\s*\('(.*)'\);/s);
-                        if (match && match[1]) {
-                            let unescapedJson = match[1].replace(/''/g, "'");
-                            let dbData = JSON.parse(unescapedJson);
-
-                            if (dbData.finance) localStorage.setItem('KILAT_FINANCE_DB', dbData.finance);
-                            if (dbData.users) localStorage.setItem('manageUsersData', dbData.users);
-                            if (dbData.athletes) localStorage.setItem('KILAT_ATHLETES_LIST', dbData.athletes);
-                            if (dbData.attendance) {
-                                let todayKey = 'KILAT_ABSENSI_' + new Date().toISOString().split('T')[0];
-                                localStorage.setItem(todayKey, dbData.attendance);
-                            }
-
-                            alert('✅ Database SQL berhasil dipulihkan dan diterapkan ke masing-masing halaman!');
-                            location.reload();
-                        } else {
-                            localStorage.setItem('KILAT_RAW_SQL_RESTORE', content);
-                            alert('✅ File SQL berhasil diunggah dan disimpan ke sistem!');
-                            location.reload();
-                        }
                     } else {
-                        alert('⚠️ Format file tidak didukung. Harap gunakan file berformat .json atau .sql.');
+                        alert('⚠️ Format file tidak didukung. Harap gunakan file berformat .sql.');
                     }
                 } catch(err) {
                     console.error(err);
-                    alert('❌ Gagal memproses file cadangan. Pastikan struktur file valid.');
+                    alert('❌ Gagal memproses file cadangan.');
                 } finally {
                     event.target.value = '';
                 }
