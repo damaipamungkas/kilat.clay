@@ -573,10 +573,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
         <button onclick="window.print()" class="curr-btn btn-blue" style="display: inline-block !important;">🖨️ Cetak</button>
 
         @if($role === 'admin')
-            <a href="{{ route('admin.setting.sql-backup') }}" class="curr-btn btn-purple">💾 Backup (SQL)</a>
-            <button id="btnExportData" class="curr-btn btn-purple">💾 Backup (json)</button>
-            <button id="btnImportData" class="curr-btn btn-pink" onclick="document.getElementById('importFile').click()">📂 Restore (json)</button>
-            <input type="file" id="importFile" accept=".json" style="display:none;">
             <button id="btnDeleteBio" class="curr-btn btn-danger">🗑️ Hapus Atlet</button>
         @endif
 
