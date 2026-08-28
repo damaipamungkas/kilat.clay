@@ -132,7 +132,7 @@
                         <li><strong>Konsultasi & Uji Coba:</strong> Menghubungi admin guna memperoleh informasi lengkap serta penjadwalan sesi latihan pengenalan (<em>trial</em>).</li>
                         <li><strong>Registrasi Akun:</strong> Melakukan pendaftaran akun orang tua (<em>parent</em>), mendaftarkan data atlet, serta melengkapi formulir biodata secara daring melalui situs web.</li>
                         <li><strong>Penyelesaian Administrasi:</strong> Membayar biaya pendaftaran via transfer bank atau secara tunai saat sesi latihan berlangsung, dilanjutkan dengan konfirmasi ukuran seragam resmi.</li>
-                        <li><strong>Penentuan Kelas:</strong> Penempatan jenjang kelas (Pemula, Junior 1, Mahir) ditentukan berdasarkan hasil asesmen dan evaluasi dari tim pelatih.</li>
+                        <li><strong>Penentuan Kelas:</strong> Penempatan jenjang kelas (Pemula, Junior 1, Junior 2) ditentukan berdasarkan hasil asesmen dan evaluasi dari tim pelatih.</li>
                         <li><strong>Memulai Latihan:</strong> Bergabung bersama komunitas dan mengikuti jadwal sesi latihan reguler yang telah ditentukan.</li>
                     </ol>
                 </div>
