@@ -78,8 +78,8 @@
                 <div class="card-desc">
                     <p>Di bawah naungan organisasi seperti PORSEROSI (Indonesia) dan World Skate (Internasional), inline skate memiliki berbagai cabang kejuaraan resmi:</p>
                     <ul>
-                        <li><strong>Speed Skating (Balap Sepatu Roda):</strong> Cabang paling populer di KILAT. Atlet beradu kecepatan di sirkuit velodrome, trek lintasan oval, hingga maraton jalan raya. Membutuhkan daya tahan fisik dan teknik aerodinamika tinggi.</li>
-                        <li><strong>Classic & Battle Slalom:</strong> Cabang kompetisi di mana atlet menunjukkan koreografi, teknik keseimbangan ekstrem, dan transisi gerakan melintasi cone dalam batas waktu tertentu. Dinilai dari tingkat kesulitan, gaya, dan presisi.</li>
+                        <li><strong>Speed Skating (Balap Sepatu Roda):</strong> Atlet beradu kecepatan di sirkuit velodrome, trek lintasan oval, hingga maraton jalan raya. Membutuhkan daya tahan fisik dan teknik aerodinamika tinggi.</li>
+                        <li><strong>Classic & Battle Slalom:</strong> Cabang paling populer di KILAT. kompetisi di mana atlet menunjukkan koreografi, teknik keseimbangan ekstrem, dan transisi gerakan melintasi cone dalam batas waktu tertentu. Dinilai dari tingkat kesulitan, gaya, dan presisi.</li>
                         <li><strong>Skatecross:</strong> Balapan melewati lintasan halang rintang ekstrem (seperti trek motocross) dengan menggunakan sepatu urban/freeskate.</li>
                         <li><strong>Inline Hockey:</strong> Mengadaptasi aturan hoki es ke lapangan keras. Menggunakan bola khusus atau *puck* beroda.</li>
                     </ul>
