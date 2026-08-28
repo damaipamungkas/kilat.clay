@@ -93,7 +93,7 @@
                     </div>
                     <div class="faq-answer">
                         <div class="answer-content">
-                            <span class="faq-a-text">Usia minimal yang disarankan untuk bergabung adalah <span class="highlight">4 tahun</span>. Pada usia ini, motorik dan keseimbangan anak umumnya sudah siap untuk menerima materi dasar pengenalan <em>inline skate</em>.</span>
+                            <span class="faq-a-text">Pada dasarnya tidak ada usia minimal untukengikuti kelas sepatu roda, semakin dini semakin baik untuk melatih motorik dan keseimbangan anak umumnya sudah siap untuk menerima materi dasar pengenalan <em>inline skate</em>. Namun tantangannya adalah semakin dini usia anak maka semakin berat juga untuk memberi arahan, karena pada usia dibawah 5 tahun memang masa bermain, jadi tetap membutuhkan kontribusi orang tua untuk bekerjasama dengan para pelatih agar perkembangan anak jadi lebih baik.</span>
                         </div>
                     </div>
                     <div class="faq-admin-actions admin-container" style="display: none;">
@@ -110,7 +110,7 @@
                     </div>
                     <div class="faq-answer">
                         <div class="answer-content">
-                            <span class="faq-a-text">Untuk sesi <span class="highlight">Trial (Percobaan)</span>, kami menyediakan penyewaan alat lengkap. Namun, jika sudah resmi mendaftar sebagai <em>Member</em>, diwajibkan untuk memiliki peralatan sendiri demi kenyamanan dan higienitas atlet. Kami juga menjual peralatan berstandar di lokasi latihan.</span>
+                            <span class="faq-a-text">Untuk sesi <span class="highlight">Trial (Percobaan)</span>, kami menyediakan penyewaan alat lengkap. Namun, jika sudah resmi mendaftar sebagai <em>Member</em>, diwajibkan untuk memiliki peralatan sendiri demi kenyamanan dan higienitas atlet. Namun sebelum membeli perlengkapan juga diwajibkan untuk konsultasi terlenih dahulu agar tidak terjadi kesalahan dalam membeli perlengkapan yang standar.</span>
                         </div>
                     </div>
                     <div class="faq-admin-actions admin-container" style="display: none;">
@@ -127,7 +127,7 @@
                     </div>
                     <div class="faq-answer">
                         <div class="answer-content">
-                            <span class="faq-a-text">Latihan rutin kami laksanakan di area <span class="highlight">GOR Jayabaya Kota Kediri</span> dan <span class="highlight">Simpang Lima Gumul (SLG)</span>. Jadwal spesifik bervariasi bergantung pada kelas (Pemula/Menengah/Ahli), umumnya dilaksanakan pada sore hari (Rabu & Jumat) serta pagi hari di akhir pekan.</span>
+                            <span class="faq-a-text">Latihan rutin kami laksanakan di area Parkiran lantai 6 <span class="highlight">Kediri Mall</span> dan <span class="highlight">Pasar Setono Betek</span>lantai 2. Jadwal spesifik bervariasi bergantung pada kelas (Pemula/junior 1/Junior 2), umumnya dilaksanakan pada sore hari (Selasa & Jumat).</span>
                         </div>
                     </div>
                     <div class="faq-admin-actions admin-container" style="display: none;">
@@ -144,7 +144,7 @@
                     </div>
                     <div class="faq-answer">
                         <div class="answer-content">
-                            <span class="faq-a-text">Iuran dibayarkan setiap tanggal 1 hingga 5 pada awal bulan. Pembayaran dapat dilakukan secara <span class="highlight">Cash (Tunai)</span> kepada admin di lokasi, atau melalui transfer via Bank BCA, Mandiri, dan QRIS (OVO/Dana/Gopay).</span>
+                            <span class="faq-a-text">Iuran dibayarkan setiap tanggal 1 hingga 10 pada awal bulan. Pembayaran dapat dilakukan secara <span class="highlight">Cash (Tunai)</span> kepada admin di lokasi, atau melalui transfer via Bank BCA.</span>
                         </div>
                     </div>
                     <div class="faq-admin-actions admin-container" style="display: none;">
@@ -161,7 +161,7 @@
                     </div>
                     <div class="faq-answer">
                         <div class="answer-content">
-                            <span class="faq-a-text"><span class="highlight">Tidak ada batas maksimal usia.</span> Kami juga menyediakan kelas reguler untuk orang dewasa (kategori <em>Urban</em> & <em>Fitness</em>) yang ingin sekadar menjadikan <em>inline skate</em> sebagai hobi pembakar kalori yang menyenangkan.</span>
+                            <span class="faq-a-text"><span class="highlight">Tidak ada batas maksimal usia.</span> Kami juga menyediakan kelas dewasa (kategori <em>Urban</em> & <em>Fitness</em>) yang ingin sekadar menjadikan <em>inline skate</em> sebagai hobi pembakar kalori yang menyenangkan, kabar baiknya adalah tidak perlu mengeluarkan biaya tambahan untuk kelas dewasa, namun juga tidak ada materi khusus yang diajarkan.</span>
                         </div>
                     </div>
                     <div class="faq-admin-actions admin-container" style="display: none;">
