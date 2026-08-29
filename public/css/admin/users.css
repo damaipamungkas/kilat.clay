@@ -263,6 +263,10 @@
     padding: 15px;
 }
 
+.modal-overlay.show {
+    display: flex !important;
+}
+
 .modal-card {
     background: var(--clay-purple, #e2d9f3);
     width: 100%;

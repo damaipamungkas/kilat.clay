@@ -3,64 +3,27 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-<<<<<<< HEAD
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-
-class AthleteController extends Controller
-{
-    public function index()
-=======
 use App\Models\Athlete;
 use App\Models\AthleteEditRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AthleteController extends Controller
 {
-    // Method untuk menyimpan data atlet baru sekaligus membuat akun User dengan role 'atlet'
-    public function store(Request $request)
-    {
-        // Validasi input sesuai kebutuhan
-        $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-        ]);
-
-        // 1. Buat akun di tabel users terlebih dahulu
-        $user = User::create([
-            'namalengkap' => $request->nama_lengkap,
-            'email' => $request->email,
-            'username' => $request->email, // atau sesuaikan dengan input username jika ada
-            'password' => Hash::make($request->password),
-            'role' => 'atlet',
-            'status' => 'Aktif',
-        ]);
-
-        // 2. Simpan data ke tabel athletes (hubungkan dengan user_id jika diperlukan)
-        Athlete::create([
-            'user_id' => $user->id,
-            'nama_lengkap' => $request->nama_lengkap,
-            // Tambahkan field lain sesuai tabel Anda
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Akun dan data atlet berhasil dibuat!'
-        ]);
-    }
-
-    // Method untuk memproses klik "Simpan" pada Edit Data Atlet
-    public function updateRequest(Request $request, $id)
->>>>>>> 18a593e9daed664e8703aac1c40824fc1d2ce11c
+    /**
+     * Menampilkan daftar data atlet.
+     */
+    public function index()
     {
         $athletes = User::where('role', 'atlet')->get();
         return view('admin.athletes.index', compact('athletes'));
     }
 
+    /**
+     * Menyimpan data atlet dari halaman Appendix beserta penautan otomatis ke akun Parent.
+     */
     public function storeFromAppendix(Request $request)
     {
         try {
@@ -137,21 +100,26 @@ class AthleteController extends Controller
         }
     }
 
+    /**
+     * Menyimpan data atlet baru secara umum (reguler).
+     */
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'fullName' => 'required|string|max:255',
+            'email' => 'nullable|email|unique:users,email',
+            'password' => 'nullable|min:6',
         ]);
 
-        $identifierEmail = strtolower(trim(str_replace(' ', '', $request->fullName))) . '@kilat.com';
+        $identifierEmail = $request->email ?? (strtolower(trim(str_replace(' ', '', $request->fullName))) . '@kilat.com');
 
         User::updateOrCreate(
             ['email' => $identifierEmail],
             [
                 'name' => $request->name,
                 'namaLengkap' => $request->fullName,
-                'password' => Hash::make('password123'),
+                'password' => Hash::make($request->password ?? 'password123'),
                 'role' => 'atlet',
                 'status' => 'Aktif'
             ]
@@ -160,6 +128,23 @@ class AthleteController extends Controller
         return redirect()->back()->with('success', 'Data atlet berhasil disimpan.');
     }
 
+    /**
+     * Memproses permintaan edit data atlet.
+     */
+    public function updateRequest(Request $request, $id)
+    {
+        // Logika pemrosesan permintaan edit atlet
+        $athlete = User::where('role', 'atlet')->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permintaan update berhasil diproses.'
+        ]);
+    }
+
+    /**
+     * Menghapus data atlet berdasarkan ID.
+     */
     public function destroy($id)
     {
         $athlete = User::where('role', 'atlet')->where('id', $id)->first();

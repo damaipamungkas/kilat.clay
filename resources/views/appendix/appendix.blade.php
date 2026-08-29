@@ -354,7 +354,7 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 .c-yel { background-color: var(--c-sakit); color: var(--text-dark); text-shadow: 1px 1px 1px rgba(255,255,255,0.5);}
 .c-grn { background-color: var(--c-hadir); color: white; }
 
-/* --- GLOBAL STYLING UNTUK TOMBOL CETAK & BACKUP DI HTML ANDA --- */
+/* --- GLOBAL STYLING UNTUK TOMBOL CETAK & AKSI ATLET DI HTML ANDA --- */
 .bio-actions a,
 .bio-actions button {
     font-family: 'Nunito', sans-serif;
@@ -562,22 +562,14 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
         </div>
     </div>
 
-    <!-- KEDUA TOMBOL TAMBAH DAN EDIT DITAMPILKAN BERDAMPINGAN SEJAK AWAL -->
+    <!-- TOMBOL AKSI: TERSEDIA UNTUK ADMIN DAN PARENT, BESERTA TOMBOL CETAK YANG SELALU MUNCUL -->
     <div class="bio-actions" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-        <button onclick="window.print()" class="curr-btn btn-blue" style="display: inline-block !important;">🖨️ Cetak</button>
-
-        @if($role === 'admin')
-            <button id="btnDeleteBio" class="curr-btn btn-danger">🗑️ Hapus Atlet</button>
-        @endif
-
         @if(in_array($role, ['admin', 'parent']))
-            <button id="btnAddBio" class="curr-btn btn-blue" style="display: inline-block !important;">➕ Tambah Atlet Baru</button>
+            <button type="button" onclick="openAthleteFormModal('add')" class="curr-btn btn-green" style="background-color: var(--c-hadir); color: white;"><i class="fa-solid fa-user-plus"></i> Tambah Atlet</button>
+            <button type="button" onclick="openAthleteFormModal('edit')" class="curr-btn btn-yellow" style="background-color: var(--clay-yellow); color: var(--text-dark);"><i class="fa-solid fa-user-pen"></i> Edit Atlet</button>
+            <button type="button" onclick="deleteActiveAthlete()" class="curr-btn btn-red" style="background-color: var(--c-alpa); color: white;"><i class="fa-solid fa-user-minus"></i> Hapus Atlet</button>
         @endif
-
-        @if(in_array($role, ['admin', 'coach', 'parent']))
-            <button id="btnEditBio" class="curr-btn btn-yellow" style="display: inline-block !important;">✏️ Edit Data Atlet</button>
-            <button id="btnSaveBio" class="curr-btn btn-success" style="display: none;">💾 Submit / Simpan</button>
-        @endif
+        <button onclick="window.print()" class="curr-btn btn-blue" style="display: inline-block !important;">🖨️ Cetak</button>
     </div>
 
     <div id="print-area">
@@ -889,6 +881,69 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 </div>
 @endif
 
+<!-- MODAL FORM BIODATA ATLET (TAMBAH / EDIT) -->
+<div id="athleteFormModal" class="modal">
+    <div class="modal-content" style="max-width: 450px;">
+        <span class="close-btn" onclick="closeModalSafely(document.getElementById('athleteFormModal'))">&times;</span>
+        <h3 id="athleteFormModalTitle">Form Biodata Atlet</h3>
+        <form id="athleteCustomForm" onsubmit="saveAthleteBiodata(event)">
+            <input type="hidden" id="formAthleteId">
+            <div class="form-group">
+                <label>NIK:</label>
+                <input type="text" id="inputNik" placeholder="Nomor NIK Atlet" required>
+            </div>
+            <div class="form-group">
+                <label>Nama Lengkap:</label>
+                <input type="text" id="inputFullName" placeholder="Nama Lengkap Atlet" required>
+            </div>
+            <div class="form-group">
+                <label>Nama Panggilan:</label>
+                <input type="text" id="inputNickname" placeholder="Nama Panggilan Atlet" required>
+            </div>
+            <div class="form-group">
+                <label>Jenis Kelamin:</label>
+                <select id="inputGender" required>
+                    <option value="">- PILIH JENIS KELAMIN -</option>
+                    <option value="L">LAKI-LAKI</option>
+                    <option value="P">PEREMPUAN</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Tanggal Lahir:</label>
+                <input type="date" id="inputTglLahir" required>
+            </div>
+            <div class="form-group">
+                <label>Alamat Lengkap:</label>
+                <input type="text" id="inputAlamat" placeholder="Alamat Lengkap" required>
+            </div>
+            <div class="form-group">
+                <label>Nama Wali / Parent:</label>
+                <input type="text" id="inputWali" placeholder="Nama Wali" required>
+            </div>
+            <div class="form-group">
+                <label>WhatsApp:</label>
+                <input type="text" id="inputWa" placeholder="Cth: 08123456789" required>
+            </div>
+            <div class="form-group">
+                <label>Kelas:</label>
+                <select id="inputKelas" required>
+                    <option value="PEMULA">PEMULA</option>
+                    <option value="JUNIOR 1">JUNIOR 1</option>
+                    <option value="JUNIOR 2">JUNIOR 2</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status Akun:</label>
+                <select id="inputStatus" required>
+                    <option value="Aktif">AKTIF</option>
+                    <option value="Arsip">ARSIP</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-btn">Simpan Biodata Atlet</button>
+        </form>
+    </div>
+</div>
+
 <!-- MODAL TRICK INDIVIDU -->
 <div id="trickModal" class="modal">
     <div class="modal-content">
@@ -1021,27 +1076,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 
         <div id="pendingListContainer" style="max-height: 400px; overflow-y: auto;">
         </div>
-    </div>
-</div>
-
-<!-- MODAL TAMBAH ATLET BARU (UNTUK PARENT/ADMIN) -->
-<div id="athleteModal" class="modal" style="display:none; position:fixed; z-index:10000; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5);">
-    <div class="modal-content" style="background:#fff; margin:50px auto; padding:25px; width:90%; max-width:450px; border-radius:12px;">
-        <span class="close-btn" onclick="closeModalSafely(document.getElementById('athleteModal'))">&times;</span>
-        <h3>➕ Tambah Atlet Baru</h3>
-        <form onsubmit="saveAthlete(event)">
-            <div class="form-group" style="margin-bottom:12px;">
-                <label for="athName">Nama Panggilan Atlet:</label>
-                <input type="text" id="athName" class="form-control" placeholder="Contoh: Budi" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;">
-            </div>
-            <div class="form-group" style="margin-bottom:15px;">
-                <label for="athParent">Tautkan ke Akun Parent / Wali:</label>
-                <select id="athParent" class="form-control" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;">
-                    <option value="" disabled selected>-- Pilih Akun Parent --</option>
-                </select>
-            </div>
-            <button type="submit" class="submit-btn" style="width:100%; background:#22c55e; color:#fff; padding:10px; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">Simpan & Tautkan Atlet</button>
-        </form>
     </div>
 </div>
 
@@ -1194,6 +1228,111 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
             });
         }
     });
+
+    // --- MANAJEMEN MODAL BIODATA ATLET (TAMBAH / EDIT / HAPUS) ---
+    window.openAthleteFormModal = function(mode) {
+        const modal = document.getElementById('athleteFormModal');
+        const titleEl = document.getElementById('athleteFormModalTitle');
+        const inputKelas = document.getElementById('inputKelas');
+        const inputStatus = document.getElementById('inputStatus');
+        const userRole = "{{ $role }}";
+
+        // Terapkan batasan hak akses edit kelas & status jika user adalah parent
+        if (userRole === 'parent') {
+            inputKelas.setAttribute('disabled', 'true');
+            inputStatus.setAttribute('disabled', 'true');
+        } else {
+            inputKelas.removeAttribute('disabled');
+            inputStatus.removeAttribute('disabled');
+        }
+
+        if (mode === 'add') {
+            titleEl.innerText = 'Tambah Data Atlet Baru';
+            document.getElementById('athleteCustomForm').reset();
+            document.getElementById('formAthleteId').value = '';
+            document.getElementById('inputWali').value = "{{ strtoupper($user->name ?? $user->username ?? '') }}";
+        } else if (mode === 'edit') {
+            titleEl.innerText = 'Edit Biodata Atlet Aktif';
+            // Isi form dengan data yang sedang aktif tampil di layar
+            document.getElementById('inputNik').value = document.getElementById('bioNIK').value !== '-' ? document.getElementById('bioNIK').value : '';
+            document.getElementById('inputFullName').value = document.getElementById('athleteFullName').value !== '-' ? document.getElementById('athleteFullName').value : '';
+            document.getElementById('inputNickname').value = document.getElementById('athleteName').value !== '-' ? document.getElementById('athleteName').value : '';
+            document.getElementById('inputGender').value = document.getElementById('bioGender').value;
+            document.getElementById('inputTglLahir').value = document.getElementById('bioTglLahir').value;
+            document.getElementById('inputAlamat').value = document.getElementById('bioAlamat').value !== '-' ? document.getElementById('bioAlamat').value : '';
+            document.getElementById('inputWali').value = document.getElementById('bioOrtu').value !== '-' ? document.getElementById('bioOrtu').value : '';
+            document.getElementById('inputWa').value = document.getElementById('bioWA').value !== '-' ? document.getElementById('bioWA').value : '';
+            document.getElementById('inputKelas').value = document.getElementById('bioKelas').value;
+            document.getElementById('inputStatus').value = document.getElementById('bioStatus').value;
+        }
+
+        if (modal) modal.style.display = 'block';
+    };
+
+    window.closeModalSafely = function(modalEl) {
+        if (modalEl) modalEl.style.display = 'none';
+    };
+
+    window.saveAthleteBiodata = function(e) {
+        if (e) e.preventDefault();
+
+        const nickname = document.getElementById('inputNickname').value.trim().toUpperCase();
+        if (!nickname) {
+            alert('Nama Panggilan atlet wajib diisi!');
+            return;
+        }
+
+        const bioData = {
+            nik: document.getElementById('inputNik').value,
+            fullName: document.getElementById('inputFullName').value,
+            nickname: nickname,
+            gender: document.getElementById('inputGender').value,
+            tglLahir: document.getElementById('inputTglLahir').value,
+            alamat: document.getElementById('inputAlamat').value,
+            ortu: document.getElementById('inputWali').value,
+            wa: document.getElementById('inputWa').value,
+            kelas: document.getElementById('inputKelas').value,
+            status: document.getElementById('inputStatus').value
+        };
+
+        // Simpan ke localStorage spesifik berdasarkan nama panggilan
+        localStorage.setItem('KILAT_BIO_' + nickname, JSON.stringify(bioData));
+
+        // Perbarui daftar list atlet jika belum ada
+        let athletesList = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+        if (!athletesList.includes(nickname)) {
+            athletesList.push(nickname);
+            localStorage.setItem('KILAT_ATHLETES_LIST', JSON.stringify(athletesList));
+        }
+
+        alert('✅ Biodata atlet berhasil disimpan!');
+        closeModalSafely(document.getElementById('athleteFormModal'));
+
+        // Muat ulang tampilan biodata di halaman utama
+        if (typeof window.loadAthleteBioData === 'function') {
+            window.loadAthleteBioData(nickname);
+        } else {
+            location.reload();
+        }
+    };
+
+    window.deleteActiveAthlete = function() {
+        const nickname = document.getElementById('athleteName').value.trim();
+        if (!nickname || nickname === '-') {
+            alert('Pilih atlet yang ingin dihapus terlebih dahulu.');
+            return;
+        }
+
+        if (confirm(`Yakin ingin menghapus biodata atlet "${nickname}" dari sistem lokal?`)) {
+            localStorage.removeItem('KILAT_BIO_' + nickname);
+            let athletesList = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+            athletesList = athletesList.filter(n => n.toUpperCase() !== nickname.toUpperCase());
+            localStorage.setItem('KILAT_ATHLETES_LIST', JSON.stringify(athletesList));
+
+            alert('🗑️ Data atlet berhasil dihapus.');
+            location.reload();
+        }
+    };
 </script>
 
 </body>

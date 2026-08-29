@@ -97,7 +97,7 @@
                 <!-- Area Konten Lampiran/Tautan Berdasarkan Role & Daftar Atlet Terdaftar -->
                 <div id="roleSpecificContent" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border-color, #e5e7eb);">
 
-                    <!-- BAGIAN DAFTAR ATLET HANYA MUNCUL JIKA ROLE ADALAH PARENT / WALI -->
+                    <!-- BAGIAN DAFTAR ATLET HANYA MUNCUL JIKA ROLE ADALAH PARENT / WALI / ORANG TUA -->
                     @if(in_array(strtolower($user->role), ['parent', 'wali', 'orang tua', 'orangtua']))
                         <div class="profile-athletes-section" style="margin-bottom: 15px;">
                             <div style="font-weight: 800; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-main, #333); display: flex; align-items: center; gap: 6px;">
@@ -118,7 +118,7 @@
                                     <div id="fallbackEmptyBox" style="background: rgba(239, 68, 68, 0.08); border: 1px dashed rgba(239, 68, 68, 0.3); padding: 10px; border-radius: 8px; text-align: center;">
                                         <p style="margin: 0 0 8px 0; font-size: 0.8rem; color: #b91c1c; font-weight: 700;">Belum ada atlet yang terdaftar/tertaut pada akun ini.</p>
                                         <a href="{{ route('appendix') }}" style="display: inline-block; background: #ef4444; color: #fff; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-decoration: none;">
-                                            <i class="fa-solid fa-plus"></i> Tambahkan atlet ke appendix
+                                            <i class="fa-solid fa-plus"></i> Tambahkan atlet anda melalui tombol di bawah ini.
                                         </a>
                                     </div>
                                 @endif
@@ -174,34 +174,63 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const currentParentName = "{{ $user->name ?? '' }}".toLowerCase().trim();
+        const container = document.getElementById('dynamicLinkedAthletesContainer');
+        if (!container) return;
 
-        // Ambil data users dari localStorage (mengikuti fungsi helper dari appendix.js)
+        let athletesFound = [];
+
+        // 1. Cek dari LocalStorage manageUsersData / KILAT_USERS
         const manageUsers = JSON.parse(
             localStorage.getItem('manageUsersData') ||
             localStorage.getItem('KILAT_USERS') ||
             '[]'
         );
 
-        // Cari user yang sesuai dengan nama parent aktif saat ini
         const foundUser = manageUsers.find(u => {
             let uName = (u.name || u.username || u.namaLengkap || '').toLowerCase().trim();
             return uName === currentParentName;
         });
 
-        if (foundUser && foundUser.atletTautan && foundUser.atletTautan.length > 0) {
-            const container = document.getElementById('dynamicLinkedAthletesContainer');
-            if (container) {
-                let badgesHTML = '<div style="display: flex; flex-wrap: wrap; gap: 6px;">';
-                foundUser.atletTautan.forEach(ath => {
-                    badgesHTML += `
-                        <span style="background: rgba(139, 92, 246, 0.15); color: #7c3aed; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
-                            <i class="fa-solid fa-user-ninja" style="font-size: 0.75rem;"></i> ${ath}
-                        </span>
-                    `;
-                });
-                badgesHTML += '</div>';
-                container.innerHTML = badgesHTML;
-            }
+        if (foundUser && foundUser.atletTautan && Array.isArray(foundUser.atletTautan)) {
+            athletesFound = foundUser.atletTautan;
+        }
+
+        // 2. Jika kosong di manageUsers, cek juga dari data bio local appendix (KILAT_BIO_*)
+        if (athletesFound.length === 0) {
+            let athletesList = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+            athletesList.forEach(nick => {
+                let bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + nick)) || {};
+                let ortuName = (bio.ortu || bio.connectedParent || '').toLowerCase().trim();
+                if (ortuName && (ortuName === currentParentName || currentParentName.includes(ortuName))) {
+                    if (!athletesFound.includes(nick)) {
+                        athletesFound.push(nick);
+                    }
+                }
+            });
+        }
+
+        // Render hasil ke wadah penampung
+        if (athletesFound.length > 0) {
+            let badgesHTML = '<div style="display: flex; flex-wrap: wrap; gap: 6px;">';
+            athletesFound.forEach(ath => {
+                badgesHTML += `
+                    <span style="background: rgba(139, 92, 246, 0.15); color: #7c3aed; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-user-ninja" style="font-size: 0.75rem;"></i> ${ath}
+                    </span>
+                `;
+            });
+            badgesHTML += '</div>';
+            container.innerHTML = badgesHTML;
+        } else {
+            // Tampilkan kotak catatan penambahan atlet jika belum ada yang tertaut sama sekali
+            container.innerHTML = `
+                <div style="background: rgba(239, 68, 68, 0.08); border: 1px dashed rgba(239, 68, 68, 0.3); padding: 10px; border-radius: 8px; text-align: center;">
+                    <p style="margin: 0 0 8px 0; font-size: 0.8rem; color: #b91c1c; font-weight: 700;">Belum ada atlet yang terdaftar/tertaut pada akun ini.</p>
+                    <a href="{{ route('appendix') }}" style="display: inline-block; background: #ef4444; color: #fff; padding: 5px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-decoration: none;">
+                        <i class="fa-solid fa-plus"></i> Tambahkan atlet anda melalui tombol di bawah ini.
+                    </a>
+                </div>
+            `;
         }
     });
 </script>

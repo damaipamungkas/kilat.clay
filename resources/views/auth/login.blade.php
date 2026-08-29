@@ -22,7 +22,7 @@
         if (linkTag) {
             let currentHref = linkTag.getAttribute('href');
             let fileName = currentHref.split('/').pop();
-            linkTag.setAttribute('href', `{{ asset('') }}${savedFolder}/${fileName}`);
+            linkTag.setAttribute('href', `${savedFolder}/${fileName}`);
         }
     });
 </script>
@@ -57,11 +57,11 @@
                     <label for="email">ID KREDENSIAL (EMAIL)</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" id="email" name="email" class="sci-fi-input" placeholder="contoh: parent.nama@kilat.com" required autocomplete="username">
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" class="sci-fi-input" placeholder="contoh: parent.nama@kilat.com" required autocomplete="username">
                     </div>
                 </div>
 
-                <!-- Penambahan margin-bottom (style="margin-bottom: 24px;") untuk memberi jarak ke tombol -->
+                <!-- Penambahan margin-bottom untuk memberi jarak ke tombol -->
                 <div class="input-group" style="margin-bottom: 24px;">
                     <label for="password">KODE OTORISASI (SANDI)</label>
                     <div class="input-wrapper">
@@ -105,6 +105,19 @@
 
 <div class="skate-scroll-track" id="skateTrack"></div>
 <div class="skate-scroll-thumb" id="skateThumb" title="Tarik untuk scroll"></div>
+
+<!-- Skrip Sesi & Sinkronisasi Lokal -->
+<script>
+    @if(auth()->check())
+        // Simpan data user aktif ke localStorage jika berhasil login ke server
+        localStorage.setItem('KILAT_CURRENT_USER', JSON.stringify({
+            name: "{{ auth()->user()->name }}",
+            email: "{{ auth()->user()->email }}",
+            role: "{{ auth()->user()->role ?? 'parent' }}"
+        }));
+        localStorage.setItem('userRole', "{{ strtolower(auth()->user()->role ?? 'parent') }}");
+    @endif
+</script>
 
 <!-- JS Terpisah -->
 <script src="{{ asset('js/auth/login.js') }}"></script>
