@@ -127,7 +127,7 @@
                     </div>
                     <div class="faq-answer">
                         <div class="answer-content">
-                            <span class="faq-a-text">Latihan rutin kami laksanakan di area Parkiran lantai 6 <span class="highlight">Kediri Mall</span> dan <span class="highlight">Pasar Setono Betek</span>lantai 2. Jadwal spesifik bervariasi bergantung pada kelas (Pemula/junior 1/Junior 2), umumnya dilaksanakan pada sore hari (Selasa & Jumat).</span>
+                            <span class="faq-a-text">Latihan rutin kami laksanakan di area Parkiran lantai 6 <span class="highlight">Kediri Mall</span> dan <span class="highlight">Pasar Setono Betek </span>lantai 2. Jadwal spesifik bervariasi bergantung pada kelas (Pemula/junior 1/Junior 2), umumnya dilaksanakan pada sore hari (Selasa & Jumat).</span>
                         </div>
                     </div>
                     <div class="faq-admin-actions admin-container" style="display: none;">
