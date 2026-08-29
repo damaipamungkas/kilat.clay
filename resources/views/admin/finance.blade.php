@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/admin/finance.css') }}">
     <style>
         /* ==========================================================================
-           CSS KEUANGAN (PERBAIKAN TATA LETAK, PIUTANG, & TABEL MODUL)
+           CSS KEUANGAN (PERBAIKAN TATA LETAK, PIUTANG, HELD BY, & TABEL MODUL)
            ========================================================================== */
 
         /* 1. Header & Status Role */
@@ -84,6 +84,7 @@
         }
         .val.income { color: var(--income-color); }
         .val.expense { color: var(--expense-color); }
+        .val.piutang { color: #f50b0b; }
 
         /* Kotak Piutang Tambahan */
         .piutang-box {
@@ -96,7 +97,69 @@
             min-width: 140px;
         }
 
-        /* 3. Finance Grid (Card Modul Tabel Keuangan) */
+        /* 3. Card Total Saldo & Saldo "Held By" Masing-Masing Admin */
+        .treasurer-breakdown {
+            background: var(--clay-yellow);
+            width: 100%;
+            border-radius: 25px;
+            padding: 20px 25px;
+            box-shadow: var(--clay-shadow-card);
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .treasurer-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .treasurer-title {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: none;
+        }
+        .btn-transfer-saldo {
+            background: var(--sidebar-bg);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            cursor: pointer;
+            box-shadow: var(--clay-shadow-btn);
+            text-shadow: var(--text-timbul-light);
+            transition: 0.2s;
+        }
+        .btn-transfer-saldo:hover { transform: scale(1.03); }
+
+        .treasurer-badges {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .treasurer-badge {
+            background: var(--bg-main);
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            box-shadow: var(--clay-shadow-inset);
+            color: var(--text-dark);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .badge-amount { color: var(--sidebar-bg); font-weight: 900; }
+
+        /* 4. Finance Grid (Card Modul Tabel Keuangan) */
         .finance-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -159,7 +222,7 @@
         }
         .btn-input-arus:hover { filter: brightness(0.95); transform: scale(1.02); }
 
-        /* 4. Tabel di dalam Card Keuangan */
+        /* 5. Tabel di dalam Card Keuangan */
         .table-container {
             flex: 1;
             overflow-x: auto;
@@ -337,12 +400,13 @@
             .summary-stats { flex-direction: column; width: 100%; }
             .stat-item { width: 100%; }
             .piutang-box { width: 100%; }
+            .treasurer-breakdown { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body data-theme="">
 
-    <!-- SIDEBAR (Laravel 13.08 Blade Include) -->
+    <!-- SIDEBAR -->
     @include('layouts.sidebar')
 
     <main class="main-content" id="mainContent">
@@ -369,6 +433,15 @@
                 </div>
             </div>
         </section>
+
+        <!-- Pemisahan Saldo Held By & Fitur Pindah Tangan Saldo -->
+        <div class="treasurer-breakdown">
+            <div class="treasurer-top">
+                <div class="treasurer-title"><i class="fa-solid fa-users-gear" style="color:var(--sidebar-bg);"></i> Total Saldo & Saldo "Held By" Masing-Masing Admin:</div>
+                <button class="btn-transfer-saldo" onclick="openTransferModal()"><i class="fa-solid fa-right-left"></i> Pindah Tangankan Saldo</button>
+            </div>
+            <div class="treasurer-badges" id="treasurer-badges-container"></div>
+        </div>
 
         <section class="finance-grid">
             <!-- 1. SPP Bulanan (Otomatis dari Billing) -->
@@ -409,7 +482,7 @@
                     </div>
                 </div>
                 <div style="background: rgba(255, 218, 133, 0.4); padding: 8px 12px; border-radius: 10px; margin-bottom: 10px; font-size: 0.75rem; font-weight: 800; color: var(--text-dark);">
-                    <i class="fa-solid fa-circle-info" style="color: var(--sidebar-bg);"></i> <strong>Catatan:</strong> Klik status bayar untuk mengubah status menjadi "Terbayar".
+                    <i class="fa-solid fa-circle-info" style="color: var(--sidebar-bg);"></i> <strong>Catatan:</strong> Klik status bayar untuk mengubah status menjadi "Terbayar" dan pilih admin eksekutor pemegang uang agar saldo "Held By" akurat.
                 </div>
 
                 <!-- Kotak Pencarian Atlet SPP Harian -->
@@ -426,6 +499,7 @@
                                 <th>Nama</th>
                                 <th>Nominal</th>
                                 <th>Status Bayar</th>
+                                <th>Held By</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -452,6 +526,7 @@
                                 <th>Tanggal</th>
                                 <th>Nama</th>
                                 <th>Nominal</th>
+                                <th>Held By</th>
                                 <th>Keterangan</th>
                                 <th>Aksi</th>
                             </tr>
@@ -479,6 +554,7 @@
                                 <th>Tanggal</th>
                                 <th>Catatan</th>
                                 <th>Nominal</th>
+                                <th>Held By</th>
                                 <th>Keterangan</th>
                                 <th>Aksi</th>
                             </tr>
@@ -506,6 +582,7 @@
                                 <th>Tanggal</th>
                                 <th>Catatan</th>
                                 <th>Nominal</th>
+                                <th>Held By</th>
                                 <th>Keterangan</th>
                                 <th>Aksi</th>
                             </tr>
@@ -522,12 +599,11 @@
     <datalist id="atletList"></datalist>
 
     <!-- Modals -->
-    <!-- Modal Input SPP Bulanan (Dengan Diskon & Dropdown Held By Admin) -->
+    <!-- Modal Input SPP Bulanan (Dengan Diskon & Toggle Diskon) -->
     <div class="modal-overlay" id="bulananModal" style="display: none;">
         <div class="modal-card">
             <h2><i class="fa-solid fa-calendar-check" style="color:var(--sidebar-bg);"></i> Input Arus SPP Bulanan</h2>
             <form id="bulananForm" onsubmit="handleBulananSubmit(event); return false;">
-                <input type="hidden" id="editBulananIndex">
                 <div class="form-group">
                     <label for="inputDateBulanan">Tanggal Pembayaran</label>
                     <input type="date" id="inputDateBulanan" class="clay-input" required>
@@ -539,12 +615,6 @@
                 <div class="form-group">
                     <label for="inputAmountBulanan">Nominal Bayar (Rp)</label>
                     <input type="number" id="inputAmountBulanan" class="clay-input" placeholder="Contoh: 150000" required>
-                </div>
-
-                <!-- Dropdown Held By Admin untuk SPP Bulanan -->
-                <div class="form-group">
-                    <label for="inputAccountBulanan">Held By (Admin Penerima Saldo/Uang)</label>
-                    <select id="inputAccountBulanan" class="clay-input" required></select>
                 </div>
 
                 <!-- Pengaturan Diskon dengan Toggle & Input Nilai -->
@@ -600,12 +670,60 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="inputAccount">Held By (Admin Eksekutor)</label>
+                    <select id="inputAccount" class="clay-input" required></select>
+                </div>
+                <div class="form-group">
                     <label for="inputKeterangan">Keterangan</label>
                     <input type="text" id="inputKeterangan" class="clay-input" placeholder="Keterangan tambahan...">
                 </div>
                 <div class="modal-btns">
                     <button type="button" class="btn-clay btn-cancel" onclick="closeModal('transactionModal')">Batal</button>
                     <button type="submit" class="btn-clay btn-save">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Pindah Tangankan Saldo Held By -->
+    <div class="modal-overlay" id="transferSaldoModal" style="display: none;">
+        <div class="modal-card">
+            <h2><i class="fa-solid fa-right-left" style="color:var(--sidebar-bg);"></i> Pindah Tangankan Saldo Held By</h2>
+            <form id="transferSaldoForm" onsubmit="handleTransferSaldo(event); return false;">
+                <div class="form-group">
+                    <label for="transferFromAdmin">Pilih Admin Pengirim (Sumber Saldo)</label>
+                    <select id="transferFromAdmin" class="clay-input" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="transferToAdmin">Pilih Admin Tujuan (Penerima Saldo)</label>
+                    <select id="transferToAdmin" class="clay-input" required></select>
+                </div>
+                <div style="background: rgba(255, 184, 198, 0.3); padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 0.8rem; font-weight: 800; color: var(--text-dark); line-height: 1.4;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--expense-color);"></i> <strong>Catatan:</strong> Memindahkan saldo held by kepada admin terpilih wajib memindahkan <u>seluruh saldo/data</u> yang tercatat pada held by yang menyerahkan.
+                </div>
+                <div class="modal-btns">
+                    <button type="button" class="btn-clay btn-cancel" onclick="closeTransferModal()">Batal</button>
+                    <button type="submit" class="btn-clay btn-save">Pindah Tangankan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Khusus Pemilihan Admin (Held By) saat Mengubah Status Pembayaran Harian Menjadi Terbayar -->
+    <div class="modal-overlay" id="modalStatusHarianAdmin" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="modal-card" style="background: var(--clay-pink); padding: 25px; border-radius: 30px; width: 350px; max-width: 90%; box-shadow: var(--clay-shadow-card);">
+            <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1rem; color: var(--text-dark); font-weight: 900;">Pilih Admin Penerima (Held By)</h3>
+            <p style="font-size: 0.85rem; color: var(--text-gray); margin-bottom: 15px; font-weight: 800;">Tentukan siapa admin yang membawa/menerima pembayaran uang harian ini:</p>
+            <form id="formStatusHarianAdmin" onsubmit="confirmToggleStatusBayar(event); return false;">
+                <input type="hidden" id="statusHarianIndexTarget">
+                <input type="hidden" id="statusHarianTargetValue">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="selectAdminPenerimaHarian" style="display: block; margin-bottom: 5px; font-weight: 900; color: var(--text-dark);">Admin Eksekutor</label>
+                    <select id="selectAdminPenerimaHarian" class="clay-input" style="width: 100%; padding: 8px;" required></select>
+                </div>
+                <div class="modal-btns">
+                    <button type="button" class="btn-clay btn-cancel" onclick="closeStatusHarianAdminModal()">Batal</button>
+                    <button type="submit" class="btn-clay btn-save">Konfirmasi</button>
                 </div>
             </form>
         </div>
@@ -629,6 +747,7 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             applyAppTheme();
+            sanitizeHeldByData();
             initFinanceModule();
             applyActiveRoleDisplay();
 
@@ -643,6 +762,13 @@
 
         function formatRp(angka) {
             return "Rp " + parseInt(angka || 0).toLocaleString("id-ID");
+        }
+
+        function formatPeriodStr(periodStr) {
+            if (!periodStr) return '-';
+            const [year, month] = periodStr.split('-');
+            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            return `${months[parseInt(month) - 1] || month} ${year}`;
         }
 
         let financeDB = JSON.parse(localStorage.getItem('KILAT_FINANCE_DB')) || {
@@ -709,6 +835,14 @@
                 } catch(e) {}
             }
 
+            if (!activeRole) {
+                let sidebarUserEl = document.querySelector('aside div, .sidebar-user, .user-profile, [class*="user"]');
+                if (sidebarUserEl && sidebarUserEl.innerText) {
+                    let lines = sidebarUserEl.innerText.split('\n');
+                    activeRole = lines[0].trim();
+                }
+            }
+
             if (!activeRole || activeRole.toLowerCase() === 'coach' || activeRole === 'admin') {
                 activeRole = 'Admin - admin demo 1';
             }
@@ -726,10 +860,11 @@
             }
         }
 
-        // --- MENGAMBIL DAFTAR ADMIN DARI PUSAT AKUN / LOCALSTORAGE ---
+        // --- PENYEMPURNAAN FINAL: MENGAMBIL ADMIN DARI SIDEBAR ATAU PUSAT AKUN ---
         function getValidAdminList() {
             let adminSet = new Set();
 
+            // 1. Ambil langsung dari tampilan sidebar (contoh: "Admin - admin demo 1")
             let sidebarUserEl = document.querySelector('aside div, .sidebar-user, .user-profile, [class*="user"]');
             if (sidebarUserEl && sidebarUserEl.innerText) {
                 let lines = sidebarUserEl.innerText.split('\n');
@@ -739,6 +874,7 @@
                 }
             }
 
+            // 2. Ambil dari penyimpanan localStorage Pusat Akun
             let registeredUsers = [];
             try {
                 registeredUsers = JSON.parse(
@@ -760,6 +896,7 @@
                 });
             }
 
+            // 3. Fallback mutlak agar tidak pernah menampilkan "Master Admin System"
             if (adminSet.size === 0) {
                 let currentActive = getActiveRole();
                 if (currentActive && !currentActive.includes('@')) {
@@ -772,19 +909,21 @@
             return Array.from(adminSet);
         }
 
-        function populateAdminSelects() {
+        function sanitizeHeldByData() {
             let validAdmins = getValidAdminList();
-            let selectBulananAccount = document.getElementById('inputAccountBulanan');
-            if (selectBulananAccount) {
-                selectBulananAccount.innerHTML = '';
-                validAdmins.forEach(adm => {
-                    selectBulananAccount.innerHTML += `<option value="${adm}">${adm}</option>`;
-                });
-                let activeRole = getActiveRole();
-                if (validAdmins.includes(activeRole)) {
-                    selectBulananAccount.value = activeRole;
+            let defaultAdmin = validAdmins[0] || 'Admin - admin demo 1';
+
+            ['bulanan', 'harian', 'daftar', 'lain', 'keluar'].forEach(cat => {
+                if (financeDB[cat]) {
+                    financeDB[cat].forEach(item => {
+                        let currentAcc = (item.account || '').trim();
+                        if (currentAcc.includes('@') || !validAdmins.includes(currentAcc)) {
+                            item.account = defaultAdmin;
+                        }
+                    });
                 }
-            }
+            });
+            saveFinanceDB();
         }
 
         function initFinanceModule() {
@@ -793,6 +932,7 @@
             if (document.getElementById('inputDate')) document.getElementById('inputDate').value = todayStr;
 
             applyActiveRoleDisplay();
+
             populateAdminSelects();
             populateAthleteDatalists();
 
@@ -809,6 +949,7 @@
 
             renderFinanceTables();
             updateFinanceSummary();
+            renderTreasurerBadges();
         }
 
         function getRegisteredAthletesList() {
@@ -845,6 +986,37 @@
                     el.setAttribute('list', 'atletList');
                 }
             });
+        }
+
+        function populateAdminSelects() {
+            let validAdmins = getValidAdminList();
+
+            let selectAccountEl = document.getElementById('inputAccount');
+            if (selectAccountEl) {
+                selectAccountEl.innerHTML = '';
+                validAdmins.forEach(adm => {
+                    selectAccountEl.innerHTML += `<option value="${adm}">${adm}</option>`;
+                });
+            }
+
+            let selectBulananAccount = document.getElementById('inputAccountBulanan');
+            if (selectBulananAccount) {
+                selectBulananAccount.innerHTML = '';
+                validAdmins.forEach(adm => {
+                    selectBulananAccount.innerHTML += `<option value="${adm}">${adm}</option>`;
+                });
+            }
+
+            let selectFrom = document.getElementById('transferFromAdmin');
+            let selectTo = document.getElementById('transferToAdmin');
+            if (selectFrom && selectTo) {
+                selectFrom.innerHTML = '';
+                selectTo.innerHTML = '';
+                validAdmins.forEach(adm => {
+                    selectFrom.innerHTML += `<option value="${adm}">${adm}</option>`;
+                    selectTo.innerHTML += `<option value="${adm}">${adm}</option>`;
+                });
+            }
         }
 
         function cleanDuplicateHarianRecords() {
@@ -929,7 +1101,7 @@
                         date: item.date || todayStr,
                         name: item.name || 'Atlet',
                         amount: parseInt(item.amount || 0),
-                        account: item.account || defaultAdmin,
+                        account: validAdmins.includes(item.account) ? item.account : defaultAdmin,
                         keterangan: ketStr,
                         period: periodVal,
                         isManual: false
@@ -942,50 +1114,13 @@
         }
 
         function renderFinanceTables() {
+            sanitizeHeldByData();
             cleanDuplicateHarianRecords();
-            renderTableBulananCustom();
+            renderTableCategory('bulanan', 'list-bulanan', 'total-bulanan');
             renderTableHarianCustom();
             renderTableCategory('daftar', 'list-daftar', 'total-daftar');
             renderTableCategory('lain', 'list-lain', 'total-lain');
             renderTableCategory('keluar', 'list-keluar', 'total-keluar');
-        }
-
-        function renderTableBulananCustom() {
-            const tbody = document.getElementById('list-bulanan');
-            const totalEl = document.getElementById('total-bulanan');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
-            let items = financeDB['bulanan'] || [];
-            let sumTotal = 0;
-
-            if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding: 15px; font-weight:800;">Belum ada data transaksi.</td></tr>`;
-                if (totalEl) totalEl.innerText = formatRp(0);
-                return;
-            }
-
-            items.forEach((item, index) => {
-                let currentAmount = parseInt(item.amount || 0);
-                sumTotal += currentAmount;
-
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${item.date || '-'}</td>
-                    <td><strong>${item.name || '-'}</strong></td>
-                    <td>${formatRp(item.amount)}</td>
-                    <td><span class="badge-account"><i class="fa-solid fa-user-shield"></i> ${item.account || 'Admin - admin demo 1'}</span></td>
-                    <td>${item.keterangan || '-'}</td>
-                    <td>
-                        <button type="button" class="btn-action-mini btn-edit" onclick="editTransaction('bulanan', ${index})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button type="button" class="btn-action-mini btn-delete" onclick="deleteTransaction('bulanan', ${index})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            if (totalEl) totalEl.innerText = formatRp(sumTotal);
         }
 
         function renderTableHarianCustom() {
@@ -1009,7 +1144,7 @@
             let sumTotalLunas = 0;
 
             if (filteredItems.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding: 15px; font-weight:800;">Tidak ada data transaksi harian yang cocok.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding: 15px; font-weight:800;">Tidak ada data transaksi harian yang cocok.</td></tr>`;
                 if (totalEl) totalEl.innerText = formatRp(0);
                 return;
             }
@@ -1028,7 +1163,8 @@
                     <td>${item.date || '-'}</td>
                     <td><strong>${item.name || '-'}</strong></td>
                     <td>${formatRp(item.amount)}</td>
-                    <td><span class="status-badge ${statusBadgeClass}" style="cursor:pointer;" onclick="toggleStatusBayar(${originalIndex})" title="Klik untuk ubah status bayar">${item.statusBayar || 'Belum Bayar'}</span></td>
+                    <td><span class="status-badge ${statusBadgeClass}" style="cursor:pointer;" onclick="promptStatusBayarAdmin(${originalIndex})" title="Klik untuk ubah status & pilih admin">${item.statusBayar || 'Belum Bayar'}</span></td>
+                    <td><span class="badge-account"><i class="fa-solid fa-user-shield"></i> ${item.account || 'Admin - admin demo 1'}</span></td>
                     <td>
                         <button type="button" class="btn-action-mini btn-edit" onclick="editTransaction('harian', ${originalIndex})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button type="button" class="btn-action-mini btn-delete" onclick="deleteTransaction('harian', ${originalIndex})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
@@ -1041,6 +1177,11 @@
         }
 
         function renderTableCategory(catKey, tbodyId, totalId) {
+            if (catKey === 'harian') {
+                renderTableHarianCustom();
+                return;
+            }
+
             const tbody = document.getElementById(tbodyId);
             const totalEl = document.getElementById(totalId);
             if (!tbody) return;
@@ -1050,7 +1191,7 @@
             let sumTotal = 0;
 
             if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding: 15px; font-weight:800;">Belum ada data transaksi.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding: 15px; font-weight:800;">Belum ada data transaksi.</td></tr>`;
                 if (totalEl) totalEl.innerText = formatRp(0);
                 return;
             }
@@ -1065,6 +1206,7 @@
                     <td>${item.date || '-'}</td>
                     <td><strong>${item.name || item.catatan || '-'}</strong></td>
                     <td>${formatRp(item.amount)}</td>
+                    <td><span class="badge-account"><i class="fa-solid fa-user-shield"></i> ${item.account || 'Admin - admin demo 1'}</span></td>
                     <td>${item.keterangan || '-'}</td>
                     <td>
                         <button type="button" class="btn-action-mini btn-edit" onclick="editTransaction('${catKey}', ${index})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -1100,6 +1242,61 @@
             if (globalPiutang) globalPiutang.innerText = formatRp(totalPiutang);
         }
 
+        // --- FUNGSI DINAMIS UNTUK RENDER CARD TOTAL HELD BY ADMIN (WARNA KUNING) ---
+        function renderTreasurerBadges() {
+            const container = document.getElementById('treasurer-badges-container');
+            if (!container) return;
+
+            let validAdmins = getValidAdminList();
+            let adminMap = {};
+
+            populateAdminSelects();
+
+            validAdmins.forEach(adm => { adminMap[adm] = 0; });
+
+            ['bulanan', 'harian', 'daftar', 'lain'].forEach(cat => {
+                (financeDB[cat] || []).forEach(item => {
+                    let adminName = (item.account || '').trim();
+                    if (!adminName || !adminMap.hasOwnProperty(adminName)) {
+                        adminName = validAdmins[0] || 'Admin - admin demo 1';
+                    }
+                    if (!adminMap.hasOwnProperty(adminName)) {
+                        adminMap[adminName] = 0;
+                    }
+                    let amt = (cat === 'harian' && item.statusBayar !== 'Terbayar') ? 0 : parseInt(item.amount || 0);
+                    adminMap[adminName] += amt;
+                });
+            });
+
+            (financeDB.keluar || []).forEach(item => {
+                let adminName = (item.account || '').trim();
+                if (!adminName || !adminMap.hasOwnProperty(adminName)) {
+                    adminName = validAdmins[0] || 'Admin - admin demo 1';
+                }
+                if (!adminMap.hasOwnProperty(adminName)) {
+                    adminMap[adminName] = 0;
+                }
+                let amt = parseInt(item.amount || 0);
+                adminMap[adminName] -= amt;
+            });
+
+            let html = '';
+            let adminsList = Object.keys(adminMap);
+            if (adminsList.length === 0) {
+                html = '<span style="font-size:0.8rem; color:var(--text-gray); font-weight:800;">Belum ada data Held By admin tercatat.</span>';
+            } else {
+                adminsList.forEach(adm => {
+                    html += `
+                        <div class="treasurer-badge">
+                            <span class="badge-name"><i class="fa-solid fa-user-shield"></i> ${adm}</span>
+                            <span class="badge-amount">${formatRp(adminMap[adm])}</span>
+                        </div>
+                    `;
+                });
+            }
+            container.innerHTML = html;
+        }
+
         window.openBulananModal = function() {
             const modal = document.getElementById('bulananModal');
             if (modal) {
@@ -1121,7 +1318,6 @@
             let editIdxEl = document.getElementById('editBulananIndex');
             if (editIdxEl) editIdxEl.value = '';
 
-            populateAdminSelects();
             populateAthleteDatalists();
         };
 
@@ -1136,7 +1332,8 @@
         window.handleBulananSubmit = function(e) {
             if (e) e.preventDefault();
             let validAdmins = getValidAdminList();
-            let defaultAdmin = validAdmins[0] || 'Admin - admin demo 1';
+            let activeRole = getActiveRole();
+            let defaultAdmin = validAdmins.includes(activeRole) ? activeRole : (validAdmins[0] || 'Admin - admin demo 1');
 
             let dateInputEl = document.getElementById('inputDateBulanan');
             let nameInputEl = document.getElementById('inputAtletBulanan') || document.getElementById('inputNameBulanan');
@@ -1197,6 +1394,7 @@
             saveFinanceDB();
             renderFinanceTables();
             updateFinanceSummary();
+            renderTreasurerBadges();
             closeBulananModal();
 
             let formEl = document.getElementById('bulananForm');
@@ -1212,6 +1410,7 @@
             const groupStatus = document.getElementById('groupStatusBayar');
             const labelName = document.getElementById('labelNameInput');
             const inputAmountEl = document.getElementById('inputAmount');
+            const inputAccount = document.getElementById('inputAccount');
             const inputDateEl = document.getElementById('inputDate');
             const inputNameEl = document.getElementById('inputName');
 
@@ -1226,10 +1425,21 @@
             const todayStr = new Date().toISOString().split('T')[0];
             if (inputDateEl) inputDateEl.value = todayStr;
 
+            populateAdminSelects();
             populateAthleteDatalists();
 
             if (inputNameEl) {
                 inputNameEl.setAttribute('list', 'atletList');
+            }
+
+            let activeRole = getActiveRole();
+            let validAdmins = getValidAdminList();
+            if (inputAccount && inputAccount.tagName === 'SELECT') {
+                if (validAdmins.includes(activeRole)) {
+                    inputAccount.value = activeRole;
+                } else {
+                    inputAccount.value = validAdmins[0] || '';
+                }
             }
 
             let formEl = document.getElementById('transactionForm');
@@ -1282,12 +1492,15 @@
             let nameInputEl = document.getElementById('inputName');
             let amountInputEl = document.getElementById('inputAmount');
             let statusBayarEl = document.getElementById('inputStatusBayar');
+            let accountInputEl = document.getElementById('inputAccount');
             let ketInputEl = document.getElementById('inputKeterangan');
 
+            let validAdmins = getValidAdminList();
             let dateVal = dateInputEl ? dateInputEl.value : new Date().toISOString().split('T')[0];
             let nameVal = nameInputEl ? nameInputEl.value.trim() : '';
             let defaultFallback = defaultNominals[category] !== undefined ? defaultNominals[category] : (category === 'harian' ? 25000 : 0);
             let amountVal = amountInputEl ? parseInt(amountInputEl.value) || defaultFallback : defaultFallback;
+            let accountVal = accountInputEl ? (accountInputEl.value.trim() || validAdmins[0]) : validAdmins[0];
             let statusBayarVal = statusBayarEl ? statusBayarEl.value : 'Belum Bayar';
             let ketVal = ketInputEl ? (ketInputEl.value.trim() || '-') : '-';
 
@@ -1330,6 +1543,7 @@
                 financeDB[category][editIndex].date = dateVal;
                 financeDB[category][editIndex].name = nameVal;
                 financeDB[category][editIndex].amount = amountVal;
+                financeDB[category][editIndex].account = accountVal;
                 financeDB[category][editIndex].keterangan = ketVal;
                 if (category === 'harian') {
                     financeDB[category][editIndex].statusBayar = statusBayarVal;
@@ -1339,6 +1553,7 @@
                     date: dateVal,
                     name: nameVal,
                     amount: amountVal,
+                    account: accountVal,
                     keterangan: ketVal
                 };
 
@@ -1352,6 +1567,7 @@
             saveFinanceDB();
             renderFinanceTables();
             updateFinanceSummary();
+            renderTreasurerBadges();
             closeModal('transactionModal');
 
             let formEl = document.getElementById('transactionForm');
@@ -1395,6 +1611,7 @@
                 let nameEl = document.getElementById('inputName');
                 let amountEl = document.getElementById('inputAmount');
                 let statusEl = document.getElementById('inputStatusBayar');
+                let accountEl = document.getElementById('inputAccount');
                 let ketEl = document.getElementById('inputKeterangan');
                 let idxEl = document.getElementById('editIndex');
 
@@ -1402,19 +1619,81 @@
                 if (nameEl) nameEl.value = item.name || item.catatan || '';
                 if (amountEl) amountEl.value = item.amount || 0;
                 if (statusEl) statusEl.value = item.statusBayar || 'Belum Bayar';
+                if (accountEl) accountEl.value = item.account || getValidAdminList()[0];
                 if (ketEl) ketEl.value = item.keterangan || '';
                 if (idxEl) idxEl.value = index;
             }
         };
 
-        window.toggleStatusBayar = function(index) {
+        window.promptStatusBayarAdmin = function(index) {
             let item = financeDB.harian[index];
             if (!item) return;
 
-            item.statusBayar = item.statusBayar === 'Terbayar' ? 'Belum Bayar' : 'Terbayar';
-            saveFinanceDB();
-            renderFinanceTables();
-            updateFinanceSummary();
+            let targetStatus = item.statusBayar === 'Terbayar' ? 'Belum Bayar' : 'Terbayar';
+
+            if (targetStatus === 'Belum Bayar') {
+                item.statusBayar = targetStatus;
+                saveFinanceDB();
+                renderFinanceTables();
+                updateFinanceSummary();
+                renderTreasurerBadges();
+                return;
+            }
+
+            let modal = document.getElementById('modalStatusHarianAdmin');
+            let indexInput = document.getElementById('statusHarianIndexTarget');
+            let valInput = document.getElementById('statusHarianTargetValue');
+            let selectAdmin = document.getElementById('selectAdminPenerimaHarian');
+
+            if (indexInput) indexInput.value = index;
+            if (valInput) valInput.value = targetStatus;
+
+            if (selectAdmin) {
+                let validAdmins = getValidAdminList();
+                selectAdmin.innerHTML = '';
+                validAdmins.forEach(adm => {
+                    let selectedAttr = (adm === item.account) ? 'selected' : '';
+                    selectAdmin.innerHTML += `<option value="${adm}" ${selectedAttr}>${adm}</option>`;
+                });
+            }
+
+            if (modal) {
+                modal.classList.add('show');
+                modal.style.setProperty('display', 'flex', 'important');
+            }
+        };
+
+        window.closeStatusHarianAdminModal = function() {
+            let modal = document.getElementById('modalStatusHarianAdmin');
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.setProperty('display', 'none', 'important');
+            }
+        };
+
+        window.confirmToggleStatusBayar = function(e) {
+            if (e) e.preventDefault();
+            let indexInput = document.getElementById('statusHarianIndexTarget');
+            let selectAdmin = document.getElementById('selectAdminPenerimaHarian');
+
+            if (indexInput && selectAdmin) {
+                let idx = parseInt(indexInput.value);
+                let chosenAdmin = selectAdmin.value;
+
+                let item = financeDB.harian[idx];
+                if (item) {
+                    item.statusBayar = 'Terbayar';
+                    item.account = chosenAdmin;
+
+                    saveFinanceDB();
+                    renderFinanceTables();
+                    updateFinanceSummary();
+                    renderTreasurerBadges();
+                }
+            }
+
+            closeStatusHarianAdminModal();
+            return false;
         };
 
         window.deleteTransaction = function(category, index) {
@@ -1423,7 +1702,55 @@
                 saveFinanceDB();
                 renderFinanceTables();
                 updateFinanceSummary();
+                renderTreasurerBadges();
             }
+        };
+
+        window.openTransferModal = function() {
+            const modal = document.getElementById('transferSaldoModal');
+            if (modal) {
+                modal.classList.add('show');
+                modal.style.display = 'flex';
+            }
+            populateAdminSelects();
+        };
+
+        window.closeTransferModal = function() {
+            const modal = document.getElementById('transferSaldoModal');
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+            }
+        };
+
+        window.handleTransferSaldo = function(e) {
+            if (e) e.preventDefault();
+            let fromAdmin = document.getElementById('transferFromAdmin').value;
+            let toAdmin = document.getElementById('transferToAdmin').value;
+
+            if (fromAdmin === toAdmin) {
+                alert("⚠️ Admin pengirim dan penerima tidak boleh sama!");
+                return false;
+            }
+
+            let countTransferred = 0;
+            ['bulanan', 'harian', 'daftar', 'lain', 'keluar'].forEach(cat => {
+                (financeDB[cat] || []).forEach(item => {
+                    if (item.account === fromAdmin) {
+                        item.account = toAdmin;
+                        countTransferred++;
+                    }
+                });
+            });
+
+            saveFinanceDB();
+            renderFinanceTables();
+            updateFinanceSummary();
+            renderTreasurerBadges();
+            closeTransferModal();
+
+            alert(`✅ Berhasil memindahtangankan ${countTransferred} data transaksi dari "${fromAdmin}" ke "${toAdmin}"!`);
+            return false;
         };
 
         // --- FUNGSI EKSPOR KE EXCEL / SPREADSHEET (CSV) DENGAN PADDING KOLOM SERAGAM ---
@@ -1461,7 +1788,7 @@
             addRow([]);
 
             addRow(["=== SPP HARIAN (ABSENSI & MANUAL) ==="]);
-            addRow(["No", "Tanggal", "Nama", "Nominal", "Status Bayar"]);
+            addRow(["No", "Tanggal", "Nama", "Nominal", "Status Bayar", "Held By"]);
             let totalHarianVal = 0;
             (financeDB.harian || []).forEach((item, idx) => {
                 let amt = parseInt(item.amount || 0);
@@ -1471,14 +1798,15 @@
                     item.date || '-',
                     `"${(item.name || '').replace(/"/g, '""')}"`,
                     amt,
-                    `"${(item.statusBayar || 'Belum Bayar').replace(/"/g, '""')}"`
+                    `"${(item.statusBayar || 'Belum Bayar').replace(/"/g, '""')}"`,
+                    `"${(item.account || '-').replace(/"/g, '""')}"`
                 ]);
             });
-            addRow(["Total Harian (Lunas)", "", "", totalHarianVal, ""]);
+            addRow(["Total Harian (Lunas)", "", "", totalHarianVal, "", ""]);
             addRow([]);
 
             addRow(["=== PENDAFTARAN (MANUAL) ==="]);
-            addRow(["No", "Tanggal", "Nama", "Nominal", "Keterangan"]);
+            addRow(["No", "Tanggal", "Nama", "Nominal", "Held By", "Keterangan"]);
             let totalDaftarVal = 0;
             (financeDB.daftar || []).forEach((item, idx) => {
                 let amt = parseInt(item.amount || 0);
@@ -1488,14 +1816,15 @@
                     item.date || '-',
                     `"${(item.name || '').replace(/"/g, '""')}"`,
                     amt,
+                    `"${(item.account || '-').replace(/"/g, '""')}"`,
                     `"${(item.keterangan || '').replace(/"/g, '""')}"`
                 ]);
             });
-            addRow(["Total Pendaftaran", "", "", totalDaftarVal, ""]);
+            addRow(["Total Pendaftaran", "", "", totalDaftarVal, "", ""]);
             addRow([]);
 
             addRow(["=== LAIN-LAIN (MANUAL) ==="]);
-            addRow(["No", "Tanggal", "Catatan", "Nominal", "Keterangan"]);
+            addRow(["No", "Tanggal", "Catatan", "Nominal", "Held By", "Keterangan"]);
             let totalLainVal = 0;
             (financeDB.lain || []).forEach((item, idx) => {
                 let amt = parseInt(item.amount || 0);
@@ -1505,14 +1834,15 @@
                     item.date || '-',
                     `"${(item.name || item.catatan || '').replace(/"/g, '""')}"`,
                     amt,
+                    `"${(item.account || '-').replace(/"/g, '""')}"`,
                     `"${(item.keterangan || '').replace(/"/g, '""')}"`
                 ]);
             });
-            addRow(["Total Lain-lain", "", "", totalLainVal, ""]);
+            addRow(["Total Lain-lain", "", "", totalLainVal, "", ""]);
             addRow([]);
 
             addRow(["=== PENGELUARAN (MANUAL) ==="]);
-            addRow(["No", "Tanggal", "Catatan", "Nominal", "Keterangan"]);
+            addRow(["No", "Tanggal", "Catatan", "Nominal", "Held By", "Keterangan"]);
             let totalKeluarVal = 0;
             (financeDB.keluar || []).forEach((item, idx) => {
                 let amt = parseInt(item.amount || 0);
@@ -1522,10 +1852,11 @@
                     item.date || '-',
                     `"${(item.name || item.catatan || '').replace(/"/g, '""')}"`,
                     amt,
+                    `"${(item.account || '-').replace(/"/g, '""')}"`,
                     `"${(item.keterangan || '').replace(/"/g, '""')}"`
                 ]);
             });
-            addRow(["Total Pengeluaran", "", "", totalKeluarVal, ""]);
+            addRow(["Total Pengeluaran", "", "", totalKeluarVal, "", ""]);
             addRow([]);
 
             let grandIncome = totalBulananVal + totalHarianVal + totalDaftarVal + totalLainVal;
@@ -1546,7 +1877,7 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            alert("✅ Laporan Keuangan berhasil diekspor ke file Excel/Spreadsheet secara rapi!");
+            alert("✅ Laporan Keuangan berhasil diekspor ke file Excel/Spreadsheet secara rapi sesuai kolom dan baris!");
         };
 
         function toggleDiscountField(checkbox) {
