@@ -62,7 +62,7 @@
                         <li><strong>Recreational / Fitness:</strong> Didesain untuk kenyamanan maksimal dengan *soft-boot*. Biasanya memiliki roda berukuran sedang (72mm-90mm). Sangat cocok untuk pemula dan olahraga kardio di taman.</li>
                         <li><strong>Urban / Freeskate:</strong> Menggunakan *hard-boot* berbahan plastik kokoh agar tahan terhadap benturan. Diciptakan untuk menaklukkan aspal kota, melompat, dan bermanuver di lingkungan urban.</li>
                         <li><strong>Aggressive Inline:</strong> Memiliki konstruksi paling kuat dengan roda yang sangat kecil (biasanya 55mm-60mm) dan bentuk dasar *soul-plate* lebar. Dirancang khusus untuk melompat di skatepark, *grinding* di pipa, dan melakukan trik ekstrem.</li>
-                        <li><strong>Freestyle Slalom:</strong> Sepatu presisi tinggi dengan *frame* pendek. Menggunakan konfigurasi roda "pisang" (*rockered*), di mana roda tengah lebih besar dari roda ujung, untuk memberikan kelincahan ekstrem saat menari melewati deretan *cone*.</li>
+                        <li><strong>Freestyle Slalom:</strong> Sepatu presisi tinggi dengan *frame* pendek. Menggunakan konfigurasi roda "banana" (*rockered*), di mana roda tengah lebih besar dari roda ujung, untuk memberikan kelincahan ekstrem saat menari melewati deretan *cone*.</li>
                         <li><strong>Speed Skating:</strong> Ciri khasnya adalah *boot* kulit karbon yang dipotong rendah di bawah mata kaki untuk fleksibilitas dorongan. Menggunakan *frame* panjang dengan ukuran roda raksasa (100mm hingga 125mm) demi mencapai kecepatan maksimal.</li>
                     </ul>
                 </div>
@@ -78,9 +78,9 @@
                 <div class="card-desc">
                     <p>Di bawah naungan organisasi seperti PORSEROSI (Indonesia) dan World Skate (Internasional), inline skate memiliki berbagai cabang kejuaraan resmi:</p>
                     <ul>
-                        <li><strong>Speed Skating (Balap Sepatu Roda):</strong> Cabang paling populer di KILAT. Atlet beradu kecepatan di sirkuit velodrome, trek lintasan oval, hingga maraton jalan raya. Membutuhkan daya tahan fisik dan teknik aerodinamika tinggi.</li>
-                        <li><strong>Classic & Battle Slalom:</strong> Cabang kompetisi di mana atlet menunjukkan koreografi, teknik keseimbangan ekstrem, dan transisi gerakan melintasi cone dalam batas waktu tertentu. Dinilai dari tingkat kesulitan, gaya, dan presisi.</li>
-                        <li><strong>Skatecross / Bladeross:</strong> Balapan melewati lintasan halang rintang ekstrem (seperti trek motocross) dengan menggunakan sepatu urban/freeskate.</li>
+                        <li><strong>Speed Skating (Balap Sepatu Roda):</strong> Atlet beradu kecepatan di sirkuit velodrome, trek lintasan oval, hingga maraton jalan raya. Membutuhkan daya tahan fisik dan teknik aerodinamika tinggi.</li>
+                        <li><strong>Classic & Battle Slalom:</strong> Cabang paling populer di KILAT. kompetisi di mana atlet menunjukkan koreografi, teknik keseimbangan ekstrem, dan transisi gerakan melintasi cone dalam batas waktu tertentu. Dinilai dari tingkat kesulitan, gaya, dan presisi.</li>
+                        <li><strong>Skatecross:</strong> Balapan melewati lintasan halang rintang ekstrem (seperti trek motocross) dengan menggunakan sepatu urban/freeskate.</li>
                         <li><strong>Inline Hockey:</strong> Mengadaptasi aturan hoki es ke lapangan keras. Menggunakan bola khusus atau *puck* beroda.</li>
                     </ul>
                 </div>

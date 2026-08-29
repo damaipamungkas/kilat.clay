@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+<<<<<<< HEAD
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +11,51 @@ use Illuminate\Support\Facades\Log;
 class AthleteController extends Controller
 {
     public function index()
+=======
+use App\Models\Athlete;
+use App\Models\AthleteEditRequest;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
+class AthleteController extends Controller
+{
+    // Method untuk menyimpan data atlet baru sekaligus membuat akun User dengan role 'atlet'
+    public function store(Request $request)
+    {
+        // Validasi input sesuai kebutuhan
+        $request->validate([
+            'nama_lengkap' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+        ]);
+
+        // 1. Buat akun di tabel users terlebih dahulu
+        $user = User::create([
+            'namalengkap' => $request->nama_lengkap,
+            'email' => $request->email,
+            'username' => $request->email, // atau sesuaikan dengan input username jika ada
+            'password' => Hash::make($request->password),
+            'role' => 'atlet',
+            'status' => 'Aktif',
+        ]);
+
+        // 2. Simpan data ke tabel athletes (hubungkan dengan user_id jika diperlukan)
+        Athlete::create([
+            'user_id' => $user->id,
+            'nama_lengkap' => $request->nama_lengkap,
+            // Tambahkan field lain sesuai tabel Anda
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akun dan data atlet berhasil dibuat!'
+        ]);
+    }
+
+    // Method untuk memproses klik "Simpan" pada Edit Data Atlet
+    public function updateRequest(Request $request, $id)
+>>>>>>> 18a593e9daed664e8703aac1c40824fc1d2ce11c
     {
         $athletes = User::where('role', 'atlet')->get();
         return view('admin.athletes.index', compact('athletes'));
