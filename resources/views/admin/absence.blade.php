@@ -42,7 +42,7 @@
                 <div class="absence-stat-icon"><i class="fa-solid fa-users"></i></div>
                 <div class="absence-stat-info">
                     <h3>Total Terdaftar</h3>
-                    <div class="value" id="stat-total">0</div>
+                    <div class="value" id="stat-total">{{ count($athletes ?? []) }}</div>
                 </div>
             </div>
             <div class="absence-stat-card">
@@ -64,7 +64,7 @@
         <!-- TOOLBAR / FILTER KONTROL PANEL -->
         <section class="toolbar absence-toolbar">
             <div class="absence-filter-row">
-                <input type="date" id="filterDate" class="clay-input-absence" onchange="renderAttendance()">
+                <input type="date" id="filterDate" class="clay-input-absence" onchange="renderAttendance()" value="{{ date('Y-m-d') }}">
                 <select id="filterGroup" class="clay-input-absence" onchange="renderAttendance()">
                     <option value="All">Semua Kelas</option>
                     <option value="Pemula">Pemula</option>
@@ -89,9 +89,83 @@
                 <div>KELAS</div>
                 <div>STATUS</div>
             </div>
-            <div id="attendanceContainer"></div>
+            <div id="attendanceContainer">
+                @forelse($athletes ?? [] as $athlete)
+                    <div class="clay-table-grid clay-table-row athlete-row" data-class="{{ $athlete->kelas ?? 'Pemula' }}" data-name="{{ strtolower($athlete->nama_lengkap ?? $athlete->name) }}">
+                        <div class="name-cell">
+                            <input type="checkbox" name="selected_athletes[]" value="{{ $athlete->id ?? $athlete->nickname }}" class="row-checkbox athlete-checkbox" onchange="toggleAttendanceRow('{{ $athlete->id ?? $athlete->nickname }}', this.checked)">
+                        </div>
+                        <div class="font-semibold">{{ $athlete->nama_lengkap ?? $athlete->name ?? $athlete->nickname }}</div>
+                        <div class="attendance-options">
+                            <button type="button" class="btn-att btn-status-active" onclick="setAttendanceStatus('{{ $athlete->id ?? $athlete->nickname }}', 'masuk')" style="padding: 6px 12px; font-size:0.75rem; cursor:pointer; border-radius:8px; border:none; font-weight:800; background:var(--c-masuk); color:#fff; box-shadow:var(--clay-shadow-btn);"><i class="fa-solid fa-check"></i> Masuk</button>
+                            <button type="button" class="btn-att btn-status-inactive" onclick="setAttendanceStatus('{{ $athlete->id ?? $athlete->nickname }}', 'tidak_masuk')" style="padding: 6px 12px; font-size:0.75rem; cursor:pointer; border-radius:8px; border:none; font-weight:800; background:var(--bg-main); color:var(--text-dark); box-shadow:var(--clay-shadow-btn);"><i class="fa-solid fa-xmark"></i> Tidak</button>
+                        </div>
+                        <div>{{ $athlete->kelas ?? 'Pemula' }}</div>
+                        <div><span class="badge-status sb-aktif" style="background:var(--c-masuk); color:#fff; padding:4px 8px; border-radius:6px; font-weight:800; font-size:0.75rem;">{{ $athlete->status ?? 'Aktif' }}</span></div>
+                    </div>
+                @empty
+                    <div class="text-center py-4 text-gray-500" style="padding: 20px; text-align: center; grid-column: span 5;">Belum ada data atlet terdaftar dari Appendix.</div>
+                @endforelse
+            </div>
         </div>
     </main>
+
+    <!-- Injeksi Data Atlet dari Backend Laravel ke JS (Termasuk Sinkronisasi LocalStorage Appendix) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            let serverAthletes = @json($athletes ?? []);
+
+            // Gabungkan sumber data dari Appendix localStorage seperti pada Pusat Akun
+            let athletesList = JSON.parse(localStorage.getItem('KILAT_ATHLETES_LIST')) || [];
+            let athletesDataStore = JSON.parse(localStorage.getItem('athletes_data')) || [];
+
+            let combinedMap = new Map();
+
+            // Masukkan data dari server Laravel terlebih dahulu
+            serverAthletes.forEach(usr => {
+                let identifier = (usr.id || usr.nickname || usr.name || usr.nama_lengkap).toString();
+                combinedMap.set(identifier, {
+                    id: identifier,
+                    nama_lengkap: usr.nama_lengkap || usr.name || usr.nickname,
+                    kelas: usr.kelas || 'Pemula',
+                    status: usr.status || 'Aktif'
+                });
+            });
+
+            // Masukkan data dari KILAT_ATHLETES_LIST / KILAT_BIO_
+            athletesList.forEach(nick => {
+                let bio = JSON.parse(localStorage.getItem('KILAT_BIO_' + nick)) || {};
+                let identifier = nick.toString();
+                if (!combinedMap.has(identifier)) {
+                    combinedMap.set(identifier, {
+                        id: identifier,
+                        nama_lengkap: bio.fullName || nick,
+                        kelas: bio.kelas || 'Pemula',
+                        status: bio.status || 'Aktif'
+                    });
+                }
+            });
+
+            // Masukkan data dari athletes_data store Appendix
+            athletesDataStore.forEach(item => {
+                let nick = item.name || item.nickname || item.id;
+                let identifier = (item.id || nick).toString();
+                if (identifier && !combinedMap.has(identifier)) {
+                    combinedMap.set(identifier, {
+                        id: identifier,
+                        nama_lengkap: item.fullName || item.name || nick,
+                        kelas: item.kelas || 'Pemula',
+                        status: item.status || 'Aktif'
+                    });
+                }
+            });
+
+            window.allAthletes = Array.from(combinedMap.values());
+            if (typeof window.renderAttendance === 'function') {
+                window.renderAttendance();
+            }
+        });
+    </script>
 
     <!-- JS Terpisah -->
     <script src="{{ asset('js/admin/absence.js') }}"></script>

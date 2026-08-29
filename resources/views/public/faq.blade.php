@@ -1,8 +1,23 @@
+@php
+    // Pusat Komando Pusat Bantuan & FAQ - KILAT⚡
+    $user = auth()->user();
+    $rawRole = $user ? strtolower(trim($user->role ?? '')) : '';
+    $userName = $user ? strtolower(trim($user->name ?? $user->username ?? '')) : '';
+
+    if (str_contains($userName, 'admin') || str_contains($rawRole, 'admin')) {
+        $rawRole = 'admin';
+    }
+
+    $isAdmin = ($rawRole === 'admin');
+    $isLoggedIn = ($user ? true : false);
+    $userEmailUnique = $user ? ($user->email ?? $userName) : 'guest_visitor';
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pusat Bantuan & FAQ - KILAT</title>
 
     <!-- Font & Icons -->
@@ -16,7 +31,6 @@
         .btn-faq-edit { background: #3b82f6; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .btn-faq-save { background: #22c55e; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem; display: none; }
 
-        /* Perbaikan: Ukuran kotak editor pertanyaan memenuhi lebar teks/kontainer */
         .faq-q-text { width: 100%; display: block; }
         .faq-edit-input { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-family: 'Nunito', sans-serif; box-sizing: border-box; margin-bottom: 5px; background: #fff; color: #333; display: block; }
         textarea.faq-edit-input { resize: vertical; min-height: 70px; }
@@ -27,6 +41,7 @@
         .ai-chat-modal { position: fixed; bottom: 95px; right: 25px; width: 350px; max-width: 90vw; height: 480px; background: #ffffff; border-radius: 16px; box-shadow: 0 12px 35px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; z-index: 1000; transform: translateY(20px); opacity: 0; pointer-events: none; transition: all 0.3s ease; }
         .ai-chat-modal.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
         .ai-chat-header { background: linear-gradient(135deg, #6366f1, #a855f7); color: #fff; padding: 15px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; }
+        .ai-chat-header-actions { display: flex; align-items: center; gap: 10px; }
         .ai-chat-header button { background: none; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; }
         .ai-chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8fafc; font-family: 'Nunito', sans-serif; }
         .ai-message { padding: 10px 14px; border-radius: 12px; font-size: 0.9rem; max-width: 80%; line-height: 1.4; word-break: break-word; }
@@ -51,12 +66,13 @@
             linkTag.setAttribute('href', `{{ asset('') }}${savedFolder}/${fileName}`);
         }
 
-        // Terapkan pesan sambutan awal dari pengaturan setting jika ada
         const savedWelcomeMsg = localStorage.getItem('KILAT_AI_WELCOME_MSG');
         const botWelcomeEl = document.getElementById('aiBotWelcomeText');
         if (savedWelcomeMsg && botWelcomeEl) {
             botWelcomeEl.innerText = savedWelcomeMsg;
         }
+
+        loadChatHistory();
     });
 </script>
 
@@ -96,10 +112,12 @@
                             <span class="faq-a-text">Pada dasarnya tidak ada usia minimal untukengikuti kelas sepatu roda, semakin dini semakin baik untuk melatih motorik dan keseimbangan anak umumnya sudah siap untuk menerima materi dasar pengenalan <em>inline skate</em>. Namun tantangannya adalah semakin dini usia anak maka semakin berat juga untuk memberi arahan, karena pada usia dibawah 5 tahun memang masa bermain, jadi tetap membutuhkan kontribusi orang tua untuk bekerjasama dengan para pelatih agar perkembangan anak jadi lebih baik.</span>
                         </div>
                     </div>
-                    <div class="faq-admin-actions admin-container" style="display: none;">
+                    @if($isAdmin)
+                    <div class="faq-admin-actions">
                         <button type="button" class="btn-faq-edit" onclick="toggleEditFaq(this)">Edit FAQ</button>
                         <button type="button" class="btn-faq-save" onclick="saveFaqData(this)">Simpan</button>
                     </div>
+                    @endif
                 </div>
 
                 <!-- FAQ ITEM 2 -->
@@ -113,10 +131,12 @@
                             <span class="faq-a-text">Untuk sesi <span class="highlight">Trial (Percobaan)</span>, kami menyediakan penyewaan alat lengkap. Namun, jika sudah resmi mendaftar sebagai <em>Member</em>, diwajibkan untuk memiliki peralatan sendiri demi kenyamanan dan higienitas atlet. Namun sebelum membeli perlengkapan juga diwajibkan untuk konsultasi terlenih dahulu agar tidak terjadi kesalahan dalam membeli perlengkapan yang standar.</span>
                         </div>
                     </div>
-                    <div class="faq-admin-actions admin-container" style="display: none;">
+                    @if($isAdmin)
+                    <div class="faq-admin-actions">
                         <button type="button" class="btn-faq-edit" onclick="toggleEditFaq(this)">Edit FAQ</button>
                         <button type="button" class="btn-faq-save" onclick="saveFaqData(this)">Simpan</button>
                     </div>
+                    @endif
                 </div>
 
                 <!-- FAQ ITEM 3 -->
@@ -130,10 +150,12 @@
                             <span class="faq-a-text">Latihan rutin kami laksanakan di area Parkiran lantai 6 <span class="highlight">Kediri Mall</span> dan <span class="highlight">Pasar Setono Betek </span>lantai 2. Jadwal spesifik bervariasi bergantung pada kelas (Pemula/junior 1/Junior 2), umumnya dilaksanakan pada sore hari (Selasa & Jumat).</span>
                         </div>
                     </div>
-                    <div class="faq-admin-actions admin-container" style="display: none;">
+                    @if($isAdmin)
+                    <div class="faq-admin-actions">
                         <button type="button" class="btn-faq-edit" onclick="toggleEditFaq(this)">Edit FAQ</button>
                         <button type="button" class="btn-faq-save" onclick="saveFaqData(this)">Simpan</button>
                     </div>
+                    @endif
                 </div>
 
                 <!-- FAQ ITEM 4 -->
@@ -147,10 +169,12 @@
                             <span class="faq-a-text">Iuran dibayarkan setiap tanggal 1 hingga 10 pada awal bulan. Pembayaran dapat dilakukan secara <span class="highlight">Cash (Tunai)</span> kepada admin di lokasi, atau melalui transfer via Bank BCA.</span>
                         </div>
                     </div>
-                    <div class="faq-admin-actions admin-container" style="display: none;">
+                    @if($isAdmin)
+                    <div class="faq-admin-actions">
                         <button type="button" class="btn-faq-edit" onclick="toggleEditFaq(this)">Edit FAQ</button>
                         <button type="button" class="btn-faq-save" onclick="saveFaqData(this)">Simpan</button>
                     </div>
+                    @endif
                 </div>
 
                 <!-- FAQ ITEM 5 -->
@@ -164,10 +188,12 @@
                             <span class="faq-a-text"><span class="highlight">Tidak ada batas maksimal usia.</span> Kami juga menyediakan kelas dewasa (kategori <em>Urban</em> & <em>Fitness</em>) yang ingin sekadar menjadikan <em>inline skate</em> sebagai hobi pembakar kalori yang menyenangkan, kabar baiknya adalah tidak perlu mengeluarkan biaya tambahan untuk kelas dewasa, namun juga tidak ada materi khusus yang diajarkan.</span>
                         </div>
                     </div>
-                    <div class="faq-admin-actions admin-container" style="display: none;">
+                    @if($isAdmin)
+                    <div class="faq-admin-actions">
                         <button type="button" class="btn-faq-edit" onclick="toggleEditFaq(this)">Edit FAQ</button>
                         <button type="button" class="btn-faq-save" onclick="saveFaqData(this)">Simpan</button>
                     </div>
+                    @endif
                 </div>
 
                 <!-- FAQ ITEM 6 -->
@@ -181,10 +207,12 @@
                             <span class="faq-a-text">Perkembangan setiap individu berbeda-beda. Namun rata-rata anak-anak maupun dewasa sudah mampu berdiri seimbang dan meluncur dasar setelah <span class="highlight">4 hingga 8 kali sesi pertemuan</span> (kurang lebih 1 bulan latihan rutin).</span>
                         </div>
                     </div>
-                    <div class="faq-admin-actions admin-container" style="display: none;">
+                    @if($isAdmin)
+                    <div class="faq-admin-actions">
                         <button type="button" class="btn-faq-edit" onclick="toggleEditFaq(this)">Edit FAQ</button>
                         <button type="button" class="btn-faq-save" onclick="saveFaqData(this)">Simpan</button>
                     </div>
+                    @endif
                 </div>
 
             </div>
@@ -211,8 +239,11 @@
 
 <div class="ai-chat-modal" id="aiChatModal">
     <div class="ai-chat-header">
-        <span>⚡ Asisten AI KILAT</span>
-        <button onclick="toggleAiChat()"><i class="fa-solid fa-xmark"></i></button>
+        <span>⚡ Asisten AI KILAT (tahap pengembangan)</span>
+        <div class="ai-chat-header-actions">
+            <button onclick="clearChatHistory()" title="Hapus Riwayat Chat" style="font-size: 0.9rem;"><i class="fa-solid fa-trash-can"></i></button>
+            <button onclick="toggleAiChat()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
     </div>
     <div class="ai-chat-body" id="aiChatBody">
         <div class="ai-message bot" id="aiBotWelcomeText">Halo! Saya Asisten AI KILAT. Ada yang bisa saya bantu terkait jadwal latihan, biaya, atau informasi seputar sekolah sepatu roda KILAT?</div>
@@ -229,44 +260,17 @@
 <!-- JS Bawaan & Fitur Interaktif FAQ -->
 <script src="{{ asset('js/public.js') }}"></script>
 <script>
+    const isUserLoggedIn = @json($isLoggedIn);
+    const userUniqueKey = "{{ $userEmailUnique }}";
+
     document.addEventListener("DOMContentLoaded", function() {
-        checkAndApplyAdminPermissions();
         loadSavedFaqFromStorage();
         initFaqAccordion();
         initFaqSearch();
     });
 
-    // --- Cek Hak Akses Admin ---
-    function checkIsAdmin() {
-        try {
-            const session = JSON.parse(localStorage.getItem('KILAT_CURRENT_USER') || localStorage.getItem('kilat_user_data') || 'null');
-            const users = JSON.parse(localStorage.getItem('manageUsersData') || localStorage.getItem('KILAT_USERS') || '[]');
-            if (!session) return false;
-
-            const email = (session.email || session.username || '').toLowerCase().trim();
-            const role = (session.role || '').toUpperCase().trim();
-
-            if (email === 'admin.super@kilat.com' || role === 'ADMIN') return true;
-
-            const found = users.find(u =>
-                ((u.email && u.email.toLowerCase().trim() === email) || (u.username && u.username.toLowerCase().trim() === email)) &&
-                ((u.role || '').toUpperCase().trim() === 'ADMIN')
-            );
-            return !!found;
-        } catch(e) {
-            return false;
-        }
-    }
-
-    function checkAndApplyAdminPermissions() {
-        if (checkIsAdmin()) {
-            document.querySelectorAll('.admin-container').forEach(el => {
-                el.style.display = 'flex';
-            });
-        }
-    }
-
-    // --- Fitur Edit & Simpan FAQ ---
+    @if($isAdmin)
+    // --- Fitur Edit & Simpan FAQ (Khusus Admin) ---
     function toggleEditFaq(btn) {
         const item = btn.closest('.faq-item');
         const saveBtn = item.querySelector('.btn-faq-save');
@@ -314,6 +318,7 @@
         });
         localStorage.setItem('KILAT_FAQ_CUSTOM_DATA', JSON.stringify(faqData));
     }
+    @endif
 
     function loadSavedFaqFromStorage() {
         const saved = JSON.parse(localStorage.getItem('KILAT_FAQ_CUSTOM_DATA') || '{}');
@@ -335,7 +340,6 @@
     function initFaqAccordion() {
         document.querySelectorAll('.faq-question').forEach(q => {
             q.addEventListener('click', function(e) {
-                // Jangan toggle accordion jika klik sedang dalam mode edit input
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
                 const item = this.parentElement;
@@ -378,7 +382,68 @@
         });
     }
 
-    // --- Integrasi Chat AI Gemini ---
+    // --- Manajemen Riwayat Chat & Sesi AI ---
+    function getStorageKey() {
+        return isUserLoggedIn ? `KILAT_CHAT_USER_${userUniqueKey}` : 'KILAT_CHAT_GUEST_SESSION';
+    }
+
+    function loadChatHistory() {
+        const storageKey = getStorageKey();
+        const savedData = localStorage.getItem(storageKey);
+        const chatBody = document.getElementById('aiChatBody');
+
+        if (!savedData) return;
+
+        try {
+            const parsed = JSON.parse(savedData);
+
+            if (!isUserLoggedIn && parsed.timestamp) {
+                const now = new Date().getTime();
+                const hoursElapsed = (now - parsed.timestamp) / (1000 * 60 * 60);
+                if (hoursElapsed > 24) {
+                    localStorage.removeItem(storageKey);
+                    return;
+                }
+            }
+
+            if (parsed.messages && parsed.messages.length > 0) {
+                let historyHtml = `<div class="ai-message bot" id="aiBotWelcomeText">${escapeHtml(localStorage.getItem('KILAT_AI_WELCOME_MSG') || 'Halo! Saya Asisten AI KILAT. Ada yang bisa saya bantu terkait jadwal latihan, biaya, atau informasi seputar sekolah sepatu roda KILAT?')}</div>`;
+
+                parsed.messages.forEach(msg => {
+                    historyHtml += `<div class="ai-message ${msg.sender}">${escapeHtml(msg.text)}</div>`;
+                });
+
+                chatBody.innerHTML = historyHtml;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        } catch(e) {
+            console.error("Gagal memuat riwayat chat", e);
+        }
+    }
+
+    function saveMessageToHistory(sender, text) {
+        const storageKey = getStorageKey();
+        let savedData = JSON.parse(localStorage.getItem(storageKey) || '{"timestamp": ' + new Date().getTime() + ', "messages": []}');
+
+        savedData.messages.push({ sender, text });
+
+        if (!isUserLoggedIn) {
+            savedData.timestamp = new Date().getTime();
+        }
+
+        localStorage.setItem(storageKey, JSON.stringify(savedData));
+    }
+
+    function clearChatHistory() {
+        if (confirm("Apakah Anda yakin ingin menghapus seluruh riwayat percakapan dengan Asisten AI?")) {
+            localStorage.removeItem(getStorageKey());
+            const chatBody = document.getElementById('aiChatBody');
+            const welcomeMsg = localStorage.getItem('KILAT_AI_WELCOME_MSG') || 'Halo! Saya Asisten AI KILAT. Ada yang bisa saya bantu terkait jadwal latihan, biaya, atau informasi seputar sekolah sepatu roda KILAT?';
+            chatBody.innerHTML = `<div class="ai-message bot" id="aiBotWelcomeText">${escapeHtml(welcomeMsg)}</div>`;
+        }
+    }
+
+    // --- Integrasi Chat AI Gemini via Backend Laravel ---
     function toggleAiChat() {
         const modal = document.getElementById('aiChatModal');
         modal.classList.toggle('active');
@@ -398,6 +463,8 @@
         if (!userMsg) return;
 
         chatBody.innerHTML += `<div class="ai-message user">${escapeHtml(userMsg)}</div>`;
+        saveMessageToHistory('user', userMsg);
+
         inputEl.value = '';
         chatBody.scrollTop = chatBody.scrollHeight;
 
@@ -406,65 +473,55 @@
         chatBody.scrollTop = chatBody.scrollHeight;
 
         try {
-            // 1. Ambil FAQ Context yang aktif di halaman
             let faqContext = "";
             document.querySelectorAll('.faq-item').forEach(item => {
                 const qTextEl = item.querySelector('.faq-q-text');
                 const aTextEl = item.querySelector('.faq-a-text');
-
                 const q = qTextEl ? qTextEl.textContent.trim() : '';
                 const a = aTextEl ? aTextEl.textContent.trim() : '';
                 if(q && a) faqContext += `- Q: ${q}\n  A: ${a}\n`;
             });
 
-            // 2. Ambil Aturan Khusus (Persona/Rules) dan Basis Pengetahuan (Knowledge Base) yang diset di halaman Setting
             const customRules = localStorage.getItem('KILAT_AI_SYSTEM_RULES') || "Selalu jawab dengan ramah dan sopan.";
             const knowledgeBase = localStorage.getItem('KILAT_AI_KNOWLEDGE_BASE') || "";
             const customInstruction = localStorage.getItem('KILAT_AI_CUSTOM_INSTRUCTION') || "Semangat meluncur bersama KILAT!";
 
-            // 3. Masukkan API Key Gemini dengan aman dari environment Laravel
-            const apiKey = "{{ config('services.google.api_key') ?? env('GOOGLE_API_KEY') }}";
-
-            // 4. Susun prompt lengkap dengan menyertakan aturan setting dan knowledge base secara dinamis
-            const prompt = `Anda adalah asisten AI resmi untuk "KILAT" (Kediri Inline Skate School).
-
-ATURAN KHUSUS / PERSONA AI:
-${customRules}
-
-BASIS PENGETAHUAN TAMBAHAN (KNOWLEDGE BASE / DOKUMEN / RIWAYAT CHAT):
-${knowledgeBase ? knowledgeBase : "(Tidak ada tambahan pengetahuan khusus)"}
-
-INFORMASI FAQ UTAMA:
-${faqContext}
-
-TANDA TANGAN / FOOTER / INSTRUKSI TAMBAHAN DI AKHIR PESAN:
-${customInstruction}
-
-Pertanyaan Pengguna: ${userMsg}`;
-
-            // Menggunakan gemini-3.6-flash
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
+            const response = await fetch("{{ url('/api/ai-chat') }}", {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }]
+                    message: userMsg,
+                    faqContext: faqContext,
+                    customRules: customRules,
+                    knowledgeBase: knowledgeBase,
+                    customInstruction: customInstruction
                 })
             });
 
             const data = await response.json();
 
             let botReply = "Maaf, terjadi kendala saat memproses jawaban.";
-            if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-                botReply = data.candidates[0].content.parts[0].text;
+
+            if (data.reply) {
+                botReply = data.reply;
             } else if (data.error) {
-                botReply = "Error dari API: " + (data.error.message || "Periksa kembali API Key Anda.");
+                botReply = "Error: " + data.error;
+            } else if (data.message) {
+                botReply = data.message;
             }
 
             document.getElementById(loadingId).remove();
             chatBody.innerHTML += `<div class="ai-message bot">${escapeHtml(botReply)}</div>`;
+            saveMessageToHistory('bot', botReply);
+
         } catch (error) {
             document.getElementById(loadingId).remove();
-            chatBody.innerHTML += `<div class="ai-message bot">Maaf, terjadi kesalahan koneksi jaringan ke sistem AI.</div>`;
+            let errorReply = "Koneksi ke server gagal. Silakan hubungi kami melalui bagian kontak di halaman utama.";
+            chatBody.innerHTML += `<div class="ai-message bot">${escapeHtml(errorReply)}</div>`;
+            saveMessageToHistory('bot', errorReply);
         }
 
         chatBody.scrollTop = chatBody.scrollHeight;

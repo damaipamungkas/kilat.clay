@@ -1,3 +1,40 @@
+@php
+    // Pusat Komando Keuangan - KILAT⚡
+    $user = Auth::user();
+
+    // Logika tambahan untuk mendeteksi atlet dan daftar admin terdaftar dari database server (Tanpa Master Admin System statis jika tidak ada di DB)
+    $linkedAthletes = [];
+    $systemAdmins = [];
+
+    if (isset($user)) {
+        if (method_exists($user, 'athletes') && $user->athletes) {
+            $linkedAthletes = $user->athletes;
+        } elseif (!empty($user->atletTautan)) {
+            $linkedAthletes = is_array($user->atletTautan) ? $user->atletTautan : json_decode($user->atletTautan, true);
+        }
+
+        // Mengambil daftar admin asli yang benar-benar terdaftar di database server
+        if (class_exists(\App\Models\User::class)) {
+            $dbAdmins = \App\Models\User::whereIn('role', ['admin', 'administrator', 'Master Admin', 'master', 'admin 1'])
+                ->orWhere(function($query) {
+                    $query->where('name', 'LIKE', '%admin%')
+                          ->orWhere('role', 'LIKE', '%admin%');
+                })
+                ->pluck('name')
+                ->unique()
+                ->toArray();
+
+            if (!empty($dbAdmins)) {
+                $systemAdmins = $dbAdmins;
+            }
+        }
+    }
+
+    // Jika database kosong atau belum mendeteksi admin lain, gunakan user aktif yang sedang login sebagai admin utama yang valid
+    if (empty($systemAdmins)) {
+        $systemAdmins = [$user->name ?? 'Admin'];
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -313,6 +350,41 @@
         .frame-total.income { color: var(--income-color); }
         .frame-total.expense { color: var(--expense-color); }
 
+        /* ==========================================================================
+           CUSTOM SELECT / DROPDOWN & INPUT Kustomisasi Tema Claymorphism
+           ========================================================================== */
+        .custom-select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .custom-select-wrapper select.clay-input {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            border: none;
+            padding-right: 40px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .custom-select-wrapper::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            pointer-events: none;
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+        .custom-select-wrapper.open::after {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
         /* CSS Tambahan untuk Toggle Switch Diskon pada Modal Bulanan */
         .clay-checkbox-wrapper {
             display: flex;
@@ -413,7 +485,7 @@
         <header class="header">
             <h1>Keuangan</h1>
             <div class="header-icons">
-                <div class="role-indicator" id="currentRoleDisplay"><i class="fa-solid fa-user-shield"></i> Role: <span id="activeRoleName">Master Admin</span></div>
+                <div class="role-indicator" id="currentRoleDisplay"><i class="fa-solid fa-user-shield"></i> Role: <span id="activeRoleName">{{ $user->name ?? 'Admin' }}</span></div>
                 <button class="icon-btn" title="Cetak Laporan" onclick="window.print()"><i class="fa-solid fa-print"></i></button>
                 <button class="icon-btn" title="Ekspor ke Excel / Spreadsheet" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i></button>
             </div>
@@ -616,6 +688,12 @@
                     <label for="inputAmountBulanan">Nominal Bayar (Rp)</label>
                     <input type="number" id="inputAmountBulanan" class="clay-input" placeholder="Contoh: 150000" required>
                 </div>
+                <div class="form-group">
+                    <label for="inputAccountBulanan">Held By (Admin Eksekutor)</label>
+                    <div class="custom-select-wrapper">
+                        <select id="inputAccountBulanan" class="clay-input" required></select>
+                    </div>
+                </div>
 
                 <!-- Pengaturan Diskon dengan Toggle & Input Nilai -->
                 <div class="form-group">
@@ -664,14 +742,18 @@
                 </div>
                 <div class="form-group" id="groupStatusBayar" style="display:none;">
                     <label for="inputStatusBayar">Status Bayar</label>
-                    <select id="inputStatusBayar" class="clay-input">
-                        <option value="Belum Bayar">Belum Bayar</option>
-                        <option value="Terbayar">Terbayar</option>
-                    </select>
+                    <div class="custom-select-wrapper">
+                        <select id="inputStatusBayar" class="clay-input">
+                            <option value="Belum Bayar">Belum Bayar</option>
+                            <option value="Terbayar">Terbayar</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="inputAccount">Held By (Admin Eksekutor)</label>
-                    <select id="inputAccount" class="clay-input" required></select>
+                    <div class="custom-select-wrapper">
+                        <select id="inputAccount" class="clay-input" required></select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="inputKeterangan">Keterangan</label>
@@ -692,11 +774,15 @@
             <form id="transferSaldoForm" onsubmit="handleTransferSaldo(event); return false;">
                 <div class="form-group">
                     <label for="transferFromAdmin">Pilih Admin Pengirim (Sumber Saldo)</label>
-                    <select id="transferFromAdmin" class="clay-input" required></select>
+                    <div class="custom-select-wrapper">
+                        <select id="transferFromAdmin" class="clay-input" required></select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="transferToAdmin">Pilih Admin Tujuan (Penerima Saldo)</label>
-                    <select id="transferToAdmin" class="clay-input" required></select>
+                    <div class="custom-select-wrapper">
+                        <select id="transferToAdmin" class="clay-input" required></select>
+                    </div>
                 </div>
                 <div style="background: rgba(255, 184, 198, 0.3); padding: 12px; border-radius: 12px; margin-bottom: 15px; font-size: 0.8rem; font-weight: 800; color: var(--text-dark); line-height: 1.4;">
                     <i class="fa-solid fa-triangle-exclamation" style="color: var(--expense-color);"></i> <strong>Catatan:</strong> Memindahkan saldo held by kepada admin terpilih wajib memindahkan <u>seluruh saldo/data</u> yang tercatat pada held by yang menyerahkan.
@@ -719,7 +805,9 @@
                 <input type="hidden" id="statusHarianTargetValue">
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label for="selectAdminPenerimaHarian" style="display: block; margin-bottom: 5px; font-weight: 900; color: var(--text-dark);">Admin Eksekutor</label>
-                    <select id="selectAdminPenerimaHarian" class="clay-input" style="width: 100%; padding: 8px;" required></select>
+                    <div class="custom-select-wrapper">
+                        <select id="selectAdminPenerimaHarian" class="clay-input" style="width: 100%; padding: 8px;" required></select>
+                    </div>
                 </div>
                 <div class="modal-btns">
                     <button type="button" class="btn-clay btn-cancel" onclick="closeStatusHarianAdminModal()">Batal</button>
@@ -733,6 +821,9 @@
     <script src="{{ asset('js/admin/finance.js') }}"></script>
     <script src="{{ asset('js/beranda_admin.js') }}"></script>
     <script>
+        // Sinkronisasi data server Laravel ke JavaScript
+        const serverAdminList = @json($systemAdmins);
+
         // --- SCRIPT PENERAPAN TEMA OTOMATIS DARI SETTING ---
         function applyAppTheme() {
             let savedTheme = localStorage.getItem('KILAT_THEME') ||
@@ -751,6 +842,13 @@
             initFinanceModule();
             applyActiveRoleDisplay();
 
+            // Setup Custom Select Wrapper Event Listeners untuk panah dropdown selalu interaktif & responsif
+            document.querySelectorAll('.custom-select-wrapper select').forEach(select => {
+                select.addEventListener('focus', () => select.parentElement.classList.add('open'));
+                select.addEventListener('blur', () => select.parentElement.classList.remove('open'));
+                select.addEventListener('change', () => select.parentElement.classList.remove('open'));
+            });
+
             const targetNode = document.getElementById('activeRoleName');
             if (targetNode) {
                 const observer = new MutationObserver((mutations) => {
@@ -762,13 +860,6 @@
 
         function formatRp(angka) {
             return "Rp " + parseInt(angka || 0).toLocaleString("id-ID");
-        }
-
-        function formatPeriodStr(periodStr) {
-            if (!periodStr) return '-';
-            const [year, month] = periodStr.split('-');
-            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            return `${months[parseInt(month) - 1] || month} ${year}`;
         }
 
         let financeDB = JSON.parse(localStorage.getItem('KILAT_FINANCE_DB')) || {
@@ -844,7 +935,7 @@
             }
 
             if (!activeRole || activeRole.toLowerCase() === 'coach' || activeRole === 'admin') {
-                activeRole = 'Admin - admin demo 1';
+                activeRole = serverAdminList[0] || 'Admin';
             }
 
             return activeRole;
@@ -860,21 +951,10 @@
             }
         }
 
-        // --- PENYEMPURNAAN FINAL: MENGAMBIL ADMIN DARI SIDEBAR ATAU PUSAT AKUN ---
+        // --- MENYELARASKAN PERSIS DENGAN JALUR AKUN ADMIN ASLI (SERVER & LOCALSTORAGE) ---
         function getValidAdminList() {
-            let adminSet = new Set();
+            let adminSet = new Set(serverAdminList);
 
-            // 1. Ambil langsung dari tampilan sidebar (contoh: "Admin - admin demo 1")
-            let sidebarUserEl = document.querySelector('aside div, .sidebar-user, .user-profile, [class*="user"]');
-            if (sidebarUserEl && sidebarUserEl.innerText) {
-                let lines = sidebarUserEl.innerText.split('\n');
-                let activeName = lines[0].trim();
-                if (activeName && !activeName.toLowerCase().includes('role') && !activeName.includes('@')) {
-                    adminSet.add(activeName);
-                }
-            }
-
-            // 2. Ambil dari penyimpanan localStorage Pusat Akun
             let registeredUsers = [];
             try {
                 registeredUsers = JSON.parse(
@@ -886,9 +966,9 @@
 
             if (registeredUsers.length > 0) {
                 registeredUsers.forEach(u => {
-                    let roleStr = (u.role || '').toUpperCase().trim();
-                    let nameVal = u.namaLengkap || u.nama || u.username || u.name;
-                    if (roleStr.includes('ADMIN') || roleStr.includes('MASTER') || roleStr === 'ADMIN') {
+                    let roleStr = (u.role || '').toLowerCase().trim();
+                    let nameVal = u.namaLengkap || u.name || u.nama_lengkap || u.username;
+                    if (roleStr === 'admin' || roleStr.includes('admin') || roleStr.includes('master')) {
                         if (nameVal && !nameVal.includes('@')) {
                             adminSet.add(nameVal);
                         }
@@ -896,14 +976,17 @@
                 });
             }
 
-            // 3. Fallback mutlak agar tidak pernah menampilkan "Master Admin System"
+            let currentActive = getActiveRole();
+            if (currentActive && !currentActive.includes('@')) {
+                adminSet.add(currentActive);
+            }
+
+            // Bersihkan sisa data dummy bawaan seperti Master Admin System jika tidak ada di database/local storage asli
+            adminSet.delete("Master Admin System");
+
             if (adminSet.size === 0) {
-                let currentActive = getActiveRole();
-                if (currentActive && !currentActive.includes('@')) {
-                    adminSet.add(currentActive);
-                } else {
-                    adminSet.add("Admin - admin demo 1");
-                }
+                adminSet.add("admin 1");
+                adminSet.add("damai");
             }
 
             return Array.from(adminSet);
@@ -911,13 +994,13 @@
 
         function sanitizeHeldByData() {
             let validAdmins = getValidAdminList();
-            let defaultAdmin = validAdmins[0] || 'Admin - admin demo 1';
+            let defaultAdmin = validAdmins[0] || 'Admin';
 
             ['bulanan', 'harian', 'daftar', 'lain', 'keluar'].forEach(cat => {
                 if (financeDB[cat]) {
                     financeDB[cat].forEach(item => {
                         let currentAcc = (item.account || '').trim();
-                        if (currentAcc.includes('@') || !validAdmins.includes(currentAcc)) {
+                        if (currentAcc === 'Master Admin System' || currentAcc.includes('@') || !validAdmins.includes(currentAcc)) {
                             item.account = defaultAdmin;
                         }
                     });
@@ -1058,7 +1141,7 @@
 
         function syncBillingInvoicesToFinance(todayStr) {
             let validAdmins = getValidAdminList();
-            let defaultAdmin = validAdmins[0] || 'Admin - admin demo 1';
+            let defaultAdmin = validAdmins[0] || 'Admin';
 
             let savedInvoices = JSON.parse(localStorage.getItem('KILAT_SAVED_INVOICES')) || [];
             let billingPaid = JSON.parse(localStorage.getItem('KILAT_BILLING_PAID')) || [];
@@ -1158,13 +1241,14 @@
 
                 let tr = document.createElement('tr');
                 let statusBadgeClass = item.statusBayar === 'Terbayar' ? 'status-paid' : 'status-unpaid';
+                let currentHeldBy = item.account || getValidAdminList()[0];
                 tr.innerHTML = `
                     <td>${originalIndex + 1}</td>
                     <td>${item.date || '-'}</td>
                     <td><strong>${item.name || '-'}</strong></td>
                     <td>${formatRp(item.amount)}</td>
                     <td><span class="status-badge ${statusBadgeClass}" style="cursor:pointer;" onclick="promptStatusBayarAdmin(${originalIndex})" title="Klik untuk ubah status & pilih admin">${item.statusBayar || 'Belum Bayar'}</span></td>
-                    <td><span class="badge-account"><i class="fa-solid fa-user-shield"></i> ${item.account || 'Admin - admin demo 1'}</span></td>
+                    <td><span class="badge-account"><i class="fa-solid fa-user-shield"></i> ${currentHeldBy}</span></td>
                     <td>
                         <button type="button" class="btn-action-mini btn-edit" onclick="editTransaction('harian', ${originalIndex})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
                         <button type="button" class="btn-action-mini btn-delete" onclick="deleteTransaction('harian', ${originalIndex})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
@@ -1201,12 +1285,13 @@
                 sumTotal += currentAmount;
 
                 let tr = document.createElement('tr');
+                let currentHeldBy = item.account || getValidAdminList()[0];
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${item.date || '-'}</td>
                     <td><strong>${item.name || item.catatan || '-'}</strong></td>
                     <td>${formatRp(item.amount)}</td>
-                    <td><span class="badge-account"><i class="fa-solid fa-user-shield"></i> ${item.account || 'Admin - admin demo 1'}</span></td>
+                    <td><span class="badge-account"><i class="fa-solid fa-user-shield"></i> ${currentHeldBy}</span></td>
                     <td>${item.keterangan || '-'}</td>
                     <td>
                         <button type="button" class="btn-action-mini btn-edit" onclick="editTransaction('${catKey}', ${index})" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -1242,7 +1327,6 @@
             if (globalPiutang) globalPiutang.innerText = formatRp(totalPiutang);
         }
 
-        // --- FUNGSI DINAMIS UNTUK RENDER CARD TOTAL HELD BY ADMIN (WARNA KUNING) ---
         function renderTreasurerBadges() {
             const container = document.getElementById('treasurer-badges-container');
             if (!container) return;
@@ -1257,8 +1341,8 @@
             ['bulanan', 'harian', 'daftar', 'lain'].forEach(cat => {
                 (financeDB[cat] || []).forEach(item => {
                     let adminName = (item.account || '').trim();
-                    if (!adminName || !adminMap.hasOwnProperty(adminName)) {
-                        adminName = validAdmins[0] || 'Admin - admin demo 1';
+                    if (!adminName || adminName === 'Master Admin System' || !adminMap.hasOwnProperty(adminName)) {
+                        adminName = validAdmins[0] || 'Admin';
                     }
                     if (!adminMap.hasOwnProperty(adminName)) {
                         adminMap[adminName] = 0;
@@ -1270,8 +1354,8 @@
 
             (financeDB.keluar || []).forEach(item => {
                 let adminName = (item.account || '').trim();
-                if (!adminName || !adminMap.hasOwnProperty(adminName)) {
-                    adminName = validAdmins[0] || 'Admin - admin demo 1';
+                if (!adminName || adminName === 'Master Admin System' || !adminMap.hasOwnProperty(adminName)) {
+                    adminName = validAdmins[0] || 'Admin';
                 }
                 if (!adminMap.hasOwnProperty(adminName)) {
                     adminMap[adminName] = 0;
@@ -1318,6 +1402,7 @@
             let editIdxEl = document.getElementById('editBulananIndex');
             if (editIdxEl) editIdxEl.value = '';
 
+            populateAdminSelects();
             populateAthleteDatalists();
         };
 
@@ -1333,7 +1418,7 @@
             if (e) e.preventDefault();
             let validAdmins = getValidAdminList();
             let activeRole = getActiveRole();
-            let defaultAdmin = validAdmins.includes(activeRole) ? activeRole : (validAdmins[0] || 'Admin - admin demo 1');
+            let defaultAdmin = validAdmins.includes(activeRole) ? activeRole : (validAdmins[0] || 'Admin');
 
             let dateInputEl = document.getElementById('inputDateBulanan');
             let nameInputEl = document.getElementById('inputAtletBulanan') || document.getElementById('inputNameBulanan');

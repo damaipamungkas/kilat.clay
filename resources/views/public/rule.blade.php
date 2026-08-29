@@ -1,3 +1,15 @@
+@php
+    // Pusat Komando Tata Tertib & Peraturan - KILAT⚡
+    $user = auth()->user();
+    $rawRole = $user ? strtolower(trim($user->role ?? '')) : '';
+    $userName = $user ? strtolower(trim($user->name ?? $user->username ?? '')) : '';
+
+    if (str_contains($userName, 'admin') || str_contains($rawRole, 'admin')) {
+        $rawRole = 'admin';
+    }
+
+    $isAdmin = ($rawRole === 'admin');
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -83,33 +95,43 @@
                             <tr>
                                 <th style="width: 50px;">No</th>
                                 <th>Ketentuan / Peraturan</th>
+                                @if($isAdmin)
                                 <th class="admin-col" style="width: 70px; display: none;">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
                                 <td class="editable-cell">Menjaga ketenangan, kenyamanan, dan keamanan</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>2</td>
                                 <td class="editable-cell">Barang bawaan hilang/rusak tanggung jawab masing-masing.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>3</td>
                                 <td class="editable-cell">Menjaga kebersihan di tempat latihan.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <button type="button" class="btn-rule-add" onclick="addTableRow(this)"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
-                <div class="card-admin-action admin-container" style="display: none;">
+                @if($isAdmin)
+                <button type="button" class="btn-rule-add" onclick="addTableRow(this)" style="display: none;"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
+                <div class="card-admin-action admin-container">
                     <button type="button" class="btn-rule-edit" onclick="toggleEditCard(this)">Edit Card</button>
                     <button type="button" class="btn-rule-save" onclick="saveCardData(this)">Simpan</button>
                 </div>
+                @endif
             </div>
         </div>
 
@@ -123,58 +145,78 @@
                             <tr>
                                 <th style="width: 50px;">No</th>
                                 <th>Ketentuan / Peraturan</th>
+                                @if($isAdmin)
                                 <th class="admin-col" style="width: 70px; display: none;">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
                                 <td class="editable-cell">Mengikuti trial sebelum registrasi/pendaftaran.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>2</td>
                                 <td class="editable-cell">Saat trial boleh pinjam sepatu roda maksimal 30 menit (jika ada antrian trial).</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>3</td>
                                 <td class="editable-cell">Diwajibkan membawa sepatu running/sejenisnya dan memakai kaos kaki.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>4</td>
                                 <td class="editable-cell">Mengisi formulir pendaftaran, (mendaftar akun, dan mengisi identitas atlet pada website)</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>5</td>
                                 <td class="editable-cell">Membayar biaya pendaftaran dan Biaya bulanan/insidental.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>6</td>
                                 <td class="editable-cell">Membawa air minum (selain air putih harap tidak dibawa saat latihan).</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>7</td>
                                 <td class="editable-cell">Memfasilitasi diri dengan perlengkapan latihan (sepatu roda, pelindung, helm, P3K).</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>8</td>
                                 <td class="editable-cell">Disarankan berangkat lebih awal dari jadwal yang telah ditentukan.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <button type="button" class="btn-rule-add" onclick="addTableRow(this)"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
-                <div class="card-admin-action admin-container" style="display: none;">
+                @if($isAdmin)
+                <button type="button" class="btn-rule-add" onclick="addTableRow(this)" style="display: none;"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
+                <div class="card-admin-action admin-container">
                     <button type="button" class="btn-rule-edit" onclick="toggleEditCard(this)">Edit Card</button>
                     <button type="button" class="btn-rule-save" onclick="saveCardData(this)">Simpan</button>
                 </div>
+                @endif
             </div>
         </div>
 
@@ -188,48 +230,64 @@
                             <tr>
                                 <th style="width: 50px;">No</th>
                                 <th>Ketentuan / Peraturan</th>
+                                @if($isAdmin)
                                 <th class="admin-col" style="width: 70px; display: none;">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
                                 <td class="editable-cell">Biaya pendaftaran senilai Rp. 150.000 dengan fasilitas jersey, akses raport, merchandise, dll.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>2</td>
                                 <td class="editable-cell">Iuran bulanan: Satu atlet Rp. 150.000/bulan, Dua atlet atau lebih Rp. 125.000/bulan (8x pertemuan).</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>3</td>
                                 <td class="editable-cell">Atlet baru daftar tengah/akhir bulan dikenakan Rp. 20.000 x sisa pertemuan (dibayar di awal).</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>4</td>
                                 <td class="editable-cell">Insidental dikenakan Rp. 25.000/latihan.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>5</td>
                                 <td class="editable-cell">Iuran bulanan dibayar tanggal 1-10 pada awal bulan, berakhir maksimal tanggal 31.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>6</td>
                                 <td class="editable-cell">Peserta insidental jika ingin akses raport dikenakan Rp. 25.000 (data latihan masuk arsip).</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <button type="button" class="btn-rule-add" onclick="addTableRow(this)"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
-                <div class="card-admin-action admin-container" style="display: none;">
+                @if($isAdmin)
+                <button type="button" class="btn-rule-add" onclick="addTableRow(this)" style="display: none;"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
+                <div class="card-admin-action admin-container">
                     <button type="button" class="btn-rule-edit" onclick="toggleEditCard(this)">Edit Card</button>
                     <button type="button" class="btn-rule-save" onclick="saveCardData(this)">Simpan</button>
                 </div>
+                @endif
             </div>
         </div>
 
@@ -243,48 +301,64 @@
                             <tr>
                                 <th style="width: 50px;">No</th>
                                 <th>Ketentuan / Peraturan</th>
+                                @if($isAdmin)
                                 <th class="admin-col" style="width: 70px; display: none;">Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>1</td>
                                 <td class="editable-cell">Jadwal latihan diatur sesuai kelas, bergabung jadwal lain berisiko kehilangan materi/nilai.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>2</td>
                                 <td class="editable-cell">Libur karena event lomba atau izin wali atlet tidak wajib diganti jadwalnya oleh KILAT.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>3</td>
                                 <td class="editable-cell">Setiap event lomba ada biaya pendampingan transport pelatih jika didampingi.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>4</td>
                                 <td class="editable-cell">Wali atlet (dewasa) yang ikut berlatih gratis namun tidak mendapat treatment khusus.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>5</td>
                                 <td class="editable-cell">Cedera saat latihan ditangani P3K pelatih; lanjutan medis menjadi kewajiban wali atlet.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                             <tr>
                                 <td>6</td>
                                 <td class="editable-cell">Peraturan dapat berubah sewaktu-waktu dan diumumkan melalui grup WhatsApp.</td>
+                                @if($isAdmin)
                                 <td class="admin-col" style="display: none;"><button type="button" class="btn-rule-del" onclick="deleteTableRow(this)"><i class="fa-solid fa-trash"></i></button></td>
+                                @endif
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <button type="button" class="btn-rule-add" onclick="addTableRow(this)"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
-                <div class="card-admin-action admin-container" style="display: none;">
+                @if($isAdmin)
+                <button type="button" class="btn-rule-add" onclick="addTableRow(this)" style="display: none;"><i class="fa-solid fa-plus"></i> Tambah Baris</button>
+                <div class="card-admin-action admin-container">
                     <button type="button" class="btn-rule-edit" onclick="toggleEditCard(this)">Edit Card</button>
                     <button type="button" class="btn-rule-save" onclick="saveCardData(this)">Simpan</button>
                 </div>
+                @endif
             </div>
         </div>
 

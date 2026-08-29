@@ -49,11 +49,49 @@
 
     @include('layouts.slider')
 
-    <!-- GALERI -->
+    <!-- GALERI (Sinkronisasi PHP & JS ke public/images) -->
     <section class="gallery-section position-relative" id="target-galeri">
-
         <h2 class="gallery-title">Galeri Dokumentasi KILAT</h2>
-        <div class="carousel-wrapper" id="carousel-wrapper"></div>
+
+        @php
+            // 1. Ambil data dari session server (hasil upload admin)
+            $serverGallery = session()->get('server_gallery_images', []);
+
+            // 2. Scan folder fisik public/images secara otomatis
+            $publicImagesPath = public_path('images');
+            $scannedImages = [];
+
+            if (is_dir($publicImagesPath)) {
+                $files = scandir($publicImagesPath);
+                foreach ($files as $file) {
+                    if (!in_array($file, ['.', '..']) && preg_match('/\.(jpg|jpeg|png|webp)$/i', $file)) {
+                        $scannedImages[] = asset('images/' . $file);
+                    }
+                }
+            }
+
+            // Gabungkan gambar dari session server dan scan folder public/images
+            $combinedGallery = array_unique(array_merge($serverGallery, $scannedImages));
+        @endphp
+
+        <!-- Injeksi data gambar server ke variabel JS global agar terbaca public.js -->
+        <script>
+            window.SERVER_GALLERY_IMAGES = @json($combinedGallery);
+        </script>
+
+        <div class="carousel-wrapper" id="carousel-wrapper" style="display: flex; overflow-x: auto; gap: 15px; scroll-behavior: smooth; padding: 10px 0;">
+            @forelse($combinedGallery as $imgUrl)
+                <div class="gallery-item" style="min-width: 280px; flex: 0 0 auto;">
+                    <img src="{{ $imgUrl }}" alt="Galeri KILAT" style="width: 100%; height: 260px; object-fit: cover; border-radius: 16px; box-shadow: var(--clay-shadow-btn);" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1565992441121-4367c2967103?auto=format&fit=crop&w=600&q=80'">
+                </div>
+            @empty
+                <!-- Fallback jika folder kosong -->
+                <div class="gallery-item" style="min-width: 280px; flex: 0 0 auto;">
+                    <img src="{{ asset('images/default-galeri.jpg') }}" alt="Galeri KILAT" style="width: 100%; height: 260px; object-fit: cover; border-radius: 16px; box-shadow: var(--clay-shadow-btn);" onerror="this.src='https://images.unsplash.com/photo-1565992441121-4367c2967103?auto=format&fit=crop&w=600&q=80'">
+                </div>
+            @endforelse
+        </div>
+
         <div class="gallery-controls">
             <button class="gallery-btn" onclick="moveSlide(-1)" title="Sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>
             <button class="gallery-btn" onclick="moveSlide(1)" title="Selanjutnya"><i class="fa-solid fa-chevron-right"></i></button>
@@ -65,7 +103,6 @@
         <!-- FRAME 1: KELAS KURSUS -->
         <div class="tech-card">
             <div class="card-bg pastel-blue">
-
                 <div class="floating-icons">
                     <i class="fa-solid fa-fingerprint"></i>
                     <i class="fa-solid fa-heart"></i>
@@ -90,7 +127,6 @@
         <!-- FRAME 2: TESTIMONI -->
         <div class="tech-card">
             <div class="card-bg pastel-yellow">
-
                 <div class="floating-icons">
                     <i class="fa-solid fa-star text-amber"></i>
                 </div>

@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AdminSettingController;
@@ -67,6 +69,34 @@ Route::prefix('admin')->middleware(['auth', 'role:admin,Admin,administrator'])->
     Route::post('/athlete/store', [AthleteController::class, 'store'])->name('athlete.store');
     Route::delete('/athlete/delete/{id}', [AthleteController::class, 'destroy'])->name('athlete.destroy');
     Route::post('/athlete/approve-edit/{id}', [AthleteController::class, 'approveEdit'])->name('athlete.approveEdit');
+
+    // Route Upload Galeri Server Terintegrasi di Grup Admin
+    Route::post('/gallery/upload', function (Request $request) {
+        if ($request->hasFile('images')) {
+            $uploadedPaths = [];
+            foreach ($request->file('images') as $image) {
+                // Simpan file secara fisik ke folder public/images
+                $filename = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('images'), $filename);
+
+                // Simpan path relatif untuk ditampilkan di galeri beranda
+                $uploadedPaths[] = asset('images/' . $filename);
+            }
+
+            // Simpan daftar path ke session agar bisa diakses secara dinamis di Beranda
+            $existingGallery = session()->get('server_gallery_images', []);
+            $combined = array_merge($uploadedPaths, $existingGallery);
+            session()->put('server_gallery_images', $combined);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil mengunggah foto ke folder public/images!',
+                'images' => $combined
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Tidak ada file yang dipilih!'], 400);
+    })->name('gallery.upload');
 });
 
 // ==========================================
@@ -82,3 +112,4 @@ Route::middleware(['auth', 'role:admin,Admin,administrator,coach,pelatih'])->gro
 });
 
 Route::post('/ai-chat', [AiChatController::class, 'handleChat']);
+Route::post('/api/ai-chat', [AiChatController::class, 'handleChat']);

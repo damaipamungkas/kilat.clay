@@ -543,9 +543,6 @@ select.bio-input:disabled { appearance: none; -webkit-appearance: none; color: v
 
         @if($role === 'admin')
             <button id="btnSettings" class="btn-settings">⚙️ Pengaturan</button>
-            <button id="btnPendingNotif" class="curr-btn btn-yellow" style="display: inline-flex; align-items: center; gap: 4px; position: relative;" title="Verifikasi Atlet Baru">
-                🔔 Pending <span class="badge-count" style="background: red; color: white; padding: 1px 5px; border-radius: 50%; font-size: 9px; display: none;">0</span>
-            </button>
         @endif
     </div>
 </div>

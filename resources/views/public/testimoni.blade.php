@@ -93,9 +93,15 @@
                 <textarea id="pesan" class="sci-fi-input" placeholder="Apa yang membuat Anda atau Ananda bertahan di KILAT⚡?" required></textarea>
             </div>
 
-            <button type="submit" class="btn-neon" style="margin-top: 10px;">
-                KIRIM TESTIMONI <i class="fa-solid fa-paper-plane"></i>
-            </button>
+            <!-- Tombol Aksi Form (Kirim & Hapus Ulasan) -->
+            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                <button type="submit" class="btn-neon" style="flex: 2; margin-top: 0;">
+                    KIRIM TESTIMONI <i class="fa-solid fa-paper-plane"></i>
+                </button>
+                <button type="button" id="deleteReviewBtn" class="btn-neon" onclick="deleteUserTestimonial()" style="display: none; flex: 1; background: #ff6b81 !important; color: white !important; margin-top: 0;" title="Hapus ulasan yang sudah Anda kirim">
+                    HAPUS ULASAN <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </div>
 
         </form>
     </div>
@@ -108,7 +114,7 @@
 
     <footer class="footer">
         <div>Verified Review Hub</div>
-@include('layouts.footer')
+        @include('layouts.footer')
         <div>Portal Interaktif</div>
     </footer>
 </div>
@@ -124,6 +130,62 @@
         <button class="btn-neon" onclick="closeSuccess()" style="padding: 14px 20px; font-size:1rem;">TUTUP PESAN</button>
     </div>
 </div>
+
+<!-- Script Khusus Manajemen Hapus Ulasan -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Cek apakah akun aktif sudah memiliki ulasan tersimpan
+        checkExistingTestimonialState();
+    });
+
+    function getActiveAccountIdentifier() {
+        let currentUser = JSON.parse(localStorage.getItem('KILAT_CURRENT_USER') ||
+                                    localStorage.getItem('kilat_user_data') || 'null');
+        if (!currentUser) {
+            let registeredUsers = JSON.parse(localStorage.getItem('KILAT_USERS') || localStorage.getItem('users_data') || '[]');
+            if (registeredUsers.length > 0) {
+                currentUser = registeredUsers[0];
+            }
+        }
+        return currentUser ? (currentUser.username || currentUser.email || currentUser.name || currentUser.nama || 'default_user') : 'default_user';
+    }
+
+    function checkExistingTestimonialState() {
+        const accountKey = getActiveAccountIdentifier();
+        let storedTesti = JSON.parse(localStorage.getItem('KILAT_TESTIMONIALS') ||
+                                      localStorage.getItem('public_testimonials') ||
+                                      localStorage.getItem('testimonials_data')) || [];
+
+        const deleteBtn = document.getElementById('deleteReviewBtn');
+        let found = storedTesti.find(t => t.accountKey && t.accountKey === accountKey);
+
+        if (found && deleteBtn) {
+            deleteBtn.style.display = 'inline-flex';
+        } else if (deleteBtn) {
+            deleteBtn.style.display = 'none';
+        }
+    }
+
+    function deleteUserTestimonial() {
+        if (!confirm("⚠️ Apakah Anda yakin ingin menghapus ulasan testimoni yang telah Anda kirim?")) {
+            return;
+        }
+
+        const accountKey = getActiveAccountIdentifier();
+        let storedTesti = JSON.parse(localStorage.getItem('KILAT_TESTIMONIALS') ||
+                                      localStorage.getItem('public_testimonials') ||
+                                      localStorage.getItem('testimonials_data')) || [];
+
+        // Filter keluar ulasan milik akun aktif
+        let filteredTesti = storedTesti.filter(t => !(t.accountKey && t.accountKey === accountKey));
+
+        localStorage.setItem('KILAT_TESTIMONIALS', JSON.stringify(filteredTesti));
+        localStorage.setItem('public_testimonials', JSON.stringify(filteredTesti));
+
+        alert("✅ Ulasan Anda berhasil dihapus dari sistem!");
+        location.reload();
+    }
+</script>
 
 <!-- JS Terpisah -->
 <script src="{{ asset('js/public.js') }}"></script>

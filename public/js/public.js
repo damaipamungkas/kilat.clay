@@ -19,15 +19,12 @@ function checkUserAuthentication() {
 
     // Jika berada di halaman testimoni tetapi belum login/terdaftar
     if (!currentUser && window.location.pathname.includes('testimoni')) {
-        // Cek data user dari database lokal admin users.blade jika tersedia
         let registeredUsers = JSON.parse(localStorage.getItem('KILAT_USERS') || localStorage.getItem('users_data') || '[]');
         if (registeredUsers.length > 0) {
-            // Gunakan user pertama atau arahkan login
             currentUser = registeredUsers[0];
             localStorage.setItem('KILAT_CURRENT_USER', JSON.stringify(currentUser));
         } else {
             alert("⚠️ Anda harus memiliki akun terdaftar untuk mengakses halaman Testimoni!");
-            // window.location.href = '/login'; // Sesuaikan route login jika diperlukan
         }
     }
 }
@@ -89,7 +86,6 @@ function initAdminCardEditor() {
     cards.forEach((card) => {
         card.style.position = 'relative';
 
-        // Tampilkan hanya jika role adalah Admin
         if (isAdmin) {
             let editBtn = card.querySelector('.btn-admin-edit-card');
             if (!editBtn) {
@@ -100,7 +96,7 @@ function initAdminCardEditor() {
                 card.appendChild(editBtn);
             }
 
-            editBtn.style.display = 'none';
+            editBtn.style.display = 'flex';
 
             editBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -184,7 +180,7 @@ function loadSavedCustomContent() {
     }
 }
 
-// --- 4. GALERI DINAMIS & CAROUSEL ---
+// --- 4. GALERI DINAMIS & CAROUSEL (Terintegrasi Server public/images) ---
 let galleryItems = [];
 let currentSlide = 0;
 
@@ -192,6 +188,8 @@ function loadDynamicGallery() {
     const wrapper = document.getElementById('carousel-wrapper');
     if (!wrapper) return;
 
+    // Ambil data dari variabel global server (jika ada), atau fallback ke localStorage & default
+    const serverImages = (window.SERVER_GALLERY_IMAGES && window.SERVER_GALLERY_IMAGES.length > 0) ? window.SERVER_GALLERY_IMAGES : [];
     const customImages = JSON.parse(localStorage.getItem('KILAT_GALLERY_IMAGES')) ||
                          JSON.parse(localStorage.getItem('public_images_gallery')) ||
                          JSON.parse(localStorage.getItem('KILAT_CUSTOM_GALLERY')) || [];
@@ -200,14 +198,21 @@ function loadDynamicGallery() {
         '1000887257.png', '1000887258.png', '1000887259.png', '1000887261.png', '1000887274.png'
     ];
 
-    const activeImages = customImages.length > 0 ? customImages : defaultImages;
+    let activeImages = [];
+    if (serverImages.length > 0) {
+        activeImages = serverImages;
+    } else if (customImages.length > 0) {
+        activeImages = customImages;
+    } else {
+        activeImages = defaultImages;
+    }
 
     wrapper.innerHTML = '';
     activeImages.forEach((imgSrc, index) => {
         const item = document.createElement('div');
         item.className = 'carousel-item';
         item.setAttribute('onclick', `jumpToSlide(${index})`);
-        item.innerHTML = `<img src="${imgSrc}" alt="Galeri KILAT ${index + 1}">`;
+        item.innerHTML = `<img src="${imgSrc}" alt="Galeri KILAT ${index + 1}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1565992441121-4367c2967103?auto=format&fit=crop&w=600&q=80'">`;
         wrapper.appendChild(item);
     });
 
@@ -465,7 +470,6 @@ function initTestimonialForm() {
     const inputNama = document.getElementById('nama');
     const submitBtn = document.querySelector('#testimoniForm button[type="submit"]') || document.querySelector('#testimoniForm .submit-btn');
 
-    // Dapatkan akun aktif saat ini
     let currentUser = JSON.parse(localStorage.getItem('KILAT_CURRENT_USER') ||
                                 localStorage.getItem('kilat_user_data') || 'null');
 
@@ -478,12 +482,10 @@ function initTestimonialForm() {
 
     const accountIdentifier = currentUser ? (currentUser.username || currentUser.email || currentUser.name || currentUser.nama || 'default_user') : 'default_user';
 
-    // Otomatis isi nama berdasarkan user aktif
     if (inputNama && currentUser) {
         inputNama.value = currentUser.name || currentUser.nama || '';
     }
 
-    // Cek apakah akun ini sudah pernah mengirimkan ulasan
     let existingTesti = JSON.parse(localStorage.getItem('KILAT_TESTIMONIALS') ||
                                   localStorage.getItem('public_testimonials') ||
                                   localStorage.getItem('testimonials_data')) || [];
@@ -502,7 +504,6 @@ function initTestimonialForm() {
         5: "5 / 5 (Sempurna)"
     };
 
-    // Jika sudah pernah memberi ulasan, muat data sebelumnya ke form untuk diedit
     if (userExistingIndex !== -1) {
         const prevReview = existingTesti[userExistingIndex];
         currentRating = Number(prevReview.rating || 5);
@@ -510,7 +511,6 @@ function initTestimonialForm() {
         if (document.getElementById('pesan')) document.getElementById('pesan').value = prevReview.message || '';
         if (document.getElementById('message')) document.getElementById('message').value = prevReview.message || '';
 
-        // Nyalakan bintang sesuai rating sebelumnya
         stars.forEach(s => {
             const starVal = parseInt(s.getAttribute('data-val'));
             if (starVal <= currentRating) s.classList.add('active');
@@ -595,10 +595,8 @@ function initTestimonialForm() {
             };
 
             if (targetIndex !== -1) {
-                // Update / Ganti ulasan yang sudah ada
                 updatedTesti[targetIndex] = reviewPayload;
             } else {
-                // Tambahkan ulasan baru jika belum pernah
                 updatedTesti.unshift(reviewPayload);
             }
 

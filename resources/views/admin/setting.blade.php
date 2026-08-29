@@ -70,10 +70,10 @@
             <!-- MANAJEMEN GALERI BERANDA -->
             <div class="settings-card">
                 <h3><i class="fa-solid fa-images"></i> Manajemen Galeri Beranda</h3>
-                <p style="font-size: 0.9rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">Pilih dan unggah maksimal 20 foto sekaligus untuk galeri carousel di halaman Beranda (`public/images`).</p>
+                <p style="font-size: 0.9rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">Pilih dan unggah maksimal 10 foto sekaligus untuk galeri carousel di halaman Beranda (`public/images`).</p>
 
                 <div class="form-group">
-                    <label>Pilih File Gambar (Maks. 20 Foto)</label>
+                    <label>Pilih File Gambar (Maks. 10 Foto)</label>
                     <input type="file" id="galleryImageInput" class="clay-input" accept="image/*" multiple onchange="previewGalleryImages(event)" style="padding: 10px;">
                 </div>
 
@@ -81,7 +81,17 @@
                     <div id="previewGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px;"></div>
                 </div>
 
-                <button class="btn-clay" onclick="uploadAndSaveGalleryImages()"><i class="fa-solid fa-cloud-arrow-up"></i> Tambah ke Galeri Beranda</button>
+                <!-- Indikator Loading & Status Upload Galeri -->
+                <div id="galleryUploadStatus" style="display: none; margin-bottom: 15px; padding: 12px 15px; background: var(--bg-main); border-radius: 12px; box-shadow: var(--clay-shadow-inset); font-size: 0.85rem; font-weight: 800; color: var(--text-dark);">
+                    <div id="galleryStatusText" style="margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-spinner fa-spin" style="color: var(--sidebar-bg);"></i> Mengunggah foto ke server...
+                    </div>
+                    <div style="width: 100%; background: rgba(0,0,0,0.08); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div id="galleryProgressBar" style="width: 0%; height: 100%; background: var(--sidebar-bg); transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <button id="uploadGalleryBtn" class="btn-clay" onclick="uploadAndSaveGalleryImages()"><i class="fa-solid fa-cloud-arrow-up"></i> Tambah ke Galeri Beranda</button>
             </div>
 
             <!-- PENGATURAN ASISTEN AI KILAT -->
@@ -108,7 +118,7 @@
 
             <!-- BASIS PENGETAHUAN TAMBAHAN AI -->
             <div class="settings-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(59, 130, 246, 0.05)); border: 2px dashed rgba(16, 185, 129, 0.3);">
-                <h3><i class="fa-solid fa-book-open" style="color: #10b981;"></i> Basis Pengetahuan Tambahan AI (Knowledge Base / WA History)</h3>
+                <h3><i class="fa-solid fa-book-open" style="color: #10b981;"></i> Basis Pengetahuan Tambahan AI (Knowledge Base)</h3>
                 <p style="font-size: 0.9rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">Tempel catatan riwayat chat WhatsApp, transkrip informasi, atau unggah file dokumen referensi agar AI dapat mempelajarinya.</p>
 
                 <form onsubmit="event.preventDefault(); saveAiKnowledgeBase();">
@@ -137,19 +147,19 @@
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
 
-                    <!-- 1. Backup SQL Resmi & Terarah -->
+                    <!-- 1. Backup SQL Otomatis & Terarah (Generate ke Histori) -->
                     <div style="background: var(--clay-green); box-shadow: var(--clay-shadow-btn); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 8px;">
                                 <i class="fa-solid fa-file-arrow-down" style="color: #50b054;"></i> Backup Database (SQL)
                             </h4>
                             <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">
-                                Unduh struktur dan data seluruh tabel database sistem secara aman ke format file `.sql`.
+                                Generate dan simpan backup seluruh data web (akun, keuangan, absensi, appendix, testimoni) ke histori & unduh file `.sql`.
                             </p>
                         </div>
-                        <a href="{{ route('admin.setting.sql-backup') }}" class="btn-clay" style="text-decoration: none; text-align: center; display: inline-block;">
-                            <i class="fa-solid fa-download"></i> Download SQL Backup
-                        </a>
+                        <button type="button" onclick="generateAndSaveSqlBackup()" class="btn-clay" style="cursor: pointer; text-align: center; border: none; width: 100%;">
+                            <i class="fa-solid fa-download"></i> Download & Generate SQL Backup
+                        </button>
                     </div>
 
                     <!-- 2. Upload / Restore Data SQL -->
@@ -190,7 +200,7 @@
                     <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-clock-rotate-left" style="color: var(--sidebar-bg);"></i> Histori Riwayat Aktivitas Sistem
                     </h4>
-                    <div id="backupHistoryList" style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                    <div id="backupHistoryList" style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
                         <!-- Daftar histori backup dirender dinamis via JS -->
                     </div>
                 </div>
@@ -348,7 +358,6 @@
 
             categoriesToDelete.forEach(cat => {
                 if (cat === 'users') {
-                    // Hapus seluruh cache LocalStorage terkait user secara menyeluruh
                     localStorage.removeItem('manageUsersData');
                     localStorage.removeItem('KILAT_USERS');
                     localStorage.removeItem('KILAT_USERS_LIST');
@@ -360,7 +369,6 @@
                     localStorage.removeItem('user');
                     localStorage.removeItem('users');
 
-                    // Bersihkan seluruh kunci dinamis KILAT_BIO_, KILAT_DB_, dll di localStorage
                     Object.keys(localStorage).forEach(key => {
                         if (key.includes('KILAT_BIO_') || key.includes('KILAT_DB_') || key.includes('KILAT_SPEED_') || key.includes('KILAT_PROFIL_') || key.includes('KILAT_YOUTUBE_') || key.includes('KILAT_HISTORI_') || key.toLowerCase().includes('user')) {
                             localStorage.removeItem(key);
@@ -394,7 +402,6 @@
                 }
             });
 
-            // Jika kategori users dihapus, arahkan juga untuk membersihkan Session Storage & Cookie autentikasi browser
             if (categoriesToDelete.includes('users')) {
                 sessionStorage.clear();
             }
@@ -404,15 +411,15 @@
             location.reload();
         };
 
-        let selectedGalleryFilesBase64 = [];
+        let selectedGalleryFiles = [];
 
         function previewGalleryImages(event) {
             const files = Array.from(event.target.files);
             const container = document.getElementById('imagePreviewContainer');
             const grid = document.getElementById('previewGrid');
 
-            if (files.length > 20) {
-                alert('Maksimal hanya dapat memilih 20 gambar sekaligus!');
+            if (files.length > 10) {
+                alert('Maksimal hanya dapat memilih 10 gambar sekaligus!');
                 event.target.value = '';
                 container.style.display = 'none';
                 return;
@@ -421,12 +428,11 @@
             if (files.length > 0) {
                 container.style.display = 'block';
                 grid.innerHTML = '';
-                selectedGalleryFilesBase64 = [];
+                selectedGalleryFiles = files;
 
                 files.forEach((file) => {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        selectedGalleryFilesBase64.push(e.target.result);
                         grid.innerHTML += `
                             <div style="position: relative;">
                                 <img src="${e.target.result}" style="width: 100%; height: 70px; object-fit: cover; border-radius: 8px; box-shadow: var(--clay-shadow-btn);">
@@ -437,37 +443,165 @@
                 });
             } else {
                 container.style.display = 'none';
+                selectedGalleryFiles = [];
             }
         }
 
+        // --- FUNGSI UPLOAD KE FOLDER SERVER (public/images) VIA LARAVEL ---
         function uploadAndSaveGalleryImages() {
-            if (selectedGalleryFilesBase64.length === 0) {
-                alert('Silakan pilih minimal 1 gambar terlebih dahulu!');
+            if (selectedGalleryFiles.length === 0) {
+                alert('⚠️ Silakan pilih minimal 1 gambar terlebih dahulu!');
                 return;
             }
 
-            let existingGallery = JSON.parse(localStorage.getItem('KILAT_GALLERY_IMAGES')) || [];
-            let combinedGallery = [...selectedGalleryFilesBase64, ...existingGallery];
+            const totalFiles = selectedGalleryFiles.length;
+            const estimatedSeconds = Math.max(1, Math.ceil(totalFiles * 0.8));
 
-            localStorage.setItem('KILAT_GALLERY_IMAGES', JSON.stringify(combinedGallery));
-            localStorage.setItem('public_images_gallery', JSON.stringify(combinedGallery));
+            const statusContainer = document.getElementById('galleryUploadStatus');
+            const statusText = document.getElementById('galleryStatusText');
+            const progressBar = document.getElementById('galleryProgressBar');
+            const uploadBtn = document.getElementById('uploadGalleryBtn');
 
-            alert(`${selectedGalleryFilesBase64.length} foto berhasil diunggah dan disimpan ke galeri Beranda!`);
+            statusContainer.style.display = 'block';
+            uploadBtn.disabled = true;
+            uploadBtn.style.opacity = '0.6';
+            uploadBtn.style.cursor = 'not-allowed';
 
-            document.getElementById('galleryImageInput').value = '';
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            selectedGalleryFilesBase64 = [];
+            let currentProgress = 0;
+            statusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: var(--sidebar-bg);"></i> Mengunggah ${totalFiles} foto ke server... (Estimasi waktu: ± ${estimatedSeconds} detik)`;
+            progressBar.style.width = '20%';
+
+            let formData = new FormData();
+            for (let i = 0; i < selectedGalleryFiles.length; i++) {
+                formData.append('images[]', selectedGalleryFiles[i]);
+            }
+
+            let intervalTime = (estimatedSeconds * 1000) / 7;
+            let progressInterval = setInterval(() => {
+                currentProgress += 12;
+                if (currentProgress > 85) currentProgress = 85;
+                progressBar.style.width = currentProgress + '%';
+            }, intervalTime);
+
+            // Kirim request ke backend route Laravel
+            fetch("{{ route('admin.gallery.upload') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+
+                if (data.success) {
+                    statusText.innerHTML = `<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Berhasil mengunggah ${totalFiles} foto ke public/images!`;
+                    setTimeout(() => {
+                        alert('✅ ' + data.message);
+
+                        // Reset input file & bersihkan preview agar siap upload baru
+                        document.getElementById('galleryImageInput').value = '';
+                        document.getElementById('imagePreviewContainer').style.display = 'none';
+                        document.getElementById('previewGrid').innerHTML = '';
+                        selectedGalleryFiles = [];
+
+                        statusContainer.style.display = 'none';
+                        progressBar.style.width = '0%';
+                        uploadBtn.disabled = false;
+                        uploadBtn.style.opacity = '1';
+                        uploadBtn.style.cursor = 'pointer';
+                    }, 400);
+                } else {
+                    throw new Error(data.message || 'Gagal menyimpan ke server');
+                }
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                console.error(error);
+                statusText.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #ff6b81;"></i> Gagal mengunggah foto ke server!`;
+                alert('❌ Gagal mengunggah foto ke folder public/images server.');
+                uploadBtn.disabled = false;
+                uploadBtn.style.opacity = '1';
+                uploadBtn.style.cursor = 'pointer';
+            });
         }
 
         function getBackupHistories() {
             return JSON.parse(localStorage.getItem('KILAT_BACKUP_HISTORIES')) || [
-                { id: 1, name: 'backup_kilat_database.sql', date: '10 Agu 2026, 11:20', type: 'SQL' }
+                { id: 1, name: 'backup_kilat_database.sql', date: '10 Agu 2026, 11:20', type: 'SQL', data: '' }
             ];
         }
 
         function saveBackupHistories(histories) {
             localStorage.setItem('KILAT_BACKUP_HISTORIES', JSON.stringify(histories));
             renderBackupHistory();
+        }
+
+        function generateAndSaveSqlBackup() {
+            let allDataObj = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key !== 'KILAT_BACKUP_HISTORIES') {
+                    allDataObj[key] = localStorage.getItem(key);
+                }
+            }
+
+            let sqlContent = `-- KILAT SEKOLAH SEPATU RODA - FULL DATABASE BACKUP\n`;
+            sqlContent += `-- Generated at: ${new Date().toISOString()}\n\n`;
+            sqlContent += `BEGIN TRANSACTION;\n\n`;
+
+            for (let key in allDataObj) {
+                let val = allDataObj[key].replace(/'/g, "''");
+                sqlContent += `INSERT OR REPLACE INTO local_storage (key, value) VALUES ('${key}', '${val}');\n`;
+            }
+
+            sqlContent += `\nCOMMIT;\n`;
+
+            let dateObj = new Date();
+            let dateStrFormatted = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            let timeStrFormatted = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            let fileName = `backup_kilat_database_${dateObj.getTime()}.sql`;
+
+            const blob = new Blob([sqlContent], { type: 'text/sql;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            let histories = getBackupHistories();
+            histories.unshift({
+                id: Date.now(),
+                name: fileName,
+                date: `${dateStrFormatted}, ${timeStrFormatted}`,
+                type: 'SQL FULL BACKUP',
+                data: sqlContent
+            });
+            saveBackupHistories(histories);
+
+            alert("✅ Berhasil! Seluruh data sistem (Akun, Keuangan, Absensi, Appendix, Testimoni, dll) berhasil di-generate ke file SQL dan ditambahkan ke Histori Aktivitas.");
+        }
+
+        function downloadHistoryItem(id) {
+            let histories = getBackupHistories();
+            let item = histories.find(h => h.id === id);
+            if (!item || !item.data) {
+                alert("⚠️ Data backup isi file SQL tidak ditemukan pada histori ini.");
+                return;
+            }
+
+            const blob = new Blob([item.data], { type: 'text/sql;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', item.name);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function renderBackupHistory() {
@@ -483,15 +617,22 @@
             }
 
             histories.forEach((item) => {
+                let downloadBtnHtml = item.data ? `
+                    <button onclick="downloadHistoryItem(${item.id})" class="btn-action-mini" title="Download SQL" style="background:#10b981; color:white; border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.75rem;">
+                        <i class="fa-solid fa-download"></i> Download
+                    </button>
+                ` : '';
+
                 container.innerHTML += `
-                    <div style="background: var(--bg-main); padding: 10px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--clay-shadow-btn);">
+                    <div style="background: var(--bg-main); padding: 10px 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--clay-shadow-btn); gap: 10px; flex-wrap: wrap;">
                         <div>
                             <strong style="color: var(--text-dark);">${item.name}</strong>
                             <div style="font-size: 0.75rem; color: var(--text-gray);">${item.date} (${item.type})</div>
                         </div>
-                        <div>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            ${downloadBtnHtml}
                             <button onclick="deleteHistoryItem(${item.id})" class="btn-action-mini" title="Hapus" style="background:#ff6b81; color:white; border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.75rem;">
-                                <i class="fa-solid fa-trash"></i> Hapus Riwayat
+                                <i class="fa-solid fa-trash"></i> Hapus
                             </button>
                         </div>
                     </div>
@@ -500,7 +641,7 @@
         }
 
         function deleteHistoryItem(id) {
-            if (confirm('Yakin ingin menghapus riwayat ini?')) {
+            if (confirm('Yakin ingin menghapus riwayat ini dari daftar?')) {
                 let histories = getBackupHistories();
                 histories = histories.filter(h => h.id !== id);
                 saveBackupHistories(histories);
@@ -516,15 +657,33 @@
                 try {
                     let content = e.target.result;
                     if (file.name.endsWith('.sql')) {
+                        let lines = content.split('\n');
+                        let restoredCount = 0;
+                        lines.forEach(line => {
+                            if (line.includes('INSERT OR REPLACE INTO local_storage')) {
+                                try {
+                                    let match = line.match(/VALUES \('([^']+)',\s*'([^']*)'\);/);
+                                    if (match && match[1] && match[2] !== undefined) {
+                                        let k = match[1];
+                                        let v = match[2].replace(/''/g, "'");
+                                        localStorage.setItem(k, v);
+                                        restoredCount++;
+                                    }
+                                } catch(ex) {}
+                            }
+                        });
+
                         localStorage.setItem('KILAT_RAW_SQL_RESTORE', content);
-                        alert('✅ File backup SQL berhasil diunggah dan diterapkan ke sistem!');
+                        alert(`✅ File backup SQL berhasil diunggah dan dipulihkan (${restoredCount} entri data dimuat)!`);
 
                         let histories = getBackupHistories();
+                        let dateObj = new Date();
                         histories.unshift({
                             id: Date.now(),
                             name: file.name,
-                            date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
-                            type: 'RESTORE SQL'
+                            date: `${dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}, ${dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`,
+                            type: 'RESTORE SQL',
+                            data: content
                         });
                         saveBackupHistories(histories);
                         location.reload();

@@ -17,7 +17,13 @@ class AthleteController extends Controller
      */
     public function index()
     {
-        $athletes = User::where('role', 'atlet')->get();
+        $athletes = User::where('role', 'LIKE', '%atlet%')->get();
+
+        // Cek jika request dari AJAX / API atau halaman absensi / admin
+        if (request()->wantsJson() || request()->is('api/*') || request()->routeIs('admin.absence*')) {
+            return response()->json($athletes);
+        }
+
         return view('admin.athletes.index', compact('athletes'));
     }
 
@@ -52,7 +58,8 @@ class AthleteController extends Controller
                     'role'       => 'atlet',
                     'status'     => $validated['status'] ?? 'Aktif',
                     'wa'         => $validated['wa'] ?? null,
-                    'kelas'      => $validated['kelas'] ?? 'PEMULA',
+                    'kelas'      => $validated['kelas'] ?? 'Pemula',
+                    'group'      => $validated['kelas'] ?? 'Pemula',
                     'parentName' => $validated['parent'] ?? null,
                 ]
             );
@@ -62,7 +69,7 @@ class AthleteController extends Controller
                 $parentNameInput = trim($validated['parent']);
 
                 // Cari akun parent berdasarkan name, namaLengkap, atau email
-                $parentUser = User::where('role', 'parent')
+                $parentUser = User::where('role', 'LIKE', '%parent%')
                     ->where(function($q) use ($parentNameInput) {
                         $q->where('name', 'LIKE', "%{$parentNameInput}%")
                           ->orWhere('namaLengkap', 'LIKE', "%{$parentNameInput}%")
@@ -121,7 +128,9 @@ class AthleteController extends Controller
                 'namaLengkap' => $request->fullName,
                 'password' => Hash::make($request->password ?? 'password123'),
                 'role' => 'atlet',
-                'status' => 'Aktif'
+                'status' => 'Aktif',
+                'kelas' => $request->kelas ?? 'Pemula',
+                'group' => $request->kelas ?? 'Pemula'
             ]
         );
 
@@ -134,7 +143,7 @@ class AthleteController extends Controller
     public function updateRequest(Request $request, $id)
     {
         // Logika pemrosesan permintaan edit atlet
-        $athlete = User::where('role', 'atlet')->findOrFail($id);
+        $athlete = User::where('role', 'LIKE', '%atlet%')->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -147,7 +156,7 @@ class AthleteController extends Controller
      */
     public function destroy($id)
     {
-        $athlete = User::where('role', 'atlet')->where('id', $id)->first();
+        $athlete = User::where('role', 'LIKE', '%atlet%')->where('id', $id)->first();
 
         if ($athlete) {
             $athlete->delete();
