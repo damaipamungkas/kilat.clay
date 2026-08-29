@@ -121,14 +121,159 @@
         <div class="logo-box">
             KILAT⚡ <br><span style="font-size: 0.65rem; font-weight:800; color:var(--text-muted);">&copy; 2026 - Kediri Inline Skate School</span>
         </div>
-        <div>Sistem Database v.2.0</div>
+        <!-- Tombol Rahasia SQL Restore di Footer (Gaya disamakan persis dengan footer standar) -->
+        <div>
+            <button type="button" onclick="openRestorePasswordModalDirect()" style="background: none; border: none; padding: 0; font-family: inherit; font-size: 0.80rem; font-weight: 800; color: var(--text-muted); cursor: pointer; text-decoration: none;" title="Sistem Database v.2.0">
+                Sistem Database v.2.0
+            </button>
+        </div>
     </footer>
+</div>
+
+<!-- Modal Input File & Password Saat Restore File SQL (Rahasia Footer) -->
+<input type="file" id="uploadFileBackup" accept=".sql" style="display:none;" onchange="handleRestoreFilePrompt(event)">
+
+<div id="restorePasswordModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(42, 34, 69, 0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 999999; padding: 15px;">
+    <div style="background: #2a2245; width: 100%; max-width: 420px; border-radius: 30px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);">
+        <div style="text-align: center; margin-bottom: 15px;">
+            <i class="fa-solid fa-key" style="font-size: 2.3rem; color: #ff6b81; margin-bottom: 10px;"></i>
+            <h2 style="font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: 5px;">Verifikasi Sandi File SQL</h2>
+            <p style="font-size: 0.85rem; color: #a0aec0; font-weight: 700;" id="restoreFileNameLabel">Pilih file backup .sql terkunci yang ingin dipulihkan.</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="font-size: 0.85rem; font-weight: 800; color: #fff; display: block; margin-bottom: 6px;">Kata Sandi File</label>
+            <input type="password" id="restoreInputPassword" placeholder="Masukkan sandi..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: #fff; outline: none; font-size: 0.9rem;">
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="button" onclick="closeRestorePasswordModal()" style="background: rgba(255,255,255,0.1); color: #a0aec0; flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer;">Batal</button>
+            <button type="button" onclick="verifyAndExecuteRestore()" style="background: #6366f1; color: white; flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer;">Buka & Pulihkan</button>
+        </div>
+    </div>
 </div>
 
 <div class="skate-scroll-track" id="skateTrack"></div>
 <div class="skate-scroll-thumb" id="skateThumb" title="Tarik untuk scroll"></div>
 
-<!-- Menggunakan Script JS Bawaan Laravel Standard, Hapus onsubmit JS kustom agar form murni POST -->
+<!-- Skrip JavaScript untuk Restore Database SQL ber-Password -->
+<script>
+    let pendingRestoreContent = '';
+    let pendingRestoreFileName = '';
+
+    function openRestorePasswordModalDirect() {
+        document.getElementById('uploadFileBackup').click();
+    }
+
+    function handleRestoreFilePrompt(event) {
+        let file = event.target.files[0];
+        if (!file) return;
+
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            pendingRestoreContent = e.target.result;
+            pendingRestoreFileName = file.name;
+            document.getElementById('restoreFileNameLabel').innerText = `File "${file.name}" terkunci. Masukkan sandi untuk membukanya.`;
+            document.getElementById('restoreInputPassword').value = '';
+            document.getElementById('restorePasswordModal').style.display = 'flex';
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    function closeRestorePasswordModal() {
+        document.getElementById('restorePasswordModal').style.display = 'none';
+        pendingRestoreContent = '';
+        pendingRestoreFileName = '';
+    }
+
+    function b58DecodeWithPassword(encoded, password) {
+        try {
+            let decoded = decodeURIComponent(atob(encoded));
+            let parts = decoded.split("::KILAT::");
+            if (parts.length < 2) return null;
+            if (parts[0] !== password) return null; // Sandi salah
+            return parts.slice(1).join("::KILAT::");
+        } catch(e) {
+            return null;
+        }
+    }
+
+    function verifyAndExecuteRestore() {
+        let password = document.getElementById('restoreInputPassword').value;
+        if (!password) {
+            alert("⚠️ Harap masukkan kata sandi file!");
+            return;
+        }
+
+        try {
+            let content = pendingRestoreContent;
+            let encodedPayload = '';
+
+            let lines = content.split('\n');
+            lines.forEach(line => {
+                if (line.includes('INSERT OR REPLACE INTO secure_storage') || line.includes('INSERT OR REPLACE INTO local_storage')) {
+                    try {
+                        let match = line.match(/VALUES \('([^']+)',\s*'([^']*)'\);/);
+                        if (match && match[1] && match[2] !== undefined) {
+                            if (match[1] === 'kilat_secured_payload') {
+                                encodedPayload = match[2];
+                            }
+                        }
+                    } catch(ex) {}
+                }
+            });
+
+            if (encodedPayload) {
+                let decryptedJson = b58DecodeWithPassword(encodedPayload, password);
+                if (!decryptedJson) {
+                    alert("❌ Kata sandi salah atau file rusak!");
+                    return;
+                }
+
+                let dataObj = JSON.parse(decryptedJson);
+                let count = 0;
+                for (let k in dataObj) {
+                    localStorage.setItem(k, dataObj[k]);
+                    count++;
+                }
+
+                closeRestorePasswordModal();
+                alert(`✅ Sandi benar! Database berhasil dipulihkan (${count} entri data dimuat).`);
+                location.reload();
+                return;
+            }
+
+            // Fallback jika file SQL versi lama tanpa enkripsi password
+            let restoredCount = 0;
+            lines.forEach(line => {
+                if (line.includes('INSERT OR REPLACE INTO local_storage')) {
+                    try {
+                        let match = line.match(/VALUES \('([^']+)',\s*'([^']*)'\);/);
+                        if (match && match[1] && match[2] !== undefined) {
+                            localStorage.setItem(match[1], match[2].replace(/''/g, "'"));
+                            restoredCount++;
+                        }
+                    } catch(ex) {}
+                }
+            });
+
+            if (restoredCount > 0) {
+                closeRestorePasswordModal();
+                alert(`✅ File backup lama berhasil dipulihkan (${restoredCount} entri data dimuat)!`);
+                location.reload();
+            } else {
+                alert("❌ Sandi salah atau struktur file SQL tidak dikenali.");
+            }
+
+        } catch(err) {
+            console.error(err);
+            alert('❌ Gagal memproses pemulihan data.');
+        }
+    }
+</script>
+
+<!-- Script JS Bawaan Auth -->
 <script src="{{ asset('js/auth.js') }}"></script>
 </body>
 </html>

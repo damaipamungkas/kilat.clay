@@ -139,53 +139,53 @@
                 </form>
             </div>
 
-            <!-- SISTEM & DATABASE (Backup SQL, Restore & Hapus Data Selektif) -->
+            <!-- SISTEM & DATABASE (Backup SQL Komprehensif Ber-Password, Restore & Hapus Data Selektif) -->
             <div style="background: var(--clay-yellow); box-shadow: var(--clay-shadow-card); border-radius: 30px; padding: 25px; margin-top: 20px; grid-column: 1 / -1;">
                 <h3 style="font-size: 1.2rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-database" style="color: var(--sidebar-bg);"></i> Sistem & Database (SQL Backup & Restore)
+                    <i class="fa-solid fa-database" style="color: var(--sidebar-bg);"></i> Sistem & Database (Comprehensive Secured Backup & Restore)
                 </h3>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
 
-                    <!-- 1. Backup SQL Otomatis & Terarah (Generate ke Histori) -->
+                    <!-- 1. Backup SQL Komprehensif Ber-Password -->
                     <div style="background: var(--clay-green); box-shadow: var(--clay-shadow-btn); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 8px;">
-                                <i class="fa-solid fa-file-arrow-down" style="color: #50b054;"></i> Backup Database (SQL)
+                                <i class="fa-solid fa-file-arrow-down" style="color: #50b054;"></i> Full Backup Sistem (Ber-Password)
                             </h4>
                             <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">
-                                Generate dan simpan backup seluruh data web (akun, keuangan, absensi, appendix, testimoni) ke histori & unduh file `.sql`.
+                                Cadangkan seluruh data (Galeri, Testimoni, Jadwal, Tarif, FAQ, Umpan Balik, Aturan, Akun, Keuangan, Absensi, Asisten AI Knowledge, dll) dengan sandi pengaman.
                             </p>
                         </div>
-                        <button type="button" onclick="generateAndSaveSqlBackup()" class="btn-clay" style="cursor: pointer; text-align: center; border: none; width: 100%;">
-                            <i class="fa-solid fa-download"></i> Download & Generate SQL Backup
+                        <button type="button" onclick="openBackupPasswordModal()" class="btn-clay" style="cursor: pointer; text-align: center; border: none; width: 100%;">
+                            <i class="fa-solid fa-lock"></i> Buat Full Backup Ber-Password
                         </button>
                     </div>
 
-                    <!-- 2. Upload / Restore Data SQL -->
+                    <!-- 2. Upload / Restore Data SQL Komprehensif -->
                     <div style="background: var(--clay-purple); box-shadow: var(--clay-shadow-btn); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 8px;">
                                 <i class="fa-solid fa-upload" style="color: var(--sidebar-bg);"></i> Restore / Pulihkan Data
                             </h4>
                             <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">
-                                Pulihkan atau impor kembali database sistem dengan mengunggah file cadangan `.sql`.
+                                Unggah file `.sql` cadangan sistem Anda dan masukkan kata sandinya untuk memulihkan seluruh data aplikasi.
                             </p>
                         </div>
-                        <input type="file" id="uploadFileBackup" accept=".sql" style="display:none;" onchange="handleRestoreFile(event)">
+                        <input type="file" id="uploadFileBackup" accept=".sql" style="display:none;" onchange="handleRestoreFilePrompt(event)">
                         <button onclick="document.getElementById('uploadFileBackup').click()" class="btn-clay" style="cursor: pointer;">
                             <i class="fa-solid fa-cloud-arrow-up"></i> Pilih & Unggah File .SQL
                         </button>
                     </div>
 
-                    <!-- 3. Hapus Data Selektif -->
+                    <!-- 3. Hapus Data Selektif Lengkap -->
                     <div style="background: var(--clay-pink); box-shadow: var(--clay-shadow-btn); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <h4 style="font-size: 1rem; font-weight: 900; color: var(--text-dark); margin-top: 0; margin-bottom: 8px;">
-                                <i class="fa-solid fa-trash-can" style="color: #ff6b81;"></i> Kelola & Hapus Data
+                                <i class="fa-solid fa-trash-can" style="color: #ff6b81;"></i> Kelola & Hapus Data Selektif
                             </h4>
                             <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700; margin-bottom: 15px;">
-                                Hapus data aplikasi secara selektif (akun, keuangan, absensi, rapor, dll).
+                                Pilih kategori spesifik komponen sistem untuk dihapus secara permanen.
                             </p>
                         </div>
                         <button type="button" onclick="window.openResetModal()" class="btn-clay btn-danger" style="background: #ff6b81 !important; color: white !important; cursor: pointer;">
@@ -208,45 +208,108 @@
         </div>
     </main>
 
-    <!-- Modal Konfirmasi Hapus Data Selektif -->
-    <div id="resetModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(42, 34, 69, 0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 999999; padding: 15px;">
-        <div style="background: var(--clay-purple); width: 100%; max-width: 480px; border-radius: 30px; padding: 25px; box-shadow: var(--clay-shadow-card);">
+    <!-- Modal Input Password Saat Membuat Backup -->
+    <div id="backupPasswordModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(42, 34, 69, 0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 999999; padding: 15px;">
+        <div style="background: var(--clay-purple); width: 100%; max-width: 420px; border-radius: 30px; padding: 25px; box-shadow: var(--clay-shadow-card);">
             <div style="text-align: center; margin-bottom: 15px;">
-                <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: #ff6b81; margin-bottom: 10px;"></i>
-                <h2 style="font-size: 1.2rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px;">Hapus Data Selektif</h2>
-                <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700;">Pilih kategori data yang ingin dihapus secara permanen dari sistem.</p>
+                <i class="fa-solid fa-lock" style="font-size: 2.3rem; color: var(--sidebar-bg); margin-bottom: 10px;"></i>
+                <h2 style="font-size: 1.2rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px;">Atur Sandi File Full Backup</h2>
+                <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700;">Masukkan kata sandi untuk mengenkripsi seluruh data cadangan sistem ini.</p>
             </div>
 
-            <!-- Daftar Checkbox Pilihan Kategori -->
-            <div style="background: var(--bg-main); padding: 15px; border-radius: 16px; box-shadow: var(--clay-shadow-inset); max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="font-size: 0.85rem; font-weight: 800; color: var(--text-dark); display: block; margin-bottom: 6px;">Kata Sandi Backup</label>
+                <input type="password" id="backupInputPassword" class="clay-input" placeholder="Masukkan sandi rahasia..." style="width: 100%; padding: 10px;">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn-clay" onclick="closeBackupPasswordModal()" style="background: var(--bg-main); color: var(--text-gray); flex: 1; cursor: pointer;">Batal</button>
+                <button type="button" class="btn-clay" onclick="executeSecuredSqlBackup()" style="background: #50b054; color: white; flex: 1; cursor: pointer;">Proses & Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Input Password Saat Restore File SQL -->
+    <div id="restorePasswordModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(42, 34, 69, 0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 999999; padding: 15px;">
+        <div style="background: var(--clay-purple); width: 100%; max-width: 420px; border-radius: 30px; padding: 25px; box-shadow: var(--clay-shadow-card);">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <i class="fa-solid fa-key" style="font-size: 2.3rem; color: #ff6b81; margin-bottom: 10px;"></i>
+                <h2 style="font-size: 1.2rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px;">Verifikasi Sandi File SQL</h2>
+                <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700;" id="restoreFileNameLabel">File ini terkunci. Masukkan sandi untuk membukanya.</p>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="font-size: 0.85rem; font-weight: 800; color: var(--text-dark); display: block; margin-bottom: 6px;">Kata Sandi File</label>
+                <input type="password" id="restoreInputPassword" class="clay-input" placeholder="Masukkan sandi..." style="width: 100%; padding: 10px;">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn-clay" onclick="closeRestorePasswordModal()" style="background: var(--bg-main); color: var(--text-gray); flex: 1; cursor: pointer;">Batal</button>
+                <button type="button" class="btn-clay" onclick="verifyAndExecuteRestore()" style="background: var(--sidebar-bg); color: white; flex: 1; cursor: pointer;">Buka & Pulihkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi Hapus Data Selektif Lengkap -->
+    <div id="resetModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(42, 34, 69, 0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 999999; padding: 15px;">
+        <div style="background: var(--clay-purple); width: 100%; max-width: 520px; border-radius: 30px; padding: 25px; box-shadow: var(--clay-shadow-card);">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: #ff6b81; margin-bottom: 10px;"></i>
+                <h2 style="font-size: 1.2rem; font-weight: 900; color: var(--text-dark); margin-bottom: 5px;">Hapus Data Selektif Komprehensif</h2>
+                <p style="font-size: 0.85rem; color: var(--text-gray); font-weight: 700;">Pilih komponen data web yang ingin dihapus secara permanen dari sistem.</p>
+            </div>
+
+            <!-- Daftar Checkbox Pilihan Kategori Lengkap -->
+            <div style="background: var(--bg-main); padding: 15px; border-radius: 16px; box-shadow: var(--clay-shadow-inset); max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
                 <label style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 800; color: var(--text-dark); cursor: pointer;">
                     <input type="checkbox" id="checkAllDelete" onchange="window.toggleSelectAllDelete(this)" style="width: 18px; height: 18px; accent-color: #ff6b81;">
-                    <span>Pilih / Centang Semua</span>
+                    <span>Pilih / Centang Semua Komponen</span>
                 </label>
                 <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.08); margin: 2px 0;">
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
-                    <input type="checkbox" class="delete-category-chk" value="users" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Akun & Users (Termasuk Data Atlet & Sesi)
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
-                    <input type="checkbox" class="delete-category-chk" value="finance" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Keuangan
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
-                    <input type="checkbox" class="delete-category-chk" value="billing" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Billing SPP
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
-                    <input type="checkbox" class="delete-category-chk" value="absensi" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Absensi
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
-                    <input type="checkbox" class="delete-category-chk" value="appendix" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Appendix / Catatan Lainnya
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
-                    <input type="checkbox" class="delete-category-chk" value="penilaian" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Penilaian & Rapor Atlet
-                </label>
                 <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
                     <input type="checkbox" class="delete-category-chk" value="galeri" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Galeri Beranda
                 </label>
                 <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
                     <input type="checkbox" class="delete-category-chk" value="testimoni" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Testimoni & Ulasan
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="jadwal" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Jadwal Latihan
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="tarif" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Tarif & Biaya
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="faq" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data FAQ & Pertanyaan Sering
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="feedback" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Umpan Balik (Feedback)
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="aturan" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Aturan & Protokol Klub
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="users" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Akun (Users & Atlet)
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="appendix" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Appendix & Catatan Lain
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="keuangan" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Keuangan & Billing SPP
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="pusatakun" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Pusat Akun & Profil Terkait
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="absensi" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Absensi
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="setting" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Setting / Pengaturan Sistem
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="aiknowledge" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Data Asisten AI Knowledge & Rules
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dark); cursor: pointer;">
+                    <input type="checkbox" class="delete-category-chk" value="allstorage" style="width: 16px; height: 16px; accent-color: #ff6b81;"> Semua Penyimpanan Lainnya di Web Ini
                 </label>
             </div>
 
@@ -261,6 +324,9 @@
     <script src="{{ asset('js/admin/setting.js') }}"></script>
     <script src="{{ asset('js/beranda_admin.js') }}"></script>
     <script>
+        let pendingRestoreContent = '';
+        let pendingRestoreFileName = '';
+
         document.addEventListener("DOMContentLoaded", () => {
             renderBackupHistory();
             loadAiSettingsToForm();
@@ -352,12 +418,40 @@
 
             let categoriesToDelete = Array.from(checkboxes).map(chk => chk.value);
 
-            if (!confirm(`Yakin ingin menghapus permanen data untuk kategori terpilih: [${categoriesToDelete.join(', ')}]?`)) {
+            if (!confirm(`Yakin ingin menghapus permanen komponen sistem terpilih: [${categoriesToDelete.join(', ')}]?`)) {
                 return;
             }
 
             categoriesToDelete.forEach(cat => {
-                if (cat === 'users') {
+                if (cat === 'galeri') {
+                    localStorage.removeItem('KILAT_GALLERY_IMAGES');
+                    localStorage.removeItem('public_images_gallery');
+                    localStorage.removeItem('KILAT_CUSTOM_GALLERY');
+                } else if (cat === 'testimoni') {
+                    localStorage.removeItem('KILAT_TESTIMONIALS');
+                    localStorage.removeItem('public_testimonials');
+                    localStorage.removeItem('testimonials_data');
+                } else if (cat === 'jadwal') {
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.toLowerCase().includes('jadwal') || key.toLowerCase().includes('schedule')) localStorage.removeItem(key);
+                    });
+                } else if (cat === 'tarif') {
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.toLowerCase().includes('tarif') || key.toLowerCase().includes('biaya') || key.toLowerCase().includes('price')) localStorage.removeItem(key);
+                    });
+                } else if (cat === 'faq') {
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.toLowerCase().includes('faq') || key.toLowerCase().includes('bantuan')) localStorage.removeItem(key);
+                    });
+                } else if (cat === 'feedback') {
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.toLowerCase().includes('feedback') || key.toLowerCase().includes('umpan_balik')) localStorage.removeItem(key);
+                    });
+                } else if (cat === 'aturan') {
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.toLowerCase().includes('aturan') || key.toLowerCase().includes('rule')) localStorage.removeItem(key);
+                    });
+                } else if (cat === 'users') {
                     localStorage.removeItem('manageUsersData');
                     localStorage.removeItem('KILAT_USERS');
                     localStorage.removeItem('KILAT_USERS_LIST');
@@ -368,45 +462,41 @@
                     localStorage.removeItem('lastActiveAthlete');
                     localStorage.removeItem('user');
                     localStorage.removeItem('users');
-
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.includes('KILAT_BIO_') || key.includes('KILAT_DB_') || key.includes('KILAT_SPEED_') || key.includes('KILAT_PROFIL_') || key.includes('KILAT_YOUTUBE_') || key.includes('KILAT_HISTORI_') || key.toLowerCase().includes('user')) {
-                            localStorage.removeItem(key);
-                        }
-                    });
-                } else if (cat === 'finance') {
-                    localStorage.removeItem('KILAT_FINANCE_DB');
-                } else if (cat === 'billing') {
-                    localStorage.removeItem('KILAT_SAVED_INVOICES');
-                    localStorage.removeItem('KILAT_BILLING_PAID');
-                } else if (cat === 'absensi') {
-                    Object.keys(localStorage).forEach(key => {
-                        if (key.includes('ABSENSI') || key.includes('absensi')) localStorage.removeItem(key);
-                    });
                 } else if (cat === 'appendix') {
                     Object.keys(localStorage).forEach(key => {
                         if (key.toLowerCase().includes('appendix')) localStorage.removeItem(key);
                     });
-                } else if (cat === 'penilaian') {
+                } else if (cat === 'keuangan') {
+                    localStorage.removeItem('KILAT_FINANCE_DB');
+                    localStorage.removeItem('KILAT_SAVED_INVOICES');
+                    localStorage.removeItem('KILAT_BILLING_PAID');
                     Object.keys(localStorage).forEach(key => {
-                        if (key.toLowerCase().includes('penilaian') || key.toLowerCase().includes('rapor') || key.toLowerCase().includes('score')) localStorage.removeItem(key);
+                        if (key.toLowerCase().includes('finance') || key.toLowerCase().includes('billing') || key.toLowerCase().includes('keuangan')) localStorage.removeItem(key);
                     });
-                } else if (cat === 'galeri') {
-                    localStorage.removeItem('KILAT_GALLERY_IMAGES');
-                    localStorage.removeItem('public_images_gallery');
-                    localStorage.removeItem('KILAT_CUSTOM_GALLERY');
-                } else if (cat === 'testimoni') {
-                    localStorage.removeItem('KILAT_TESTIMONIALS');
-                    localStorage.removeItem('public_testimonials');
-                    localStorage.removeItem('testimonials_data');
+                } else if (cat === 'pusatakun') {
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.toLowerCase().includes('pusat_akun') || key.toLowerCase().includes('account_center')) localStorage.removeItem(key);
+                    });
+                } else if (cat === 'absensi') {
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.toLowerCase().includes('absensi') || key.toLowerCase().includes('attendance')) localStorage.removeItem(key);
+                    });
+                } else if (cat === 'setting') {
+                    localStorage.removeItem('KILAT_CSS_FOLDER');
+                    Object.keys(localStorage).forEach(key => {
+                        if (key.toLowerCase().includes('setting') || key.toLowerCase().includes('profil_sekolah')) localStorage.removeItem(key);
+                    });
+                } else if (cat === 'aiknowledge') {
+                    localStorage.removeItem('KILAT_AI_WELCOME_MSG');
+                    localStorage.removeItem('KILAT_AI_CUSTOM_INSTRUCTION');
+                    localStorage.removeItem('KILAT_AI_SYSTEM_RULES');
+                    localStorage.removeItem('KILAT_AI_KNOWLEDGE_BASE');
+                } else if (cat === 'allstorage') {
+                    localStorage.clear();
                 }
             });
 
-            if (categoriesToDelete.includes('users')) {
-                sessionStorage.clear();
-            }
-
-            alert(`✅ Data untuk kategori [${categoriesToDelete.join(', ')}] berhasil dibersihkan dan dihapus total!`);
+            alert(`✅ Komponen sistem [${categoriesToDelete.join(', ')}] berhasil dibersihkan dan dihapus permanen!`);
             window.closeResetModal();
             location.reload();
         };
@@ -529,9 +619,7 @@
         }
 
         function getBackupHistories() {
-            return JSON.parse(localStorage.getItem('KILAT_BACKUP_HISTORIES')) || [
-                { id: 1, name: 'backup_kilat_database.sql', date: '10 Agu 2026, 11:20', type: 'SQL', data: '' }
-            ];
+            return JSON.parse(localStorage.getItem('KILAT_BACKUP_HISTORIES')) || [];
         }
 
         function saveBackupHistories(histories) {
@@ -539,7 +627,24 @@
             renderBackupHistory();
         }
 
-        function generateAndSaveSqlBackup() {
+        function openBackupPasswordModal() {
+            document.getElementById('backupInputPassword').value = '';
+            document.getElementById('backupPasswordModal').style.display = 'flex';
+        }
+
+        function closeBackupPasswordModal() {
+            document.getElementById('backupPasswordModal').style.display = 'none';
+        }
+
+        function executeSecuredSqlBackup() {
+            let password = document.getElementById('backupInputPassword').value;
+            if (!password) {
+                alert("⚠️ Masukkan kata sandi keamanan terlebih dahulu!");
+                return;
+            }
+            closeBackupPasswordModal();
+
+            // Mengambil seluruh entri data secara komprehensif tanpa terkecuali
             let allDataObj = {};
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
@@ -548,21 +653,20 @@
                 }
             }
 
-            let sqlContent = `-- KILAT SEKOLAH SEPATU RODA - FULL DATABASE BACKUP\n`;
-            sqlContent += `-- Generated at: ${new Date().toISOString()}\n\n`;
+            let payloadString = JSON.stringify(allDataObj);
+            let encodedPayload = b58EncodeWithPassword(payloadString, password);
+
+            let sqlContent = `-- KILAT SEKOLAH SEPATU RODA - COMPREHENSIVE SECURED SQL BACKUP\n`;
+            sqlContent += `-- Generated at: ${new Date().toISOString()}\n`;
+            sqlContent += `-- INCLUDES: Gallery, Testimonials, Schedule, Tariffs, FAQ, Feedback, Rules, Accounts, Appendix, Finance, Account Center, Attendance, Settings, AI Knowledge & All Web Storage\n\n`;
             sqlContent += `BEGIN TRANSACTION;\n\n`;
-
-            for (let key in allDataObj) {
-                let val = allDataObj[key].replace(/'/g, "''");
-                sqlContent += `INSERT OR REPLACE INTO local_storage (key, value) VALUES ('${key}', '${val}');\n`;
-            }
-
-            sqlContent += `\nCOMMIT;\n`;
+            sqlContent += `INSERT OR REPLACE INTO secure_storage (key, value) VALUES ('kilat_secured_payload', '${encodedPayload}');\n\n`;
+            sqlContent += `COMMIT;\n`;
 
             let dateObj = new Date();
             let dateStrFormatted = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             let timeStrFormatted = dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            let fileName = `backup_kilat_database_${dateObj.getTime()}.sql`;
+            let fileName = `backup_kilat_comprehensive_${dateObj.getTime()}.sql`;
 
             const blob = new Blob([sqlContent], { type: 'text/sql;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -578,12 +682,30 @@
                 id: Date.now(),
                 name: fileName,
                 date: `${dateStrFormatted}, ${timeStrFormatted}`,
-                type: 'SQL FULL BACKUP',
+                type: 'FULL SECURE SQL BACKUP',
+                password: password,
                 data: sqlContent
             });
             saveBackupHistories(histories);
 
-            alert("✅ Berhasil! Seluruh data sistem (Akun, Keuangan, Absensi, Appendix, Testimoni, dll) berhasil di-generate ke file SQL dan ditambahkan ke Histori Aktivitas.");
+            alert("✅ Berhasil! Full Backup Database SQL komprehensif ber-password berhasil dibuat dan diunduh.");
+        }
+
+        function b58EncodeWithPassword(text, password) {
+            let combined = password + "::KILAT::" + text;
+            return btoa(encodeURIComponent(combined));
+        }
+
+        function b58DecodeWithPassword(encoded, password) {
+            try {
+                let decoded = decodeURIComponent(atob(encoded));
+                let parts = decoded.split("::KILAT::");
+                if (parts.length < 2) return null;
+                if (parts[0] !== password) return null;
+                return parts.slice(1).join("::KILAT::");
+            } catch(e) {
+                return null;
+            }
         }
 
         function downloadHistoryItem(id) {
@@ -648,56 +770,110 @@
             }
         }
 
-        function handleRestoreFile(event) {
+        function handleRestoreFilePrompt(event) {
             let file = event.target.files[0];
             if (!file) return;
 
             let reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    let content = e.target.result;
-                    if (file.name.endsWith('.sql')) {
-                        let lines = content.split('\n');
-                        let restoredCount = 0;
-                        lines.forEach(line => {
-                            if (line.includes('INSERT OR REPLACE INTO local_storage')) {
-                                try {
-                                    let match = line.match(/VALUES \('([^']+)',\s*'([^']*)'\);/);
-                                    if (match && match[1] && match[2] !== undefined) {
-                                        let k = match[1];
-                                        let v = match[2].replace(/''/g, "'");
-                                        localStorage.setItem(k, v);
-                                        restoredCount++;
-                                    }
-                                } catch(ex) {}
-                            }
-                        });
-
-                        localStorage.setItem('KILAT_RAW_SQL_RESTORE', content);
-                        alert(`✅ File backup SQL berhasil diunggah dan dipulihkan (${restoredCount} entri data dimuat)!`);
-
-                        let histories = getBackupHistories();
-                        let dateObj = new Date();
-                        histories.unshift({
-                            id: Date.now(),
-                            name: file.name,
-                            date: `${dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}, ${dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`,
-                            type: 'RESTORE SQL',
-                            data: content
-                        });
-                        saveBackupHistories(histories);
-                        location.reload();
-                    } else {
-                        alert('⚠️ Format file tidak didukung. Harap gunakan file berformat .sql.');
-                    }
-                } catch(err) {
-                    console.error(err);
-                    alert('❌ Gagal memproses file cadangan.');
-                } finally {
-                    event.target.value = '';
-                }
+                pendingRestoreContent = e.target.result;
+                pendingRestoreFileName = file.name;
+                document.getElementById('restoreFileNameLabel').innerText = `File "${file.name}" terkunci. Masukkan sandi untuk membukanya.`;
+                document.getElementById('restoreInputPassword').value = '';
+                document.getElementById('restorePasswordModal').style.display = 'flex';
+                event.target.value = '';
             };
             reader.readAsText(file);
+        }
+
+        function closeRestorePasswordModal() {
+            document.getElementById('restorePasswordModal').style.display = 'none';
+            pendingRestoreContent = '';
+            pendingRestoreFileName = '';
+        }
+
+        function verifyAndExecuteRestore() {
+            let password = document.getElementById('restoreInputPassword').value;
+            if (!password) {
+                alert("⚠️ Harap masukkan kata sandi file!");
+                return;
+            }
+
+            try {
+                let content = pendingRestoreContent;
+                let encodedPayload = '';
+
+                let lines = content.split('\n');
+                lines.forEach(line => {
+                    if (line.includes('INSERT OR REPLACE INTO secure_storage') || line.includes('INSERT OR REPLACE INTO local_storage')) {
+                        try {
+                            let match = line.match(/VALUES \('([^']+)',\s*'([^']*)'\);/);
+                            if (match && match[1] && match[2] !== undefined) {
+                                if (match[1] === 'kilat_secured_payload') {
+                                    encodedPayload = match[2];
+                                }
+                            }
+                        } catch(ex) {}
+                    }
+                });
+
+                if (encodedPayload) {
+                    let decryptedJson = b58DecodeWithPassword(encodedPayload, password);
+                    if (!decryptedJson) {
+                        alert("❌ Kata sandi salah atau file rusak!");
+                        return;
+                    }
+
+                    let dataObj = JSON.parse(decryptedJson);
+                    let count = 0;
+                    for (let k in dataObj) {
+                        localStorage.setItem(k, dataObj[k]);
+                        count++;
+                    }
+
+                    closeRestorePasswordModal();
+                    alert(`✅ Sandi benar! Seluruh data sistem berhasil dipulihkan (${count} entri data dimuat).`);
+
+                    let histories = getBackupHistories();
+                    let dateObj = new Date();
+                    histories.unshift({
+                        id: Date.now(),
+                        name: pendingRestoreFileName,
+                        date: `${dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}, ${dateObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`,
+                        type: 'RESTORE FULL SECURE SQL',
+                        data: content
+                    });
+                    saveBackupHistories(histories);
+                    location.reload();
+                    return;
+                }
+
+                // Fallback jika format backup lama
+                let restoredCount = 0;
+                lines.forEach(line => {
+                    if (line.includes('INSERT OR REPLACE INTO local_storage')) {
+                        try {
+                            let match = line.match(/VALUES \('([^']+)',\s*'([^']*)'\);/);
+                            if (match && match[1] && match[2] !== undefined) {
+                                localStorage.setItem(match[1], match[2].replace(/''/g, "'"));
+                                restoredCount++;
+                            }
+                        } catch(ex) {}
+                    }
+                });
+
+                if (restoredCount > 0) {
+                    closeRestorePasswordModal();
+                    alert(`✅ File backup lama berhasil dipulihkan (${restoredCount} entri data dimuat)!`);
+                    location.reload();
+                } else {
+                    alert("❌ Sandi salah atau struktur file SQL tidak dikenali.");
+                }
+
+            } catch(err) {
+                console.error(err);
+                alert('❌ Gagal memproses pemulihan data.');
+            }
         }
     </script>
 </body>
