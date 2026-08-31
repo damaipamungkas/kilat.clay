@@ -519,7 +519,7 @@
             <!-- 1. SPP Bulanan (Otomatis dari Billing) -->
             <div class="finance-card">
                 <div class="finance-card-header">
-                    <div class="card-title-group"><div class="card-icon ic-bulanan"><i class="fa-solid fa-calendar-check"></i></div><h3>SPP Bulanan (Otomatis)</h3></div>
+                    <div class="card-title-group"><div class="card-icon ic-bulanan"><i class="fa-solid fa-calendar-check"></i></div><h3>SPP Bulanan</h3></div>
                     <div style="display: flex; gap: 6px;">
                         <button class="btn-input-arus" style="background: var(--text-white); font-size: 0.75rem; padding: 5px 8px;" onclick="ubahNominalDefault('bulanan')" title="Ubah Nominal Default Bulanan"><i class="fa-solid fa-coins"></i>Nominal Default</button>
                         <button class="btn-input-arus" onclick="openBulananModal()"><i class="fa-solid fa-plus"></i> Input Manual</button>
