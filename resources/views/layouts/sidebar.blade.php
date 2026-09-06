@@ -47,7 +47,7 @@
     </ul>
 
     <!-- Perbaikan: Mengubah route('appendix') menjadi route('appendix.index') -->
-    <a href="{{ route('appendix1') }}" class="sidebar-appendix-box {{ request()->routeIs('appendix1') ? 'active' : '' }}">
+    <a href="{{ route('appendix') }}" class="sidebar-appendix-box {{ request()->routeIs('appendix') ? 'active' : '' }}">
         <i class="fa-solid fa-book"></i>
         <span>Appendix</span>
     </a>
